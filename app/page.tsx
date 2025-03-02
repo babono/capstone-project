@@ -1,101 +1,275 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useSession, signOut } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import Image from "next/image"
+import logoMicron from "../public/logo-micron.svg"
+import spinner from "../public/ic-spinner.svg"
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart } from 'recharts';
+import { format } from 'date-fns';
+
+const data260 = [
+  { date: '2025-01-01', demand: 4000, supplies: 2400, prediction: null },
+  { date: '2025-02-01', demand: 3000, supplies: 1398, prediction: null },
+  { date: '2025-03-01', demand: 2000, supplies: 9800, prediction: null },
+  { date: '2025-04-01', demand: 2780, supplies: 3908, prediction: null },
+  { date: '2025-05-01', demand: 1890, supplies: 4800, prediction: null },
+  { date: '2025-06-01', demand: 2390, supplies: 3800, prediction: null },
+  { date: '2025-07-01', demand: 4290, supplies: null, prediction: 4200 },
+];
+
+const data453 = [
+  { date: '2025-01-01', demand: 5000, supplies: 3900, prediction: null },
+  { date: '2025-02-01', demand: 1300, supplies: 4200, prediction: null },
+  { date: '2025-03-01', demand: 700, supplies: 2700, prediction: null },
+  { date: '2025-04-01', demand: 2600, supplies: 2900, prediction: null },
+  { date: '2025-05-01', demand: 1783, supplies: 3900, prediction: null },
+  { date: '2025-06-01', demand: 3483, supplies: 2734, prediction: null },
+  { date: '2025-07-01', demand: 2320, supplies: null, prediction: 2320 },
+];
+
+const formattedData260 = data260.map(d => ({
+  ...d,
+  formattedDate: format(new Date(d.date), 'MMM yyyy')
+}));
+
+const formattedData453 = data453.map(d => ({
+  ...d,
+  formattedDate: format(new Date(d.date), 'MMM yyyy')
+}));
+
+const scoreOrPrediction = (data: { supplies: number | null; prediction: number | null }) => data.supplies !== null ? data.supplies : data.prediction;
+const defaultColor = "#3719D3";
+const lastIntervalPercent = ((data260.length - 2) * 100) / (data260.length - 1);
+
+const gradientTwoColors = (id: string | undefined, col1: string | undefined, col2: string | undefined, percentChange: number) => (
+  <linearGradient id={id} x1="0" y1="0" x2="100%">
+    <stop offset="0%" stopColor={col1} />
+    <stop offset={`${percentChange}%`} stopColor={col1} />
+    <stop offset={`${percentChange}%`} stopColor={col2} />
+    <stop offset="100%" stopColor={col2} />
+  </linearGradient>
+);
+
+const formatIfNumeric = (x: number) => (typeof x === 'number' ? x.toFixed() : x);
+
+const tooltipFormatter = (value: number | number[], name: string | string[]) => {
+  if (name.includes("noTooltip")) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.map(formatIfNumeric).join(" - ");
+  }
+  return `${formatIfNumeric(value)}`;
+};
+
+export default function HomePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [view] = useState('monthly')
+  const [filteredData260, setFilteredData260] = useState(formattedData260.filter(d => new Date(d.date).getDate() === 1))
+  const [filteredData453, setFilteredData453] = useState(formattedData453.filter(d => new Date(d.date).getDate() === 1))
+
+  useEffect(() => {
+    if (status === "loading") return // Do nothing while loading
+    if (!session) router.push("/login")
+  }, [session, status, router])
+
+  useEffect(() => {
+    if (view === 'monthly') {
+      setFilteredData260(formattedData260.filter(d => new Date(d.date).getDate() === 1))
+      setFilteredData453(formattedData453.filter(d => new Date(d.date).getDate() === 1))
+    } else {
+      setFilteredData260(formattedData260.filter(d => new Date(d.date).getDate() !== 1))
+      setFilteredData453(formattedData453.filter(d => new Date(d.date).getDate() !== 1))
+    }
+  }, [view])
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-dt-primary">
+        <Image src={spinner} alt="Loading..." width={100} height={100} className="animate-spin" />
+      </div>
+    )
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col min-h-screen bg-dt-primary text-white">
+      <header className="flex items-center justify-between p-4 bg-dt-secondary">
+        <div className="flex items-center">
+          <Image src={logoMicron} alt="Micron Logo" width={100} height={22} />
+          <div className="mx-3 w-0.5 h-6 bg-white mt-1"></div>
+          <h1 className="font-extrabold text-xl pt-1">SupplySense</h1>
+        </div>
+        <div className="flex items-center space-x-4">
+          <p>{session?.user?.email}</p>
+          <button
+            onClick={() => signOut()}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Sign Out
+          </button>
+        </div>
+      </header>
+      <main className="flex flex-col items-center justify-center flex-grow">
+        <h1 className="text-3xl mb-4 font-bold text-left w-full max-w-4xl">Dashboard</h1>
+        <div className="flex w-full max-w-4xl mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 mr-4">
+            <h2 className="text-2xl font-bold text-black">Overview Insights</h2>
+            <p className="text-gray-600">This section provides a high-level overview of the current supply and demand trends.</p>
+            <ul className="list-disc list-inside text-gray-600">
+              <li>For the next week, increase the supply of material group 260 to match the prediction.</li>
+              <li>For the next week, reduce the supply of material group 453 to match the prediction.</li>
+            </ul>
+          </div>
+          <div className="flex flex-col w-1/3 space-y-4">
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-black">Hot Material Group</h3>
+              <p className="text-gray-600">Material Group 260</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-black">Hot Supplier</h3>
+              <p className="text-gray-600">Supplier_6123820</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h3 className="text-xl font-bold text-black">Hot Site</h3>
+              <p className="text-gray-600">Site4</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-black">Supply Prediction for Material Groups 260</h2>
+            <p className="text-gray-600">This chart provides insights into the predicted supply requirements to meet the forecasted demand. It aims to minimize miscalculations and enhance operational efficiency.</p>
+          </div>
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart
+              data={filteredData260}
+              margin={{
+                top: 5, right: 30, left: 20, bottom: 5,
+              }}
+            >
+              <defs>
+                {gradientTwoColors(
+                  "hideAllButLastInterval",
+                  "rgba(0,0,0,0)",
+                  defaultColor,
+                  lastIntervalPercent
+                )}
+                {gradientTwoColors(
+                  "hideJustLastInterval",
+                  defaultColor,
+                  "rgba(0,0,0,0)",
+                  lastIntervalPercent
+                )}
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="formattedDate" />
+              <YAxis />
+              <Tooltip formatter={tooltipFormatter} wrapperStyle={{ color: 'black' }} />
+              <Line
+                name="Supplies"
+                type="monotone"
+                strokeDasharray="0 100"
+                dataKey="supplies"
+              />
+              <Line
+                name="Prediction"
+                type="monotone"
+                strokeDasharray="0 100"
+                dataKey="prediction"
+              />
+              <Line
+                name="line1_noTooltip"
+                type="monotone"
+                stroke="url(#hideJustLastInterval)"
+                dataKey={scoreOrPrediction}
+              />
+              <Line
+                name="line2_noTooltip"
+                type="monotone"
+                stroke="url(#hideAllButLastInterval)"
+                strokeDasharray="5 5"
+                dataKey={scoreOrPrediction}
+              />
+              <Line
+                name="Demand"
+                type="monotone"
+                strokeDasharray="3 3"
+                dataKey="demand"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mt-8">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-black">Supply Prediction for Material Groups 453</h2>
+            <p className="text-gray-600">This chart provides insights into the predicted supply requirements to meet the forecasted demand. It aims to minimize miscalculations and enhance operational efficiency.</p>
+          </div>
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart
+              data={filteredData453}
+              margin={{
+                top: 5, right: 30, left: 20, bottom: 5,
+              }}
+            >
+              <defs>
+                {gradientTwoColors(
+                  "hideAllButLastInterval",
+                  "rgba(0,0,0,0)",
+                  defaultColor,
+                  lastIntervalPercent
+                )}
+                {gradientTwoColors(
+                  "hideJustLastInterval",
+                  defaultColor,
+                  "rgba(0,0,0,0)",
+                  lastIntervalPercent
+                )}
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="formattedDate" />
+              <YAxis />
+              <Tooltip formatter={tooltipFormatter} wrapperStyle={{ color: 'black' }} />
+              <Line
+                name="Supplies"
+                type="monotone"
+                strokeDasharray="0 100"
+                dataKey="supplies"
+              />
+              <Line
+                name="Prediction"
+                type="monotone"
+                strokeDasharray="0 100"
+                dataKey="prediction"
+              />
+              <Line
+                name="line1_noTooltip"
+                type="monotone"
+                stroke="url(#hideJustLastInterval)"
+                dataKey={scoreOrPrediction}
+              />
+              <Line
+                name="line2_noTooltip"
+                type="monotone"
+                stroke="url(#hideAllButLastInterval)"
+                strokeDasharray="5 5"
+                dataKey={scoreOrPrediction}
+              />
+              <Line
+                name="Demand"
+                type="monotone"
+                strokeDasharray="3 3"
+                dataKey="demand"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      <footer className="flex items-center justify-center p-4 bg-dt-secondary text-white">
+        <p>Powered by Digital Trinity</p>
       </footer>
     </div>
-  );
+  )
 }
