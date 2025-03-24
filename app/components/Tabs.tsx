@@ -6,21 +6,21 @@ function Tabs() {
   const pathname = usePathname();
 
   return (
-    <div className="flex space-x-4 p-4 bg-dt-secondary text-white rounded-t-lg">
+    <div className="flex">
       <Link href="/">
-        <span className={`px-4 py-2 rounded ${pathname === '/' ? 'bg-dt-primary' : ''}`}>Overview</span>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Overview</div>
       </Link>
       <Link href="/material-consumption">
-        <span className={`px-4 py-2 rounded ${pathname === '/material-consumption' ? 'bg-dt-primary' : ''}`}>Material Consumption</span>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/material-consumption' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Material Consumption</div>
       </Link>
       <Link href="/order-placement">
-        <span className={`px-4 py-2 rounded ${pathname === '/order-placement' ? 'bg-dt-primary' : ''}`}>Order Placement</span>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/order-placement' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Order Placement</div>
       </Link>
       <Link href="/goods-receipt">
-        <span className={`px-4 py-2 rounded ${pathname === '/goods-receipt' ? 'bg-dt-primary' : ''}`}>Goods Receipt</span>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/goods-receipt' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Goods Receipt</div>
       </Link>
       <Link href="/lead-time">
-        <span className={`px-4 py-2 rounded ${pathname === '/lead-time' ? 'bg-dt-primary' : ''}`}>Lead Time</span>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/lead-time' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Lead Time</div>
       </Link>
     </div>
   );

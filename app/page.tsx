@@ -110,10 +110,10 @@ export default function HomePage() {
   }
 
   return (    
-    <main className="flex flex-col items-center justify-center flex-grow">
-      <h1 className="text-3xl mb-4 font-bold text-left w-full max-w-4xl">Dashboard</h1>
-      <div className="flex w-full max-w-4xl mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 mr-4">
+    <div className="flex flex-col items-center justify-center flex-grow">
+      <h1 className="text-3xl mb-4 font-bold text-left w-full">Dashboard</h1>
+      <div className="flex w-full mb-8">
+        <div className=" w-2/3 mr-4">
           <h2 className="text-2xl font-bold text-black">Overview Insights</h2>
           <p className="text-gray-600">This section provides a high-level overview of the current supply and demand trends.</p>
           <ul className="list-disc list-inside text-gray-600">
@@ -136,7 +136,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl">
+      <div className="w-full mt-8">
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-black">Supply Prediction for Material Groups 260</h2>
           <p className="text-gray-600">This chart provides insights into the predicted supply requirements to meet the forecasted demand. It aims to minimize miscalculations and enhance operational efficiency.</p>
@@ -200,7 +200,7 @@ export default function HomePage() {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mt-8">
+      <div className="w-full mt-8">
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-black">Supply Prediction for Material Groups 453</h2>
           <p className="text-gray-600">This chart provides insights into the predicted supply requirements to meet the forecasted demand. It aims to minimize miscalculations and enhance operational efficiency.</p>
@@ -264,7 +264,7 @@ export default function HomePage() {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mt-8">
+      <div className="w-full mt-8">
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-black">Generate Insights</h2>
           <p className="text-gray-600">Enter a prompt to generate insights using the AI model.</p>
@@ -289,6 +289,6 @@ export default function HomePage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }
