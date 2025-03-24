@@ -4,8 +4,7 @@ import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import logoMicron from "../public/logo-micron.svg"
-import spinner from "../public/ic-spinner.svg"
+import spinner from "../../public/ic-spinner.svg"
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart } from 'recharts';
 import { format } from 'date-fns';
 

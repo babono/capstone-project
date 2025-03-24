@@ -5,8 +5,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import ParticlesCanvas from "./particle"
 import Image from "next/image"
-import logoMicron from "../../public/logo-micron.svg"
-import logoDigitalTrinity from "../../public/logo-digital-trinity.svg"
+import logoMicron from "../../../public/logo-micron.svg"
+import logoDigitalTrinity from "../../../public/logo-digital-trinity.svg"
 
 export default function LoginPage() {
   const { data: session, status } = useSession()
