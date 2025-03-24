@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import spinner from "../../public/ic-spinner.svg"
+import iconDT from "../../public/ic-dt.svg"
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart } from 'recharts';
 import { format } from 'date-fns';
 
@@ -102,8 +102,8 @@ export default function HomePage() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-dt-primary">
-        <Image src={spinner} alt="Loading..." width={100} height={100} className="animate-spin" />
+      <div className="flex items-center justify-center min-h-screen">
+        <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
       </div>
     )
   }
