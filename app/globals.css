@@ -10,7 +10,5 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
   font-family: Roboto, Helvetica, sans-serif;
 }
