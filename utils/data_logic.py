@@ -1,7 +1,6 @@
 import pandas as pd
 from utils import consumption_utils
 from utils.utils import load_data_consumption
-# from . import data, consumption_utils, order_placement_utils, goods_receipt_utils, lead_time_analysis
 
 # Material Consumption Analysis File Uploader
 def material_consumption_upload(dataFrame: pd.DataFrame):
@@ -14,6 +13,8 @@ def material_consumption_upload(dataFrame: pd.DataFrame):
         for group in unique_groups:
             # Filter data for the current Material Group
             df_filtered = df[df['Material Group'].astype(str) == str(group)]
+
+            # TODO: Adjust the functions below to not using Streamlit and make it compatible with react
 
             # Run analysis functions in the correct order
             # df_more_filtered, top_n = consumption_utils.overall_consumption_patterns(df_filtered)
@@ -29,10 +30,10 @@ def material_consumption_upload(dataFrame: pd.DataFrame):
             return {
                 "code": 0,
                 "data": {
-                    "vendor_consumption_analysis": vendor_consumption_analysis,
-                    "location_consumption_analysis": location_consumption_analysis,
-                    "variability_analysis" : variability_analysis,
-                    "combined_analysis": combined_analysis,   
+                    **vendor_consumption_analysis,
+                    **location_consumption_analysis,
+                    **variability_analysis,
+                    **combined_analysis,
                 }
             }
 

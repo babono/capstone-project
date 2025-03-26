@@ -1,4 +1,4 @@
-# TODO: Remove Streamlit
+# TODO: Remove Streamlit from this code
 
 import pandas as pd
 import plotly.express as px
@@ -64,8 +64,6 @@ def overall_consumption_patterns(df, material_column='Material Number'):
     # Row 4: Top N Material Selection
     top_n = st.selectbox("Select Top N Materials", [5, 10, 15, 'All'], index=1)
 
-
-
     # -------------------------------------------------------------------
     # GRAPH 1 - Number of Transactions
     # -------------------------------------------------------------------
@@ -124,26 +122,6 @@ def overall_consumption_patterns(df, material_column='Material Number'):
 
     return df_filtered, top_n #Important, must return for the following code to work
 
-
-def detect_outliers_iqr(data):
-    """
-    Detects outliers in a pandas Series using the IQR method.
-
-    Args:
-        data: The input pandas Series.
-
-    Returns:
-        A pandas Series containing the outliers.
-    """
-    Q1 = data.quantile(0.25)
-    Q3 = data.quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    outliers = data[(data < lower_bound) | (data > upper_bound)]
-    return outliers
-
-
 def outlier_detection(df, top_n, material_column='Material Number'):
     """
     Detects and visualizes outliers, including percentiles and highlighting high/low usage.
@@ -189,10 +167,12 @@ def outlier_detection(df, top_n, material_column='Material Number'):
 
     # Box Plot for Outlier Visualization (Filtered & Sorted)
     fig_box = px.box(df_filtered, x=material_column, y='Quantity', title=f'Materials by Variance')
-    
-    st.plotly_chart(fig_box)
 
-    llm_reasoning.explain_box_plot_with_groq_consumption(df_filtered)
+    # Use Plotly Chart to Visualize
+    return {
+        'fig_box': fig_box.to_json(),
+        'llm_reasoning': llm_reasoning.explain_box_plot_with_groq_consumption(df_filtered),
+    }
 
 def specific_material_analysis(df, material_column='Material Number'):
     """
@@ -464,6 +444,26 @@ def shelf_life_analysis(df):
         st.write(infinite_shelf_life)
     else:
         st.write("No items with infinite shelf life in the selected data.")
+
+# Adjusted with the new API
+
+def detect_outliers_iqr(data):
+    """
+    Detects outliers in a pandas Series using the IQR method.
+
+    Args:
+        data: The input pandas Series.
+
+    Returns:
+        A pandas Series containing the outliers.
+    """
+    Q1 = data.quantile(0.25)
+    Q3 = data.quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outliers = data[(data < lower_bound) | (data > upper_bound)]
+    return outliers
 
 def vendor_consumption_analysis(df):
     """

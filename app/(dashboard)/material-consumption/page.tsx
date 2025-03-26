@@ -1,8 +1,6 @@
 // @ts-nocheck
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Chart } from 'react-chartjs-2';
-import Papa from 'papaparse';
 import axios from 'axios'; // For making API requests (install: npm install axios)
 import {
   FormControl,
@@ -16,6 +14,22 @@ import {
 import { DatePicker } from '@mui/x-date-pickers'; // Install Date Picker (npm install @mui/x-date-pickers @mui/lab date-fns)
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dynamic from 'next/dynamic'
+
+// Handle dynamic import for Plotly JS for Next.js
+const Plot = dynamic(
+  () =>
+    import("react-plotly.js").then(
+      (mod) =>
+        mod.default as React.ComponentType<{
+          data: any;
+          layout: any;
+          frames: any;
+          config: any;
+        }>
+    ),
+  { ssr: false }
+);
 
 export default function MaterialConsumption() {
   const [data, setData] = useState([]);
@@ -32,6 +46,9 @@ export default function MaterialConsumption() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // State to store Plotly figure data
+  const [plots, setPlots] = useState([]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -55,7 +72,7 @@ export default function MaterialConsumption() {
       setSelectedVendors(uniqueVendors); // Default selection
 
       // Initial Chart Generation (based on initial filters - which are "all")
-      generateCharts(data);
+      // generateCharts(data);
     }
   }, [data]);
 
@@ -75,8 +92,19 @@ export default function MaterialConsumption() {
           },
         });
 
-        setData(response.data); // Set the data from the API response
+
+        const figures = [];
+        for (const [key, value] of Object.entries(response.data.data))  {
+          console.log(key);
+          if (key.startsWith("fig_")) {
+            const parsedFigure = JSON.parse(value);
+            figures.push({ key, figure: parsedFigure });
+          }
+        }
+
+        setPlots(figures);
         setLoading(false);
+
       } catch (error) {
         console.error("Error uploading file:", error);
         setError(error.message); // Or more specific error info if available
@@ -181,6 +209,7 @@ export default function MaterialConsumption() {
       ],
     });
   };
+
   const handleApplyFilters = () => {
     generateCharts(data);
   };
@@ -192,6 +221,18 @@ export default function MaterialConsumption() {
 
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
+
+      {/* Conditionally render the Plotly JS component */}
+      {plots.map(({ key, figure }) => (
+        <div key={key} className="mt-4">
+          <Plot
+            data={figure.data}
+            layout={figure.layout}
+            frames={figure.frames}
+            config={figure.config}
+          />
+        </div>
+      ))}
 
       {data.length > 0 && (
         <div className="mt-2"> {/* Replaced Box with div and Tailwind class */}
@@ -274,20 +315,6 @@ export default function MaterialConsumption() {
           <Button variant="contained" color="primary" onClick={handleApplyFilters}>
             Apply Filters
           </Button>
-        </div>
-      )}
-
-      {transactionChartData && (
-        <div className="mt-4"> {/* Replaced Box with div and Tailwind class */}
-          <h2>Number of Transactions</h2>
-          <Chart type="bar" data={transactionChartData} />
-        </div>
-      )}
-
-      {consumptionChartData && (
-        <div className="mt-4"> {/* Replaced Box with div and Tailwind class */}
-          <h2>Overall Consumption</h2>
-          <Chart type="bar" data={consumptionChartData} />
         </div>
       )}
     </div>
