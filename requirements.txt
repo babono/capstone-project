@@ -1,20 +1,16 @@
-# App Related
-
+# API Related
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 python-multipart
 chardet
 
-# Backend Related
+# Data Calculation Related
 streamlit   # Need to be deleted
 pandas
 numpy
 matplotlib
-seaborn
 plotly
 statsmodels
-openpyxl
 groq
 xgboost
-scikit-learn
-statsmodels
+openpyxl

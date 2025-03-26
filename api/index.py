@@ -1,9 +1,10 @@
+import io
+import pandas as pd
+
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
-import io  # Import the io module explicitly
-from typing import List, Dict
-import chardet
+from typing import Dict, Union
+from utils import data_logic
 
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 
@@ -17,26 +18,21 @@ app.add_middleware(
 )
 
 @app.post("/api/py/upload")
-async def upload_csv(file: UploadFile = File(...)) -> List[Dict]:
+async def upload_excel(file: UploadFile = File(...)) -> Union[Dict, Dict[str, str]]:
     """
-    Endpoint to upload a CSV file, process it with pandas, and return the data as JSON.
+    Endpoint to upload an Excel file, process it with pandas, and return the data as JSON.
     """
     try:
         contents = await file.read()
 
-        # Detect the encoding
-        encoding_result = chardet.detect(contents)
-        encoding = encoding_result['encoding']
-        confidence = encoding_result['confidence']
+        # Read the Excel file into a pandas DataFrame
+        df = pd.read_excel(io.BytesIO(contents))
+        result = data_logic.material_consumption_upload(df)
 
-        if encoding:
-            decoded_contents = contents.decode(encoding)  # Use the detected encoding
-            df = pd.read_csv(io.StringIO(decoded_contents), encoding=encoding)
-            return df.to_dict(orient="records")
-        else:
-            return {"error": "Unable to detect file encoding."}
+        return result  # Ensure `result` is a dictionary
 
     except Exception as e:
+        # Return an error response as a dictionary
         return {"error": str(e)}
 
 @app.get("/api/py/helloFastApi")

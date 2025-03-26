@@ -1,8 +1,9 @@
 from groq import Groq
-import streamlit as st
+import utils as st
 import pandas as pd
 
-API_KEY = st.secrets["groq"]["API_KEY"]
+# TODO: Adjust the Secret Key into Proper Place
+API_KEY = "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"
 
 def explain_box_plot_with_groq_consumption(df, material_column="Material Number"):
     """
@@ -72,11 +73,18 @@ def explain_box_plot_with_groq_consumption(df, material_column="Material Number"
             model="llama-3.3-70b-versatile",
         )
 
-        explanation = chat_completion.choices[0].message.content
-        st.write(explanation)
+        # Modified to adjust with the custom React component handling
+        return {
+            "code": 0,
+            "data": chat_completion.choices[0].message.content
+        }
 
     except Exception as e:
-        st.error(f"Error during Groq API call: {e}")
+        # Modified to adjust with the custom React component handling
+        return {
+            "code": -1,
+            "data": f"Error during Groq API call: {e}"
+        }
 
 def explain_box_plot_with_groq_orderplacement(df, material_column="Material Number"):
     """
@@ -146,11 +154,18 @@ def explain_box_plot_with_groq_orderplacement(df, material_column="Material Numb
             model="llama-3.3-70b-versatile",
         )
 
-        explanation = chat_completion.choices[0].message.content
-        st.write(explanation)
+        # Modified to adjust with the custom React component handling
+        return {
+            "code": 0,
+            "data": chat_completion.choices[0].message.content
+        }
 
     except Exception as e:
-        st.error(f"Error during Groq API call: {e}")
+        # Modified to adjust with the custom React component handling
+        return {
+            "code": -1,
+            "data": f"Error during Groq API call: {e}"
+        }
 
 def explain_box_plot_with_groq_goods_receipt(df, material_column="Material Number"):
     """
@@ -220,8 +235,13 @@ def explain_box_plot_with_groq_goods_receipt(df, material_column="Material Numbe
             model="llama-3.3-70b-versatile",
         )
 
-        explanation = chat_completion.choices[0].message.content
-        st.write(explanation)
+        # Modified to adjust with the custom React component handling
+        return {
+            "llm_reasoning": chat_completion.choices[0].message.content
+        }
 
     except Exception as e:
-        st.error(f"Error during Groq API call: {e}")
+        # Modified to adjust with the custom React component handling
+        return {
+            "llm_reasoning": f"Error during Groq API call: {e}"
+        }
