@@ -8,8 +8,7 @@ import {
   Select,
   MenuItem,
   TextField,
-  Button,
-  Box,
+  Button,  
 } from '@mui/material';  // Install Material UI (npm install @mui/material)
 import { DatePicker } from '@mui/x-date-pickers'; // Install Date Picker (npm install @mui/x-date-pickers @mui/lab date-fns)
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -32,7 +31,7 @@ const Plot = dynamic(
 );
 
 export default function MaterialConsumption() {
-  const [data, setData] = useState([]);
+  const [data] = useState([]);
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
   const [vendors, setVendors] = useState([]);
@@ -40,9 +39,7 @@ export default function MaterialConsumption() {
   const [selectedSites, setSelectedSites] = useState([]);
   const [selectedVendors, setSelectedVendors] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
-  const [topN, setTopN] = useState(10);
-  const [transactionChartData, setTransactionChartData] = useState(null);
-  const [consumptionChartData, setConsumptionChartData] = useState(null);
+  const [topN, setTopN] = useState(10);  
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -153,7 +150,7 @@ export default function MaterialConsumption() {
     return filteredData;
   };
 
-  const generateCharts = (inputData) => {
+  const generateCharts = () => {
     // Filter data based on current filter settings
     const filteredData = filterData();
 

@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useDropzone } from "react-dropzone";
 import { Box, Typography, Select, MenuItem, FormControl, InputLabel, TextField } from "@mui/material";
@@ -54,10 +54,7 @@ export default function OrderPlacement() {
 
   const [plants, setPlants] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [vendors, setVendors] = useState([]);
-
-  const [insight, setInsight] = useState(""); // State to store the insight
-  const [loadingInsight, setLoadingInsight] = useState(false); // State to show loading
+  const [vendors, setVendors] = useState([]);  
 
   const handleUpload = async (selectedFile) => {
     if (!selectedFile) {
