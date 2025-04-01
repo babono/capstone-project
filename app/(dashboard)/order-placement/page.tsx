@@ -7,10 +7,13 @@ import { Box, Typography, Select, MenuItem, FormControl, InputLabel, TextField }
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import Image from "next/image"
+import iconDT from "../../../public/ic-dt.svg"
+import logoGemini from "../../../public/logo-gemini.svg"
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import TypeIt from "typeit-react";
-import html2canvas from "html2canvas"; // For capturing chart snapshots
-import ReactMarkdown from "react-markdown"; // Import react-markdown
+import ReactMarkdown from "react-markdown"; 
 
 // Handle dynamic import for Plotly JS for Next.js
 const Plot = dynamic(
@@ -28,15 +31,26 @@ const Plot = dynamic(
 );
 
 export default function OrderPlacement() {
+  // Existing states
   const [file, setFile] = useState(null);
-  const [plotData, setPlotData] = useState([]); // State to store API response
-  const [topN, setTopN] = useState(10); // State to store the number of top materials to display
+  const [plotData, setPlotData] = useState([]);
+  const [topN, setTopN] = useState(10);
   const [selectedPlants, setSelectedPlants] = useState([]);
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [selectedVendors, setSelectedVendors] = useState([]);
-  const [dateRange, setDateRange] = useState([null, null]); // State for selected date range
-  const [minDate, setMinDate] = useState(null); // Oldest date in the data
-  const [maxDate, setMaxDate] = useState(null); // Newest date in the data
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [minDate, setMinDate] = useState(null);
+  const [maxDate, setMaxDate] = useState(null);
+
+  // New states for insights and loading status for each plot
+  const [transactionsInsight, setTransactionsInsight] = useState("");
+  const [loadingTransactionsInsight, setLoadingTransactionsInsight] = useState(false);
+
+  const [orderPlacementInsight, setOrderPlacementInsight] = useState("");
+  const [loadingOrderPlacementInsight, setLoadingOrderPlacementInsight] = useState(false);
+
+  const [varianceInsight, setVarianceInsight] = useState("");
+  const [loadingVarianceInsight, setLoadingVarianceInsight] = useState(false);
 
   const [plants, setPlants] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -167,8 +181,8 @@ export default function OrderPlacement() {
     filteredData.some((topMaterial) => topMaterial["Material Number"] === material.materialNumber)
   );
 
-  const handleInterpret = async (chartId) => {
-    setLoadingInsight(true);
+  const handleInterpret = async (chartId, setLoading, setInsight) => {
+    setLoading(true);
     setInsight(""); // Clear previous insight
 
     try {
@@ -181,12 +195,11 @@ export default function OrderPlacement() {
 
       // Use Plotly's toImage function to generate a static image
       const imageData = await window.Plotly.toImage(chartElement, {
-        format: "png", // Image format (e.g., png, jpeg)
-        width: 800,    // Image width
-        height: 600,   // Image height
+        format: "png",
+        width: 800,
+        height: 600,
       });
 
-      // Convert imageData (data URL) to base64
       const base64Image = imageData.split(",")[1]; // Remove the data URL prefix
       console.log(base64Image);
 
@@ -202,26 +215,24 @@ export default function OrderPlacement() {
       });
 
       const data = await response.json();
-      console.log(data);
-
       setInsight(data.response || "No insight available.");
     } catch (error) {
       console.error("Error fetching insight:", error);
       setInsight("Failed to fetch insight. Please try again.");
     } finally {
-      setLoadingInsight(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Order Placement</h1>      
+      <h1 className="text-2xl font-bold mb-4">Order Placement</h1>
 
       {/* Dropzone for file upload */}
       <Box
         {...getRootProps()}
         sx={{
-          border: "2px dashed #1976d2",
+          border: "2px dashed #3719D3",
           borderRadius: "8px",
           padding: "48px 16px",
           textAlign: "center",
@@ -355,16 +366,39 @@ export default function OrderPlacement() {
               }}
             />
           </div>
-          <button
-            onClick={() => handleInterpret("transactions-chart")}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition"
-          >
-            Interpret
-          </button>
+          <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">            
+            {loadingTransactionsInsight && (
+              <div className="flex justify-center">
+                <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />
+              </div>
+          )}
+            {transactionsInsight && (
+                <>
+                  <h3 className="text-xl font-bold text-black">Generated Insight 
+                    <span className="pl-2 text-sm font-normal">by
+                      <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    </span>
+                  </h3>
+                  <TypeIt options={{ speed: 10, cursor: false }}>
+                    <ReactMarkdown>{transactionsInsight}</ReactMarkdown>
+                  </TypeIt>
+                  <br /><br />                  
+                </>
+            )}
+            <div className="flex justify-center">
+              <button
+                onClick={() => handleInterpret("transactions-chart", setLoadingTransactionsInsight, setTransactionsInsight)}
+                className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
+              >
+                <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
+              </button>
+            </div>
+          </div>
 
           <h2 className="mt-6 text-xl font-semibold">Overall Order Placement by Material Number</h2>
-          <div id="order-placement-chart">
+          <div>
             <Plot
+              divId="order-placement-chart"
               data={[
                 {
                   x: filteredData.map((item) => item["Material Number"]),
@@ -397,16 +431,42 @@ export default function OrderPlacement() {
               }}
             />
           </div>
-          <button
-            onClick={() => handleInterpret("order-placement-chart")}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition"
-          >
-            Interpret
-          </button>
+          <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
+            {loadingOrderPlacementInsight && (
+              <div className="flex justify-center">
+                <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />
+              </div>
+            )}
+            {orderPlacementInsight && (
+              <>
+                <h3 className="text-xl font-bold text-black">Generated Insight 
+                  <span className="pl-2 text-sm font-normal">by
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                  </span>
+                </h3>
+                <TypeIt options={{ speed: 10, cursor: false }}>
+                  <ReactMarkdown>{orderPlacementInsight}</ReactMarkdown>
+                </TypeIt>
+                <br />
+                <br />
+              </>
+            )}
+            <div className="flex justify-center">
+              <button
+                onClick={() =>
+                  handleInterpret("order-placement-chart", setLoadingOrderPlacementInsight, setOrderPlacementInsight)
+                }
+                className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
+              >
+                <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
+              </button>
+            </div>
+          </div>
 
           <h2 className="mt-6 text-xl font-semibold">Materials by Variance</h2>
-          <div id="variance-chart">
+          <div>
             <Plot
+              divId="variance-chart"
               data={filteredVarianceData.map((material) => ({
                 y: material.values,
                 name: material.materialNumber,
@@ -431,23 +491,37 @@ export default function OrderPlacement() {
               }}
             />
           </div>
-          <button
-            onClick={() => handleInterpret("variance-chart")}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition"
-          >
-            Interpret
-          </button>
-
-          {/* Insight Display */}
-          {loadingInsight && <p className="mt-4 text-gray-600">Fetching insight...</p>}
-          {insight && (
-            <div className="mt-4 bg-white p-4 rounded-lg shadow-lg">
-              <h3 className="text-xl font-bold text-black">Generated Insight</h3>
-              <TypeIt options={{ speed: 50 }}>
-                <ReactMarkdown>{insight}</ReactMarkdown>
-              </TypeIt>
+          <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
+            {loadingVarianceInsight && (
+              <div className="flex justify-center">
+                <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />
+              </div>
+            )}
+            {varianceInsight && (
+              <>
+                <h3 className="text-xl font-bold text-black">Generated Insight 
+                  <span className="pl-2 text-sm font-normal">by
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                  </span>
+                </h3>
+                <TypeIt options={{ speed: 10, cursor: false }}>
+                  <ReactMarkdown>{varianceInsight}</ReactMarkdown>
+                </TypeIt>
+                <br />
+                <br />
+              </>
+            )}
+            <div className="flex justify-center">
+              <button
+                onClick={() =>
+                  handleInterpret("variance-chart", setLoadingVarianceInsight, setVarianceInsight)
+                }
+                className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
+              >
+                <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
+              </button>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>

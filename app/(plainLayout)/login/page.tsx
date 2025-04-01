@@ -11,8 +11,8 @@ import logoDigitalTrinity from "../../../public/logo-digital-trinity.svg"
 export default function LoginPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [email, setEmail] = useState("admin@digitaltrinity.com")
-  const [password, setPassword] = useState("capstone2025")
+  const [email, setEmail] = useState("demo@digitaltrinity.com")
+  const [password, setPassword] = useState("Capstone2025!")
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
