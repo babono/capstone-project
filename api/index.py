@@ -38,3 +38,28 @@ async def upload_excel(file: UploadFile = File(...)) -> Union[Dict, Dict[str, st
 @app.get("/api/py/helloFastApi")
 def hello_fast_api():
     return {"message": "Hello from FastAPI"}
+
+@app.post("/api/py/uploadExcel")
+async def upload_file(file: UploadFile):
+    contents = await file.read()
+    data = pd.read_excel(io.BytesIO(contents))
+    data = data.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    data.columns = data.columns.str.strip()
+    data['Order Quantity'] = pd.to_numeric(data['Order Quantity'], errors='coerce')
+    return data.to_dict(orient="records")
+
+@app.post("/api/py/filter/")
+async def filter_data(data: list, filters: dict):
+    df = pd.DataFrame(data)
+    if "plants" in filters:
+        df = df[df["Plant"].isin(filters["plants"])]
+    if "suppliers" in filters:
+        df = df[df["Supplier"].isin(filters["suppliers"])]
+    return df.to_dict(orient="records")
+
+@app.post("/api/py/visualization/")
+async def visualization_data(data: list, material_column: str = "Material Number"):
+    df = pd.DataFrame(data)
+    material_counts = df[material_column].value_counts().reset_index()
+    material_counts.columns = [material_column, "Transaction Count"]
+    return material_counts.to_dict(orient="records")
