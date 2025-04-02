@@ -36,18 +36,6 @@ export default function OrderPlacement() {
   // NextAuth session
   const { data: session, status } = useSession()
   const router = useRouter()
-  useEffect(() => {
-    if (status === "loading") return // Do nothing while loading
-    if (!session) router.push("/login")
-  }, [session, status, router])
-
-  if (status === "loading" || !session) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
-      </div>
-    )
-  }
 
   // Existing states
   const [file, setFile] = useState(null);
@@ -129,6 +117,19 @@ export default function OrderPlacement() {
     accept: ".xlsx, .xls", // Accept only Excel files
     multiple: false, // Allow only one file
   });
+
+  useEffect(() => {
+    if (status === "loading") return // Do nothing while loading
+    if (!session) router.push("/login")
+  }, [session, status, router])
+
+  if (status === "loading" || !session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
+      </div>
+    )
+  }
 
   // Filter the plotData based on the selected filters
   const filteredPlotData = plotData.filter((item) => {

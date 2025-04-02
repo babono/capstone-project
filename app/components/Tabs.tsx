@@ -22,6 +22,12 @@ function Tabs() {
       <Link href="/lead-time">
         <div className={`px-5 py-2 rounded-t-xl ${pathname === '/lead-time' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Lead Time</div>
       </Link>
+      <Link href="/forecast">
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/lead-time' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Forecast</div>
+      </Link>
+      <Link href="/inventory-simulation">
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/lead-time' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Inventory Simulation</div>
+      </Link>
     </div>
   );
 }

@@ -34,20 +34,8 @@ const Plot = dynamic(
 export default function MaterialConsumption() {
   // NextAuth session
   const { data: session, status } = useSession()
-  const router = useRouter()
-  useEffect(() => {
-    if (status === "loading") return // Do nothing while loading
-    if (!session) router.push("/login")
-  }, [session, status, router])
+  const router = useRouter()  
 
-  if (status === "loading" || !session) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
-      </div>
-    )
-  }
-  
   // State variables
   const [file, setFile] = useState(null);
   const [plotData, setPlotData] = useState([]);
@@ -124,6 +112,19 @@ export default function MaterialConsumption() {
     accept: ".xlsx, .xls",
     multiple: false,
   });
+
+  useEffect(() => {
+    if (status === "loading") return // Do nothing while loading
+    if (!session) router.push("/login")
+  }, [session, status, router])
+
+  if (status === "loading" || !session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
+      </div>
+    )
+  }
 
   const filteredPlotData = plotData.filter((item) => {
     const isPlantMatch = selectedPlants.length === 0 || selectedPlants.includes(item["Plant"]);
