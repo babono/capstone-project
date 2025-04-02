@@ -7,6 +7,7 @@ import ParticlesCanvas from "./particle"
 import Image from "next/image"
 import logoMicron from "../../../public/logo-micron.svg"
 import logoDigitalTrinity from "../../../public/logo-digital-trinity.svg"
+import iconDT from "../../../public/ic-dt.svg"
 
 export default function LoginPage() {
   const { data: session, status } = useSession()
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("demo@digitaltrinity.com")
   const [password, setPassword] = useState("Capstone2025!")
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false) // New loading state
 
   useEffect(() => {
     if (status === "loading") return // Do nothing while loading
@@ -23,6 +25,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setLoading(true) // Set loading to true when login starts
     const res = await signIn("credentials", {
       redirect: false,
       email,
@@ -31,13 +34,14 @@ export default function LoginPage() {
 
     if (res?.error) {
       setError(res.error)
+      setLoading(false) // Stop loading on error
     } else {
       router.push("/")
     }
   }
 
   return (
-    <div className="relative ">
+    <div className="relative">
       <ParticlesCanvas />
       <div className="flex flex-col items-center justify-center min-h-screen relative z-10">
         <div className="mb-6 text-center">
@@ -47,7 +51,7 @@ export default function LoginPage() {
             <p className="text-white text-sm mr-2">Powered by</p>
             <Image src={logoDigitalTrinity} alt="Digital Trinity Logo" width={120} height={40} />
           </div>
-        </div>
+        </div>        
         <form
           onSubmit={handleSubmit}
           className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
@@ -63,6 +67,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
+              disabled={loading} // Disable input when loading
             />
           </div>
           <div className="mb-4">
@@ -74,13 +79,26 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Your password"
+              disabled={loading} // Disable input when loading
             />
           </div>
-          <button type="submit" className="cursor-pointer w-full bg-emerald-400 text-white font-medium py-2 rounded hover:bg-emerald-500 transition">
+          <button
+            type="submit"
+            className={`cursor-pointer w-full bg-emerald-400 text-white font-medium py-2 rounded hover:bg-emerald-500 transition ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={loading} // Disable button when loading
+          >
             Login
           </button>
-        </form>
+          {loading && (
+            <div className="flex items-center justify-center mt-4">
+              <Image src={iconDT} alt="Loading..." width={40} height={140} className="animate-spin" />
+              <div>Logging in...</div>
+            </div>
+          )}
+        </form>        
       </div>
     </div>
-  );
+  )
 }
