@@ -7,15 +7,6 @@ from typing import Dict, Union
 
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 
-# Configure CORS (Cross-Origin Resource Sharing) to allow requests from your React app
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Replace with your React app's origin in production (e.g., "http://localhost:3000")
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 @app.get("/api/py/helloFastApi")
 def hello_fast_api():
     return {"message": "Hello from FastAPI"}
