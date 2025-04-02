@@ -65,7 +65,7 @@ export default function OrderPlacement() {
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    const response = await fetch("http://127.0.0.1:8000/api/py/uploadExcel", {
+    const response = await fetch("http://127.0.0.1:8000/api/py/uploadExcelOrderPlacement", {
       method: "POST",
       body: formData,
     });
@@ -223,7 +223,7 @@ export default function OrderPlacement() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Order Placement</h1>
+      <h1 className="text-2xl font-bold mb-4">Order Placement Analysis</h1>
 
       {/* Dropzone for file upload */}
       <Box

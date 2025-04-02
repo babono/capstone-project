@@ -4,7 +4,6 @@ import pandas as pd
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Union
-from utils import data_logic
 
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 
@@ -17,29 +16,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/api/py/upload")
-async def upload_excel(file: UploadFile = File(...)) -> Union[Dict, Dict[str, str]]:
-    """
-    Endpoint to upload an Excel file, process it with pandas, and return the data as JSON.
-    """
-    try:
-        contents = await file.read()
-
-        # Read the Excel file into a pandas DataFrame
-        df = pd.read_excel(io.BytesIO(contents))
-        result = data_logic.material_consumption_upload(df)
-
-        return result  # Ensure `result` is a dictionary
-
-    except Exception as e:
-        # Return an error response as a dictionary
-        return {"error": str(e)}
-
 @app.get("/api/py/helloFastApi")
 def hello_fast_api():
     return {"message": "Hello from FastAPI"}
 
-@app.post("/api/py/uploadExcel")
+@app.post("/api/py/uploadExcelMaterialConsumption")
+async def upload_file(file: UploadFile):
+    contents = await file.read()
+    data = pd.read_excel(io.BytesIO(contents))
+
+    # Strip leading and trailing spaces from all string columns
+    data = data.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    data.columns = data.columns.str.strip()
+
+    # Replace empty strings or unexpected values with Unknown
+    data.replace(["", " ", None], "Unknown", inplace=True)
+
+    # Convert 'Pstng Date' to datetime
+    data['Pstng Date'] = pd.to_datetime(data['Pstng Date'], errors='coerce')
+
+    # Convert 'SLED/BBD' to datetime, handling errors
+    data['SLED/BBD'] = pd.to_datetime(data['SLED/BBD'], errors='coerce')
+
+    # Convert negative consumption values to positive
+    if 'Quantity' in data.columns:
+        data['Quantity'] = data['Quantity'].abs()
+    
+    if 'Quantity in UnE' in data.columns:
+        data['Quantity in UnE'] = data['Quantity in UnE'].abs()
+   
+    # Convert to dictionary and return
+    result = data.to_dict(orient="records")
+    return result
+
+@app.post("/api/py/uploadExcelOrderPlacement")
 async def upload_file(file: UploadFile):
     contents = await file.read()
     data = pd.read_excel(io.BytesIO(contents))
@@ -47,6 +57,34 @@ async def upload_file(file: UploadFile):
     data.columns = data.columns.str.strip()
     data['Order Quantity'] = pd.to_numeric(data['Order Quantity'], errors='coerce')
     return data.to_dict(orient="records")
+
+@app.post("/api/py/uploadExcelGoodsReceipt")
+async def upload_file(file: UploadFile):
+    # Read the file contents
+    contents = await file.read()
+    data = pd.read_excel(io.BytesIO(contents))
+
+    # Strip leading and trailing spaces from all string columns
+    data = data.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    data.columns = data.columns.str.strip()
+
+    # Replace empty strings or unexpected values with Unknown
+    data.replace(["", " ", None], "Unknown", inplace=True)
+
+    # Convert 'Pstng Date' to datetime
+    data['Pstng Date'] = pd.to_datetime(data['Pstng Date'], errors='coerce')
+
+    # Convert 'SLED/BBD' to datetime, handling errors
+    data['SLED/BBD'] = pd.to_datetime(data['SLED/BBD'], errors='coerce')
+
+    # Convert negative consumption values to positive
+    if 'Quantity' in data.columns:
+        data['Quantity'] = data['Quantity'].abs()
+
+    # Convert to dictionary and return
+    result = data.to_dict(orient="records")
+    return result
+
 
 @app.post("/api/py/filter/")
 async def filter_data(data: list, filters: dict):
