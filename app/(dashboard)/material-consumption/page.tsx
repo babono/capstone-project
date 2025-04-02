@@ -1,6 +1,8 @@
 // @ts-nocheck
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic";
 import { useDropzone } from "react-dropzone";
 import { Box, Typography, Select, MenuItem, FormControl, InputLabel, TextField } from "@mui/material";
@@ -30,6 +32,23 @@ const Plot = dynamic(
 );
 
 export default function MaterialConsumption() {
+  // NextAuth session
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  useEffect(() => {
+    if (status === "loading") return // Do nothing while loading
+    if (!session) router.push("/login")
+  }, [session, status, router])
+
+  if (status === "loading" || !session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
+      </div>
+    )
+  }
+  
+  // State variables
   const [file, setFile] = useState(null);
   const [plotData, setPlotData] = useState([]);
   const [topN, setTopN] = useState(10);

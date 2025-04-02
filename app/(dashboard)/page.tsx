@@ -99,7 +99,7 @@ export default function HomePage() {
     setInsight(data.response)
   }
 
-  if (status === "loading") {
+  if (status === "loading" || !session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Image src={iconDT} alt="Loading..." width={100} height={100} className="animate-spin" />
