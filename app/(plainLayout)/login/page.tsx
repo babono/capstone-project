@@ -54,7 +54,7 @@ export default function LoginPage() {
         </div>        
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
+          className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm mb-20"
         >
           <h2 className="text-2xl mb-4 text-center font-bold">Login</h2>
           {error && <p className="text-red-500 mb-2">{error}</p>}
