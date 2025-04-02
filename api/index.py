@@ -21,6 +21,7 @@ async def upload_file(file: UploadFile):
     try:
         # Log the start of the process
         logger.info("Starting uploadExcelMaterialConsumption endpoint")
+        print("Starting uploadExcelMaterialConsumption endpoint")
 
         # Read the file contents
         contents = await file.read()
