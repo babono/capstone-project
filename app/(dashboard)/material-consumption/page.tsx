@@ -63,7 +63,7 @@ export default function MaterialConsumption() {
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    const response = await fetch("http://127.0.0.1:8000/api/py/uploadExcelMaterialConsumption", {
+    const response = await fetch("/api/py/uploadExcelMaterialConsumption", {
       method: "POST",
       body: formData,
     });
