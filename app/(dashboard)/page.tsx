@@ -5,19 +5,6 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import iconDT from "../../public/ic-dt.svg"
 
-
-const formatIfNumeric = (x: number) => (typeof x === 'number' ? x.toFixed() : x);
-
-const tooltipFormatter = (value: number | number[], name: string | string[]) => {
-  if (name.includes("noTooltip")) {
-    return [];
-  }
-  if (Array.isArray(value)) {
-    return value.map(formatIfNumeric).join(" - ");
-  }
-  return `${formatIfNumeric(value)}`;
-};
-
 export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
