@@ -3,6 +3,8 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Image from "next/image";
 import iconDT from "../../../public/ic-dt.svg";
 import logoGemini from "../../../public/logo-gemini.svg";
+import TypeIt from "typeit-react";
+import ReactMarkdown from "react-markdown";
 
 type AskGeminiButtonProps = {
   loading: boolean;
@@ -37,7 +39,9 @@ const AskGeminiButton: React.FC<AskGeminiButtonProps> = ({
               />
             </span>
           </h3>
-          <p className="mt-2">{insight}</p>
+          <TypeIt options={{ speed: 10, cursor: false }}>
+            <ReactMarkdown>{insight}</ReactMarkdown>
+          </TypeIt>
         </>
       )}
       <div className="flex justify-center">
