@@ -15,3 +15,9 @@ export const Plot = dynamic(
     ),
   { ssr: false }
 );
+
+// Material Consumption Chart IDs
+export const TRANSACTIONS_CHART_ID = "transactions-chart";
+export const GOODS_RECEIPT_CHART_ID = "goods-receipt-chart";
+export const VARIANCE_CHART_ID = "variance-chart";
+export const FINITE_SHELF_CHART_ID = "finite-shelf-chart";

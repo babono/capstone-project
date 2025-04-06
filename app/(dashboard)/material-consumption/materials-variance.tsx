@@ -1,16 +1,13 @@
 import React from "react";
 import AskGeminiButton from "../common/ask-gemini";
 import { Plot } from "@/app/constants/plot";
+import { ChartProps } from "@/app/types/materialConsumption";
 
-type MaterialsVarianceProps = {
-  chartId: string;
+type MaterialsVarianceProps = ChartProps & {
   varianceData: Array<{
     materialNumber: string;
     values: number[];
   }>;
-  loading: boolean;
-  insight: string;
-  onAskGemini: () => void;
 };
 
 const MaterialsVariance: React.FC<MaterialsVarianceProps> = ({

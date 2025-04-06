@@ -1,17 +1,13 @@
 import React from "react";
-import { MaterialConsumptionCSVData } from "@/app/types/materialConsumption";
+import { ChartProps, MaterialConsumptionCSVData } from "@/app/types/materialConsumption";
 import { Plot } from "@/app/constants/plot";
 import AskGeminiButton from "../common/ask-gemini";
 
-type FiniteShelfProps = {
-  chartId: string;
+type FiniteShelfProps = ChartProps & {
   shelfData: MaterialConsumptionCSVData;
-  loading: boolean;
-  insight: string;
-  onAskGemini: () => void;
 };
 
-const FiniteShelfComponent: React.FC<FiniteShelfProps> = ({
+const FiniteShelf: React.FC<FiniteShelfProps> = ({
   chartId,
   shelfData,
   loading,
@@ -69,4 +65,4 @@ const FiniteShelfComponent: React.FC<FiniteShelfProps> = ({
   );
 };
 
-export default FiniteShelfComponent;
+export default FiniteShelf;

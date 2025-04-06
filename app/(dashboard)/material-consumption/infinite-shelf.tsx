@@ -1,11 +1,11 @@
 import React from "react";
-import { MaterialConsumptionCSVData } from "@/app/types/materialConsumption";
+import { ChartProps, MaterialConsumptionCSVData } from "@/app/types/materialConsumption";
 
-type InfiniteShelfProps = {
+type InfiniteShelfProps = ChartProps & {
   shelfData: MaterialConsumptionCSVData;
 };
 
-const InfiniteShelfComponent: React.FC<InfiniteShelfProps> = ({ shelfData }) => {
+const InfiniteShelf: React.FC<InfiniteShelfProps> = ({ shelfData }) => {
   const shelfLength = shelfData.length;
 
   if (shelfLength === 0) {
@@ -54,4 +54,4 @@ const InfiniteShelfComponent: React.FC<InfiniteShelfProps> = ({ shelfData }) => 
   );
 };
 
-export default InfiniteShelfComponent;
+export default InfiniteShelf;

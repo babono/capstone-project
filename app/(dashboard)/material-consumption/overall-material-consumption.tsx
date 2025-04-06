@@ -1,16 +1,13 @@
 import { Plot } from "@/app/constants/plot";
 import React from "react";
 import AskGeminiButton from "../common/ask-gemini";
+import { ChartProps } from "@/app/types/materialConsumption";
 
-type OverallMaterialConsumptionProps = {
-  chartId: string;
+type OverallMaterialConsumptionProps = ChartProps & {
   filteredData: Array<{
     "Material Number": string;
     Quantity: number;
   }>;
-  loading: boolean;
-  insight: string;
-  onAskGemini: () => void;
 };
 
 const OverallMaterialConsumption: React.FC<OverallMaterialConsumptionProps> = ({

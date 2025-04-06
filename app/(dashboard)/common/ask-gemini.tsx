@@ -18,7 +18,7 @@ const AskGeminiButton: React.FC<AskGeminiButtonProps> = ({
   onAskGemini,
 }) => {
   return (
-    <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
+    <div className="bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
       {loading && (
         <div className="flex justify-center">
           <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />

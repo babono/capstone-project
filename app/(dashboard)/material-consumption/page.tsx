@@ -16,12 +16,13 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import TypeIt from "typeit-react";
 import ReactMarkdown from "react-markdown";
-import FiniteShelfComponent from "./finite-shelf";
-import InfiniteShelfComponent from "./infinite-shelf";
+import FiniteShelf from "./finite-shelf";
+import InfiniteShelf from "./infinite-shelf";
 import AskGeminiButton from "../common/ask-gemini";
 import MaterialsVariance from "./materials-variance";
 import OverallMaterialConsumption from "./overall-material-consumption";
 import MaterialTotalTransaction from "./material-total-consumption";
+import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
 
 export default function MaterialConsumption() {
   // NextAuth session
@@ -338,43 +339,42 @@ export default function MaterialConsumption() {
           {/* ===== Chart Renders ===== */}
 
           <MaterialTotalTransaction
-            chartId="transactions-chart"
+            chartId={TRANSACTIONS_CHART_ID}
             filteredTransactionData={filteredTransactionData}
             loading={loadingTransactionsInsight}
             insight={transactionsInsight}
             onAskGemini={() =>
-              handleInterpret("transactions-chart", setLoadingTransactionsInsight, setTransactionsInsight)
+              handleInterpret(TRANSACTIONS_CHART_ID, setLoadingTransactionsInsight, setTransactionsInsight)
             }
           />
           <OverallMaterialConsumption
-            chartId="goods-receipt-chart"
+            chartId={GOODS_RECEIPT_CHART_ID}
             filteredData={filteredData}
             loading={loadingMaterialConsumptionInsight}
             insight={MaterialConsumptionInsight}
             onAskGemini={() =>
-              handleInterpret("goods-receipt-chart", setLoadingMaterialConsumptionInsight, setMaterialConsumptionInsight)
+              handleInterpret(GOODS_RECEIPT_CHART_ID, setLoadingMaterialConsumptionInsight, setMaterialConsumptionInsight)
             }
           />
           <MaterialsVariance
-            chartId="variance-chart"
+            chartId={VARIANCE_CHART_ID}
             varianceData={filteredVarianceData}
             loading={loadingVarianceInsight}
             insight={varianceInsight}
             onAskGemini={() =>
-              handleInterpret("variance-chart", setLoadingVarianceInsight, setVarianceInsight)
+              handleInterpret(VARIANCE_CHART_ID, setLoadingVarianceInsight, setVarianceInsight)
             }
           />
-          <FiniteShelfComponent
-            chartId="finite-shelf-chart"
+          <FiniteShelf
+            chartId={FINITE_SHELF_CHART_ID}
             shelfData={finiteShelfData}
             loading={loadingFiniteShelfInsight}
             insight={finiteShelfInsight}
             onAskGemini={() =>
-              handleInterpret("finite-shelf-chart", setLoadingFiniteShelfInsight, setFiniteShelfInsight)
+              handleInterpret(FINITE_SHELF_CHART_ID, setLoadingFiniteShelfInsight, setFiniteShelfInsight)
             }
           />
-
-          <InfiniteShelfComponent shelfData={infiniteShelfData} />
+          <InfiniteShelf shelfData={infiniteShelfData} />
 
           <h2 className="mt-6 text-xl font-semibold">Material-Level Analysis</h2>
 

@@ -13,3 +13,10 @@ type MaterialConsumptionCSV = {
 };
 
 export type MaterialConsumptionCSVData = MaterialConsumptionCSV[];
+
+export type ChartProps = {
+  chartId: string;
+  loading: boolean;
+  insight: string;
+  onAskGemini: () => void;
+};
