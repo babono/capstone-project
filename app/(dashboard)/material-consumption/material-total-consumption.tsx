@@ -51,9 +51,6 @@ const MaterialTotalTransaction: React.FC<MaterialTotalTransactionProps> = ({
           autosize: true,
         }}
         style={{ width: "100%", height: "100%" }}
-        config={{
-          displayModeBar: false,
-        }}
       />
       <AskGeminiButton
         loading={loading}

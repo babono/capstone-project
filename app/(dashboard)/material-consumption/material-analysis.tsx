@@ -189,6 +189,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
                 sx: { marginBottom: "16px" },
               },
             }}
+            format="yyyy/MM/dd"
           />
         </LocalizationProvider>
       </div>
@@ -246,7 +247,6 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             overlaying: "y",
             side: "right",
           },
-          showlegend: false,
           autosize: true,
         }}
         style={{ width: "100%", height: "100%" }}

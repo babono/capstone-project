@@ -47,9 +47,6 @@ const MaterialsVariance: React.FC<MaterialsVarianceProps> = ({
         data={data}
         layout={layout}
         style={{ width: "100%", height: "100%" }}
-        config={{
-          displayModeBar: false,
-        }}
       />
       <AskGeminiButton
         loading={loading}

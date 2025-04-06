@@ -50,7 +50,6 @@ const FiniteShelf: React.FC<FiniteShelfProps> = ({
           },
         }}
         style={{ width: "100%", height: "100%" }}
-        config={{ displayModeBar: false }}
       />
       <AskGeminiButton
         loading={loading}

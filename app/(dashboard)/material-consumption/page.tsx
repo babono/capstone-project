@@ -319,6 +319,7 @@ export default function MaterialConsumption() {
                     <TextField {...endProps} sx={{ width: "50%" }} />
                   </>
                 )}
+                format="yyyy/MM/dd"
               />
             </LocalizationProvider>
           </div>

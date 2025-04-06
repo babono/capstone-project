@@ -346,9 +346,6 @@ export default function GoodsReceipt() {
                 autosize: true,
               }}
               style={{ width: "100%", height: "100%" }}
-              config={{
-                displayModeBar: false,
-              }}
             />
           </div>
           <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
@@ -414,9 +411,6 @@ export default function GoodsReceipt() {
                 autosize: true,
               }}
               style={{ width: "100%", height: "100%" }}
-              config={{
-                displayModeBar: false,
-              }}
             />
           </div>
           <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
@@ -474,9 +468,6 @@ export default function GoodsReceipt() {
                 autosize: true,
               }}
               style={{ width: "100%", height: "100%" }}
-              config={{
-                displayModeBar: false,
-              }}
             />
           </div>
           <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
