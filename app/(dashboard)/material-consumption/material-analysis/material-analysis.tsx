@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Autocomplete, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Autocomplete, TextField, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { Plot } from "@/app/constants/plot";
-import AskGeminiButton from "../common/ask-gemini";
+import AskGeminiButton from "../../common/ask-gemini";
 
 type MaterialLevelAnalysisProps = {
   materialData: any[];
@@ -150,32 +150,32 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 
       <h2 className="text-xl font-semibold mb-4">Filters</h2>
       <div className="mb-6">
-        <Autocomplete
-          multiple
-          options={plants}
-          value={selectedPlants}
-          onChange={(event, newValue) => setSelectedPlants(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
-          sx={{ marginBottom: "16px", width: "100%" }}
-        />
-        <Autocomplete
-          multiple
-          options={sites}
-          value={selectedSites}
-          onChange={(event, newValue) => setSelectedSites(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Sites" variant="outlined" />}
-          sx={{ marginBottom: "16px", width: "100%" }}
-        />
-
-        <Autocomplete
-          multiple
-          options={vendors}
-          value={selectedVendors}
-          onChange={(event, newValue) => setSelectedVendors(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
-          sx={{ marginBottom: "16px", width: "100%" }}
-        />
-
+        <Box sx={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <Autocomplete
+            multiple
+            options={plants}
+            value={selectedPlants}
+            onChange={(event, newValue) => setSelectedPlants(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
+            sx={{ width: "33.33%" }}
+          />
+          <Autocomplete
+            multiple
+            options={sites}
+            value={selectedSites}
+            onChange={(event, newValue) => setSelectedSites(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Sites" variant="outlined" />}
+            sx={{ width: "33.33%" }}
+          />
+          <Autocomplete
+            multiple
+            options={vendors}
+            value={selectedVendors}
+            onChange={(event, newValue) => setSelectedVendors(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
+            sx={{ width: "33.33%" }}
+          />
+        </Box>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateRangePicker
             value={dateRange}

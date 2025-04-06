@@ -1,7 +1,7 @@
 import React from "react";
 import { ChartProps, MaterialConsumptionCSVData } from "@/app/types/materialConsumption";
 import { Plot } from "@/app/constants/plot";
-import AskGeminiButton from "../common/ask-gemini";
+import AskGeminiButton from "../../common/ask-gemini";
 
 type FiniteShelfProps = ChartProps & {
   shelfData: MaterialConsumptionCSVData;

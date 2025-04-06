@@ -1,6 +1,6 @@
 import { Plot } from "@/app/constants/plot";
 import React from "react";
-import AskGeminiButton from "../common/ask-gemini";
+import AskGeminiButton from "../../common/ask-gemini";
 import { ChartProps } from "@/app/types/materialConsumption";
 
 type OverallMaterialConsumptionProps = ChartProps & {

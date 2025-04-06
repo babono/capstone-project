@@ -16,14 +16,16 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import TypeIt from "typeit-react";
 import ReactMarkdown from "react-markdown";
-import FiniteShelf from "./finite-shelf";
-import InfiniteShelf from "./infinite-shelf";
+import FiniteShelf from "./charts/finite-shelf";
+import InfiniteShelf from "./charts/infinite-shelf";
 import AskGeminiButton from "../common/ask-gemini";
-import MaterialsVariance from "./materials-variance";
-import OverallMaterialConsumption from "./overall-material-consumption";
-import MaterialTotalTransaction from "./material-total-consumption";
+import MaterialsVariance from "./charts/materials-variance";
+import OverallMaterialConsumption from "./charts/overall-material-consumption";
+import MaterialTotalTransaction from "./charts/material-total-consumption";
 import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
-import MaterialLevelAnalysis from "./material-analysis";
+import MaterialLevelAnalysis from "./material-analysis/material-analysis";
+import FileUploader from "./file-uploader/file-uploader";
+import GlobalFilter from "./global-filter/global-filter";
 
 export default function MaterialConsumption() {
   // NextAuth session
@@ -243,107 +245,29 @@ export default function MaterialConsumption() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Material Consumption Analysis</h1>
-
-      <Box
-        {...getRootProps()}
-        sx={{
-          border: "2px dashed #3719D3",
-          borderRadius: "8px",
-          padding: "48px 16px",
-          textAlign: "center",
-          backgroundColor: isDragActive ? "#e3f2fd" : "#fafafa",
-          cursor: "pointer",
-          marginBottom: "16px",
-        }}
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <Typography variant="body1" color="primary">
-            Drop the file here...
-          </Typography>
-        ) : (
-          <Typography variant="body1" color="textSecondary">
-            Drag and drop the Material Consumption Excel file here to start the analysis, or click to select a file
-          </Typography>
-        )}
-        {file && (
-          <Typography variant="body2" color="textSecondary" sx={{ marginTop: "8px" }}>
-            Selected file: {file.name}
-          </Typography>
-        )}
-      </Box>
-
+      <FileUploader onDrop={onDrop} file={file} />
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}
-
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Global Filters</h2>
-
-            <Autocomplete
-              multiple
-              options={plants}
-              value={selectedPlants}
-              onChange={(event, newValue) => setSelectedPlants(newValue)}
-              renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
-              sx={{ marginBottom: "16px", width: "100%" }}
-            />
-
-            <Autocomplete
-              multiple
-              options={sites}
-              value={selectedSites}
-              onChange={(event, newValue) => setSelectedSites(newValue)}
-              renderInput={(params) => <TextField {...params} label="Select Sites" variant="outlined" />}
-              sx={{ marginBottom: "16px", width: "100%" }}
-            />
-
-            <Autocomplete
-              multiple
-              options={vendors}
-              value={selectedVendors}
-              onChange={(event, newValue) => setSelectedVendors(newValue)}
-              renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
-              sx={{ marginBottom: "16px", width: "100%" }}
-            />
-
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateRangePicker
-                value={dateRange}
-                onChange={(newValue) => setDateRange(newValue)}
-                minDate={minDate}
-                maxDate={maxDate}
-                renderInput={(startProps, endProps) => (
-                  <>
-                    <TextField {...startProps} sx={{ marginRight: "16px", width: "50%" }} />
-                    <TextField {...endProps} sx={{ width: "50%" }} />
-                  </>
-                )}
-                format="yyyy/MM/dd"
-              />
-            </LocalizationProvider>
-          </div>
-
-          <div className="mt-4">
-            <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
-              <InputLabel id="topN-label">Select Top N Materials</InputLabel>
-              <Select
-                labelId="topN-label"
-                id="topN"
-                value={topN}
-                onChange={(e) => setTopN(e.target.value === "All" ? "All" : parseInt(e.target.value))}
-                label="Select Top N Materials"
-              >
-                <MenuItem value={5}>Top 5</MenuItem>
-                <MenuItem value={10}>Top 10</MenuItem>
-                <MenuItem value={15}>Top 15</MenuItem>
-                <MenuItem value="All">All</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+          <GlobalFilter
+            plants={plants}
+            selectedPlants={selectedPlants}
+            setSelectedPlants={setSelectedPlants}
+            sites={sites}
+            selectedSites={selectedSites}
+            setSelectedSites={setSelectedSites}
+            vendors={vendors}
+            selectedVendors={selectedVendors}
+            setSelectedVendors={setSelectedVendors}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            minDate={minDate}
+            maxDate={maxDate}
+            topN={topN}
+            setTopN={setTopN}
+          />
 
           {/* ===== Chart Renders ===== */}
-
           <MaterialTotalTransaction
             chartId={TRANSACTIONS_CHART_ID}
             filteredTransactionData={filteredTransactionData}
