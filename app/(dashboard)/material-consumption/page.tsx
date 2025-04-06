@@ -23,20 +23,6 @@ import MaterialsVariance from "./materials-variance";
 import OverallMaterialConsumption from "./overall-material-consumption";
 import MaterialTotalTransaction from "./material-total-consumption";
 
-const Plot = dynamic(
-  () =>
-    import("react-plotly.js").then(
-      (mod) =>
-        mod.default as React.ComponentType<{
-          data: any;
-          layout: any;
-          frames: any;
-          config: any;
-        }>
-    ),
-  { ssr: false }
-);
-
 export default function MaterialConsumption() {
   // NextAuth session
   const { data: session, status } = useSession()
@@ -66,6 +52,9 @@ export default function MaterialConsumption() {
 
   const [varianceInsight, setVarianceInsight] = useState("");
   const [loadingVarianceInsight, setLoadingVarianceInsight] = useState(false);
+
+  const [finiteShelfInsight, setFiniteShelfInsight] = useState("");
+  const [loadingFiniteShelfInsight, setLoadingFiniteShelfInsight] = useState(false);
 
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
@@ -280,6 +269,8 @@ export default function MaterialConsumption() {
 
       {plotData.length > 0 && (
         <>
+          {/* ===== Global Filters ===== */}
+
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Global Filters</h2>
 
@@ -312,8 +303,6 @@ export default function MaterialConsumption() {
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DateRangePicker
-                startText="Start Date"
-                endText="End Date"
                 value={dateRange}
                 onChange={(newValue) => setDateRange(newValue)}
                 minDate={minDate}
@@ -375,7 +364,16 @@ export default function MaterialConsumption() {
               handleInterpret("variance-chart", setLoadingVarianceInsight, setVarianceInsight)
             }
           />
-          <FiniteShelfComponent shelfData={finiteShelfData} />
+          <FiniteShelfComponent
+            chartId="finite-shelf-chart"
+            shelfData={finiteShelfData}
+            loading={loadingFiniteShelfInsight}
+            insight={finiteShelfInsight}
+            onAskGemini={() =>
+              handleInterpret("finite-shelf-chart", setLoadingFiniteShelfInsight, setFiniteShelfInsight)
+            }
+          />
+
           <InfiniteShelfComponent shelfData={infiniteShelfData} />
 
           <h2 className="mt-6 text-xl font-semibold">Material-Level Analysis</h2>
