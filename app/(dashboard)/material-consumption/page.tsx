@@ -22,7 +22,8 @@ import AskGeminiButton from "../common/ask-gemini";
 import MaterialsVariance from "./materials-variance";
 import OverallMaterialConsumption from "./overall-material-consumption";
 import MaterialTotalTransaction from "./material-total-consumption";
-import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
+import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
+import MaterialLevelAnalysis from "./material-analysis";
 
 export default function MaterialConsumption() {
   // NextAuth session
@@ -57,6 +58,10 @@ export default function MaterialConsumption() {
   const [finiteShelfInsight, setFiniteShelfInsight] = useState("");
   const [loadingFiniteShelfInsight, setLoadingFiniteShelfInsight] = useState(false);
 
+  const [materialAnalysisInsight, setMaterialAnalysisInsight] = useState("");
+  const [loadingMaterialAnalysisInsight, setLoadingMaterialAnalysisInsight] = useState(false);
+
+  // Other States
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
   const [vendors, setVendors] = useState([]);
@@ -375,9 +380,15 @@ export default function MaterialConsumption() {
             }
           />
           <InfiniteShelf shelfData={infiniteShelfData} />
-
-          <h2 className="mt-6 text-xl font-semibold">Material-Level Analysis</h2>
-
+          <MaterialLevelAnalysis
+            chartId={MATERIAL_LEVEL_CHART_ID}
+            materialData={plotData}
+            loading={loadingMaterialAnalysisInsight}
+            insight={materialAnalysisInsight}
+            onAskGemini={() =>
+              handleInterpret(MATERIAL_LEVEL_CHART_ID, setLoadingMaterialAnalysisInsight, setMaterialAnalysisInsight)
+            }
+          />
         </>
       )}
     </div>

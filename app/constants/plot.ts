@@ -10,7 +10,7 @@ export const Plot = dynamic(
           data: any;
           layout: any;
           style: any;
-          config: any;
+          config?: any;
         }>
     ),
   { ssr: false }
@@ -21,3 +21,4 @@ export const TRANSACTIONS_CHART_ID = "transactions-chart";
 export const GOODS_RECEIPT_CHART_ID = "goods-receipt-chart";
 export const VARIANCE_CHART_ID = "variance-chart";
 export const FINITE_SHELF_CHART_ID = "finite-shelf-chart";
+export const MATERIAL_LEVEL_CHART_ID = "material-level-chart";
