@@ -34,7 +34,7 @@ const Plot = dynamic(
 export default function MaterialConsumption() {
   // NextAuth session
   const { data: session, status } = useSession()
-  const router = useRouter()  
+  const router = useRouter()
 
   // State variables
   const [file, setFile] = useState(null);
@@ -46,6 +46,10 @@ export default function MaterialConsumption() {
   const [dateRange, setDateRange] = useState([null, null]);
   const [minDate, setMinDate] = useState(null);
   const [maxDate, setMaxDate] = useState(null);
+
+  // Shelf Data
+  const [finiteShelfData, setFiniteShelfLifeData] = useState([]);
+  const [infiniteShelfData, setInfiniteShelfLifeData] = useState([]);
 
   // Separate states for each chart's insight and loading status
   const [transactionsInsight, setTransactionsInsight] = useState("");
@@ -76,7 +80,6 @@ export default function MaterialConsumption() {
     });
     const data = await response.json();
     setPlotData(data);
-    console.log(data);
 
     const uniquePlants = [...new Set(data.map((item) => item["Plant"]))];
     const uniqueSites = [...new Set(data.map((item) => item["Site"]))];
@@ -114,6 +117,28 @@ export default function MaterialConsumption() {
   });
 
   useEffect(() => {
+    if (plotData.length > 0) {
+      const modifiedData = plotData.map((item) => ({
+        ...item,
+        remainingShelfLife: Math.ceil(
+          (new Date(item["SLED/BBD"]) - new Date(item["Pstng Date"])) /
+          (1000 * 60 * 60 * 24)
+        ),
+      }));
+      const finiteShelfLife = modifiedData.filter((item) => item["SLED/BBD"] !== "2100-01-01");
+      const infiniteShelfLife = modifiedData
+        .filter((item) => item["SLED/BBD"] === "NaT")
+        .map((item) => ({
+          ...item,
+          "SLED/BBD": "No Expiry",
+        }));
+
+      setFiniteShelfLifeData(finiteShelfLife);
+      setInfiniteShelfLifeData(infiniteShelfLife);
+    }
+  }, [plotData]);
+
+  useEffect(() => {
     if (status === "loading") return // Do nothing while loading
     if (!session) router.push("/login")
   }, [session, status, router])
@@ -141,7 +166,7 @@ export default function MaterialConsumption() {
     filteredPlotData.reduce((acc, item) => {
       const materialNumber = item["Material Number"];
       if (!acc[materialNumber]) {
-        acc[materialNumber] = { "Material Number": materialNumber, "Quantity": 0 , "Transaction Count": 0 };
+        acc[materialNumber] = { "Material Number": materialNumber, "Quantity": 0, "Transaction Count": 0 };
       }
       acc[materialNumber]["Transaction Count"] += 1;
       acc[materialNumber]["Quantity"] += item["Quantity"];
@@ -193,7 +218,6 @@ export default function MaterialConsumption() {
       });
 
       const base64Image = imageData.split(",")[1];
-      console.log(base64Image);
 
       const response = await fetch("/api/insightImage", {
         method: "POST",
@@ -213,6 +237,97 @@ export default function MaterialConsumption() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderFiniteShelfComponent = () => {
+    const shelfLength = finiteShelfData.length;
+    if (shelfLength === 0) {
+      return <p>No items with finite shelf life in the selected data.</p>;
+    } return (
+      <div>
+        <h2 className="mt-6 text-xl font-semibold">
+          Distribution of Remaining Shelf Life (Days) - Finite Shelf Life
+        </h2>
+        <Plot
+          data={[
+            {
+              x: finiteShelfData.map((item) => item.remainingShelfLife),
+              type: "histogram",
+              marker: { color: "blue" },
+              hovertemplate: `Remaining Shelf Life (Days)=%{x}<br>Count=%{y}<extra></extra>
+            `,
+            },
+          ]}
+          layout={{
+            title: { text: "Distribution of Remaining Shelf Life (Days)", font: { color: "black" } },
+            xaxis: {
+              title: { text: "Days", font: { color: "black" } },
+              automargin: true,
+            },
+            yaxis: {
+              title: { text: "Count", font: { color: "black" } },
+              automargin: true,
+            },
+            showlegend: false,
+            autosize: true,
+            hoverlabel: {
+              align: "left",
+            },
+          }}
+          style={{ width: "100%", height: "100%" }}
+          config={{ displayModeBar: false }}
+        />
+      </div>
+    )
+  }
+
+  const renderInfiniteShelfComponent = () => {
+    const shelfLength = infiniteShelfData.length;
+    if (shelfLength === 0) {
+      return <p>No items with infinite shelf life in the selected data.</p>;
+    }
+
+    // Dynamically get the table headers from the keys of the first object, excluding "remainingShelfLife"
+    const headers = Object.keys(infiniteShelfData[0]).filter(
+      (header) => header !== "remainingShelfLife"
+    );
+
+    return (
+      <div>
+        <h2 className="mt-6 text-xl font-semibold">
+          Distribution of Remaining Shelf Life (Days) - Infinite Shelf Life
+        </h2>
+        <p>Number of Items with Infinite Shelf Life: {infiniteShelfData.length}</p>
+        <p>Items with Infinite Shelf Life:</p>
+        <br></br>
+        <div className="overflow-y-auto max-h-110 border border-gray-300 rounded-lg">
+          <table className="table-auto border-collapse border border-gray-300 w-full">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-2 py-2">No</th>
+                {headers.map((header) => (
+                  <th key={header} className="border border-gray-300 px-2 py-2">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {infiniteShelfData.map((item, index) => (
+                <tr key={index}>
+                  <td className="border border-gray-300 px-2 py-2">{index + 1}</td>
+                  {headers.map((header) => (
+                    <td key={header} className="border border-gray-300 px-2 py-2">
+                      {item[header]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -359,9 +474,9 @@ export default function MaterialConsumption() {
             )}
             {transactionsInsight && (
               <>
-                <h3 className="text-xl font-bold text-black">Generated Insight 
+                <h3 className="text-xl font-bold text-black">Generated Insight
                   <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
                   </span>
                 </h3>
                 <TypeIt options={{ speed: 10, cursor: false }}>
@@ -427,9 +542,9 @@ export default function MaterialConsumption() {
             )}
             {MaterialConsumptionInsight && (
               <>
-                <h3 className="text-xl font-bold text-black">Generated Insight 
+                <h3 className="text-xl font-bold text-black">Generated Insight
                   <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
                   </span>
                 </h3>
                 <TypeIt options={{ speed: 10, cursor: false }}>
@@ -487,9 +602,9 @@ export default function MaterialConsumption() {
             )}
             {varianceInsight && (
               <>
-                <h3 className="text-xl font-bold text-black">Generated Insight 
+                <h3 className="text-xl font-bold text-black">Generated Insight
                   <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
                   </span>
                 </h3>
                 <TypeIt options={{ speed: 10, cursor: false }}>
@@ -510,6 +625,12 @@ export default function MaterialConsumption() {
               </button>
             </div>
           </div>
+          {renderFiniteShelfComponent()}
+          {renderInfiniteShelfComponent()}
+
+
+          <h2 className="mt-6 text-xl font-semibold">Material-Level Analysis</h2>
+
         </>
       )}
     </div>
