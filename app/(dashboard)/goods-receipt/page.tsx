@@ -57,9 +57,9 @@ export default function GoodsReceipt() {
 
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
-  const [vendors, setVendors] = useState([]);    
+  const [vendors, setVendors] = useState([]);
 
-  const handleUpload = async (selectedFile) => {    
+  const handleUpload = async (selectedFile) => {
     if (!selectedFile) {
       alert("Please select a file to upload.");
       return;
@@ -139,7 +139,7 @@ export default function GoodsReceipt() {
     filteredPlotData.reduce((acc, item) => {
       const materialNumber = item["Material Number"];
       if (!acc[materialNumber]) {
-        acc[materialNumber] = { "Material Number": materialNumber, "Quantity": 0 , "Transaction Count": 0 };
+        acc[materialNumber] = { "Material Number": materialNumber, "Quantity": 0, "Transaction Count": 0 };
       }
       acc[materialNumber]["Transaction Count"] += 1;
       acc[materialNumber]["Quantity"] += item["Quantity"];
@@ -313,7 +313,9 @@ export default function GoodsReceipt() {
               </Select>
             </FormControl>
           </div>
-          <h2 className="mt-6 text-xl font-semibold">Number of Transactions per Material Number</h2>
+          <p className="mt-6 text-l font-semibold">
+            Number of Transactions per Material Number
+          </p>
           <div>
             <Plot
               divId="transactions-chart"
@@ -357,9 +359,9 @@ export default function GoodsReceipt() {
             )}
             {transactionsInsight && (
               <>
-                <h3 className="text-xl font-bold text-black">Generated Insight 
+                <h3 className="text-xl font-bold text-black">Generated Insight
                   <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
                   </span>
                 </h3>
                 <TypeIt options={{ speed: 10, cursor: false }}>
@@ -425,9 +427,9 @@ export default function GoodsReceipt() {
             )}
             {goodsReceiptInsight && (
               <>
-                <h3 className="text-xl font-bold text-black">Generated Insight 
+                <h3 className="text-xl font-bold text-black">Generated Insight
                   <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
                   </span>
                 </h3>
                 <TypeIt options={{ speed: 10, cursor: false }}>
@@ -485,9 +487,9 @@ export default function GoodsReceipt() {
             )}
             {varianceInsight && (
               <>
-                <h3 className="text-xl font-bold text-black">Generated Insight 
+                <h3 className="text-xl font-bold text-black">Generated Insight
                   <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2"/>
+                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
                   </span>
                 </h3>
                 <TypeIt options={{ speed: 10, cursor: false }}>

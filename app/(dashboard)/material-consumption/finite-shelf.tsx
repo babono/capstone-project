@@ -21,9 +21,9 @@ const FiniteShelf: React.FC<FiniteShelfProps> = ({
 
   return (
     <div>
-      <h2 className="mt-6 text-xl font-semibold">
+      <p className="mt-6 text-l font-semibold">
         Distribution of Remaining Shelf Life (Days) - Finite Shelf Life
-      </h2>
+      </p>
       <Plot
         divId={chartId}
         data={[
@@ -35,10 +35,6 @@ const FiniteShelf: React.FC<FiniteShelfProps> = ({
           },
         ]}
         layout={{
-          title: {
-            text: "Distribution of Remaining Shelf Life (Days)",
-            font: { color: "black" },
-          },
           xaxis: {
             title: { text: "Days", font: { color: "black" } },
             automargin: true,

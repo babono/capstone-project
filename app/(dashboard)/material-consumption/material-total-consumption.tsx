@@ -19,7 +19,9 @@ const MaterialTotalTransaction: React.FC<MaterialTotalTransactionProps> = ({
 }) => {
   return (
     <div>
-      <h2 className="mt-6 text-xl font-semibold">Number of Transactions per Material Number</h2>
+      <p className="mt-6 text-l font-semibold">
+        Number of Transactions per Material Number
+      </p>
       <Plot
         divId={chartId}
         data={[

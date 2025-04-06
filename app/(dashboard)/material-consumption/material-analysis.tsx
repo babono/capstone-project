@@ -4,43 +4,83 @@ import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { Plot } from "@/app/constants/plot";
-import { ChartProps } from "@/app/types/materialConsumption";
 import AskGeminiButton from "../common/ask-gemini";
 
-type MaterialLevelAnalysisProps = ChartProps & {
+type MaterialLevelAnalysisProps = {
   materialData: any[];
-  materialColumn: string;
+  chartId: string;
+  loading: boolean;
+  insight: string;
+  onAskGemini: () => void;
 };
 
 const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
   materialData,
-  materialColumn = "Material Number",
   chartId,
   loading,
   insight,
-  onAskGemini
+  onAskGemini,
 }) => {
-  // States for Storing Unique Data
+  // States for filters and selections
   const [plants, setPlants] = useState<string[]>([]);
   const [sites, setSites] = useState<string[]>([]);
   const [vendors, setVendors] = useState<string[]>([]);
-  const [minDate, setMinDate] = useState<Date | null>(null);
-  const [maxDate, setMaxDate] = useState<Date | null>(null);
-
-  // State variables for filters and selections
-  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
+  const [minDate, setMinDate] = useState<Date | undefined>();
+  const [maxDate, setMaxDate] = useState<Date | undefined>();
+  const [selectedMaterialNum, setSelectedMaterial] = useState<string | null>(null);
   const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [aggregationLevel, setAggregationLevel] = useState<string>("Daily");
 
+  // Helper function to update filters based on material
+  const updateFilters = (filteredData: any[]) => {
+    const uniquePlants = [...new Set(filteredData.map((item) => item["Plant"]))];
+    const uniqueSites = [...new Set(filteredData.map((item) => item["Site"]))];
+    const uniqueVendors = [...new Set(filteredData.map((item) => item["Vendor Number"]))];
+
+    setPlants(uniquePlants);
+    setSites(uniqueSites);
+    setVendors(uniqueVendors);
+
+    setSelectedPlants(uniquePlants);
+    setSelectedSites(uniqueSites);
+    setSelectedVendors(uniqueVendors);
+
+    const timestamps = filteredData.map((item) => new Date(item["Pstng Date"]).getTime());
+    const oldestDate = new Date(Math.min(...timestamps));
+    const newestDate = new Date(Math.max(...timestamps));
+
+    setMinDate(oldestDate);
+    setMaxDate(newestDate);
+    setDateRange([oldestDate, newestDate]);
+  };
+
+  // Automatically set the first material number and adjust filters
+  useEffect(() => {
+    if (materialData.length > 0) {
+      const firstMaterial = materialData[0]["Material Number"];
+      setSelectedMaterial(firstMaterial);
+      const filteredData = materialData.filter((item) => item["Material Number"] === firstMaterial);
+      updateFilters(filteredData);
+    }
+  }, [materialData]);
+
+  // Adjust filters dynamically when the material number changes
+  useEffect(() => {
+    if (selectedMaterialNum) {
+      const filteredData = materialData.filter((item) => item["Material Number"] === selectedMaterialNum);
+      updateFilters(filteredData);
+    }
+  }, [selectedMaterialNum, materialData]);
+
   // Filtered data based on selected material and filters
   const filteredData = useMemo(() => {
     let filtered = materialData;
 
-    if (selectedMaterial) {
-      filtered = filtered.filter((item) => item["Material Number"] === selectedMaterial);
+    if (selectedMaterialNum) {
+      filtered = filtered.filter((item) => item["Material Number"] === selectedMaterialNum);
     }
 
     if (selectedPlants.length > 0) {
@@ -64,7 +104,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
     }
 
     return filtered;
-  }, [materialData, selectedMaterial, selectedPlants, selectedSites, selectedVendors, dateRange]);
+  }, [materialData, selectedMaterialNum, selectedPlants, selectedSites, selectedVendors, dateRange]);
 
   // Aggregated data for visualization
   const aggregatedData = useMemo(() => {
@@ -79,40 +119,13 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       groupedData[dateKey].TransactionCount += 1;
     });
 
-    const sortedData = Object.entries(groupedData)
+    return Object.entries(groupedData)
       .map(([date, values]) => ({
         date,
         ...values,
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    return sortedData;
   }, [filteredData]);
-
-  useEffect(() => {
-    // Setting up the filters. Need to be specific to the selected materials
-    if (materialData.length > 0) {
-      const uniquePlants = [...new Set(materialData.map((item) => item["Plant"]))];
-      const uniqueSites = [...new Set(materialData.map((item) => item["Site"]))];
-      const uniqueVendors = [...new Set(materialData.map((item) => item["Vendor Number"]))];
-
-      setPlants(uniquePlants);
-      setSites(uniqueSites);
-      setVendors(uniqueVendors);
-
-      setSelectedPlants(uniquePlants);
-      setSelectedSites(uniqueSites);
-      setSelectedVendors(uniqueVendors);
-
-      const timestamps = materialData.map((item) => new Date(item["Pstng Date"]).getTime());
-      const oldestDate = new Date(Math.min(...timestamps));
-      const newestDate = new Date(Math.max(...timestamps));
-
-      setMinDate(oldestDate);
-      setMaxDate(newestDate);
-      setDateRange([oldestDate, newestDate]);
-    }
-  }, [materialData]);
 
   return (
     <div className="mt-6">
@@ -123,12 +136,11 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         <InputLabel id="material-select-label">Select a Material Number</InputLabel>
         <Select
           labelId="material-select-label"
-          value={selectedMaterial || ""}
+          value={selectedMaterialNum || ""}
           onChange={(e) => setSelectedMaterial(e.target.value)}
           label="Select a Material Number"
-          variant="outlined"
         >
-          {Array.from(new Set(materialData.map((item) => item[materialColumn]))).map((material) => (
+          {Array.from(new Set(materialData.map((item) => item["Material Number"]))).map((material) => (
             <MenuItem key={material} value={material}>
               {material}
             </MenuItem>
@@ -137,7 +149,6 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       </FormControl>
 
       <h2 className="text-xl font-semibold mb-4">Filters</h2>
-
       <div className="mb-6">
         <Autocomplete
           multiple
@@ -147,7 +158,6 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
           renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
           sx={{ marginBottom: "16px", width: "100%" }}
         />
-
         <Autocomplete
           multiple
           options={sites}
@@ -169,6 +179,8 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateRangePicker
             value={dateRange}
+            minDate={minDate}
+            maxDate={maxDate}
             onChange={(newValue) => setDateRange(newValue)}
             slots={{ textField: TextField }}
             slotProps={{
@@ -198,6 +210,9 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       </FormControl>
 
       {/* Visualization */}
+      <p className="text-l font-semibold">
+        {`Consumption Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`}
+      </p>
       <Plot
         divId={chartId}
         data={[
@@ -218,16 +233,23 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
           },
         ]}
         layout={{
-          title: `Consumption Trend and Transaction Count (${aggregationLevel})`,
-          xaxis: { title: "Date" },
-          yaxis: { title: "Quantity" },
+          xaxis: {
+            title: { text: "Date", font: { color: "black" } },
+            automargin: true,
+          },
+          yaxis: {
+            title: { text: "Quantity", font: { color: "black" } },
+            automargin: true,
+          },
           yaxis2: {
             title: "Transaction Count",
             overlaying: "y",
             side: "right",
           },
+          showlegend: false,
+          autosize: true,
         }}
-        style={{ width: "100%", height: "400px" }}
+        style={{ width: "100%", height: "100%" }}
       />
 
       <AskGeminiButton

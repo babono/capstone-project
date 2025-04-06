@@ -39,7 +39,9 @@ const MaterialsVariance: React.FC<MaterialsVarianceProps> = ({
 
   return (
     <div>
-      <h2 className="mt-6 text-xl font-semibold">Materials by Variance</h2>
+      <p className="mt-6 text-l font-semibold">
+        Materials by Variance
+      </p>
       <Plot
         divId={chartId}
         data={data}

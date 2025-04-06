@@ -19,7 +19,9 @@ const OverallMaterialConsumption: React.FC<OverallMaterialConsumptionProps> = ({
 }) => {
   return (
     <div>
-      <h2 className="mt-6 text-xl font-semibold">Overall Material Consumption by Material Number</h2>
+      <p className="mt-6 text-l font-semibold">
+        Overall Material Consumption by Material Number
+      </p>
       <Plot
         divId={chartId}
         data={[

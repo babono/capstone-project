@@ -18,9 +18,7 @@ const InfiniteShelf: React.FC<InfiniteShelfProps> = ({ shelfData }) => {
 
   return (
     <div>
-      <h2 className="mt-6 text-xl font-semibold">
-        Distribution of Remaining Shelf Life (Days) - Infinite Shelf Life
-      </h2>
+      <br></br>
       <p>Number of Items with Infinite Shelf Life: {shelfLength}</p>
       <p>Items with Infinite Shelf Life:</p>
       <br />
