@@ -16,6 +16,12 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import TypeIt from "typeit-react";
 import ReactMarkdown from "react-markdown";
+import FiniteShelfComponent from "./finite-shelf";
+import InfiniteShelfComponent from "./infinite-shelf";
+import AskGeminiButton from "../common/ask-gemini";
+import MaterialsVariance from "./materials-variance";
+import OverallMaterialConsumption from "./overall-material-consumption";
+import MaterialTotalTransaction from "./material-total-consumption";
 
 const Plot = dynamic(
   () =>
@@ -239,97 +245,6 @@ export default function MaterialConsumption() {
     }
   };
 
-  const renderFiniteShelfComponent = () => {
-    const shelfLength = finiteShelfData.length;
-    if (shelfLength === 0) {
-      return <p>No items with finite shelf life in the selected data.</p>;
-    } return (
-      <div>
-        <h2 className="mt-6 text-xl font-semibold">
-          Distribution of Remaining Shelf Life (Days) - Finite Shelf Life
-        </h2>
-        <Plot
-          data={[
-            {
-              x: finiteShelfData.map((item) => item.remainingShelfLife),
-              type: "histogram",
-              marker: { color: "blue" },
-              hovertemplate: `Remaining Shelf Life (Days)=%{x}<br>Count=%{y}<extra></extra>
-            `,
-            },
-          ]}
-          layout={{
-            title: { text: "Distribution of Remaining Shelf Life (Days)", font: { color: "black" } },
-            xaxis: {
-              title: { text: "Days", font: { color: "black" } },
-              automargin: true,
-            },
-            yaxis: {
-              title: { text: "Count", font: { color: "black" } },
-              automargin: true,
-            },
-            showlegend: false,
-            autosize: true,
-            hoverlabel: {
-              align: "left",
-            },
-          }}
-          style={{ width: "100%", height: "100%" }}
-          config={{ displayModeBar: false }}
-        />
-      </div>
-    )
-  }
-
-  const renderInfiniteShelfComponent = () => {
-    const shelfLength = infiniteShelfData.length;
-    if (shelfLength === 0) {
-      return <p>No items with infinite shelf life in the selected data.</p>;
-    }
-
-    // Dynamically get the table headers from the keys of the first object, excluding "remainingShelfLife"
-    const headers = Object.keys(infiniteShelfData[0]).filter(
-      (header) => header !== "remainingShelfLife"
-    );
-
-    return (
-      <div>
-        <h2 className="mt-6 text-xl font-semibold">
-          Distribution of Remaining Shelf Life (Days) - Infinite Shelf Life
-        </h2>
-        <p>Number of Items with Infinite Shelf Life: {infiniteShelfData.length}</p>
-        <p>Items with Infinite Shelf Life:</p>
-        <br></br>
-        <div className="overflow-y-auto max-h-110 border border-gray-300 rounded-lg">
-          <table className="table-auto border-collapse border border-gray-300 w-full">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-2 py-2">No</th>
-                {headers.map((header) => (
-                  <th key={header} className="border border-gray-300 px-2 py-2">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {infiniteShelfData.map((item, index) => (
-                <tr key={index}>
-                  <td className="border border-gray-300 px-2 py-2">{index + 1}</td>
-                  {headers.map((header) => (
-                    <td key={header} className="border border-gray-300 px-2 py-2">
-                      {item[header]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Material Consumption Analysis</h1>
@@ -430,204 +345,38 @@ export default function MaterialConsumption() {
               </Select>
             </FormControl>
           </div>
-          <h2 className="mt-6 text-xl font-semibold">Number of Transactions per Material Number</h2>
-          <div>
-            <Plot
-              divId="transactions-chart"
-              data={[
-                {
-                  x: filteredTransactionData.map((item) => item["Material Number"]),
-                  y: filteredTransactionData.map((item) => item["Transaction Count"]),
-                  type: "bar",
-                  marker: { color: "blue" },
-                  text: filteredTransactionData.map(
-                    (item) =>
-                      `Material Number: ${item["Material Number"]}<br>Transaction Count: ${item["Transaction Count"]}`
-                  ),
-                  hoverinfo: "text",
-                  textposition: "none",
-                },
-              ]}
-              layout={{
-                xaxis: {
-                  title: { text: "Material Number", font: { color: "black" } },
-                  automargin: true,
-                },
-                yaxis: {
-                  title: { text: "Transaction Count", font: { color: "black" } },
-                  automargin: true,
-                },
-                showlegend: false,
-                autosize: true,
-              }}
-              style={{ width: "100%", height: "100%" }}
-              config={{
-                displayModeBar: false,
-              }}
-            />
-          </div>
-          <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
-            {loadingTransactionsInsight && (
-              <div className="flex justify-center">
-                <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />
-              </div>
-            )}
-            {transactionsInsight && (
-              <>
-                <h3 className="text-xl font-bold text-black">Generated Insight
-                  <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
-                  </span>
-                </h3>
-                <TypeIt options={{ speed: 10, cursor: false }}>
-                  <ReactMarkdown>{transactionsInsight}</ReactMarkdown>
-                </TypeIt>
-                <br />
-                <br />
-              </>
-            )}
-            <div className="flex justify-center">
-              <button
-                onClick={() =>
-                  handleInterpret("transactions-chart", setLoadingTransactionsInsight, setTransactionsInsight)
-                }
-                className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
-              >
-                <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
-              </button>
-            </div>
-          </div>
 
-          <h2 className="mt-6 text-xl font-semibold">Overall Material Consumption by Material Number</h2>
-          <div>
-            <Plot
-              divId="goods-receipt-chart"
-              data={[
-                {
-                  x: filteredData.map((item) => item["Material Number"]),
-                  y: filteredData.map((item) => item["Quantity"]),
-                  type: "bar",
-                  marker: { color: "blue" },
-                  text: filteredData.map(
-                    (item) =>
-                      `Material Number: ${item["Material Number"]}<br>Material Consumption Quantity: ${item["Quantity"]}`
-                  ),
-                  hoverinfo: "text",
-                  textposition: "none",
-                },
-              ]}
-              layout={{
-                xaxis: {
-                  title: { text: "Material Number", font: { color: "black" } },
-                  automargin: true,
-                },
-                yaxis: {
-                  title: { text: "Quantity", font: { color: "black" } },
-                  automargin: true,
-                },
-                showlegend: false,
-                autosize: true,
-              }}
-              style={{ width: "100%", height: "100%" }}
-              config={{
-                displayModeBar: false,
-              }}
-            />
-          </div>
-          <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
-            {loadingMaterialConsumptionInsight && (
-              <div className="flex justify-center">
-                <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />
-              </div>
-            )}
-            {MaterialConsumptionInsight && (
-              <>
-                <h3 className="text-xl font-bold text-black">Generated Insight
-                  <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
-                  </span>
-                </h3>
-                <TypeIt options={{ speed: 10, cursor: false }}>
-                  <ReactMarkdown>{MaterialConsumptionInsight}</ReactMarkdown>
-                </TypeIt>
-                <br />
-                <br />
-              </>
-            )}
-            <div className="flex justify-center">
-              <button
-                onClick={() =>
-                  handleInterpret("goods-receipt-chart", setLoadingMaterialConsumptionInsight, setMaterialConsumptionInsight)
-                }
-                className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
-              >
-                <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
-              </button>
-            </div>
-          </div>
+          {/* ===== Chart Renders ===== */}
 
-          <h2 className="mt-6 text-xl font-semibold">Materials by Variance</h2>
-          <div>
-            <Plot
-              divId="variance-chart"
-              data={filteredVarianceData.map((material) => ({
-                y: material.values,
-                name: material.materialNumber,
-                type: "box",
-                marker: { color: "blue" },
-              }))}
-              layout={{
-                xaxis: {
-                  title: { text: "Material Number", font: { color: "black" } },
-                  automargin: true,
-                },
-                yaxis: {
-                  title: { text: "Quantity", font: { color: "black" } },
-                  automargin: true,
-                },
-                showlegend: false,
-                autosize: true,
-              }}
-              style={{ width: "100%", height: "100%" }}
-              config={{
-                displayModeBar: false,
-              }}
-            />
-          </div>
-          <div className="mt-4 bg-indigo-50 p-4 rounded-lg border-2 border-dt-primary">
-            {loadingVarianceInsight && (
-              <div className="flex justify-center">
-                <Image src={iconDT} alt="Loading..." width={40} height={40} className="animate-spin" />
-              </div>
-            )}
-            {varianceInsight && (
-              <>
-                <h3 className="text-xl font-bold text-black">Generated Insight
-                  <span className="pl-2 text-sm font-normal">by
-                    <Image src={logoGemini} alt="Loading..." width={60} height={25} className="inline-block align-top ml-2" />
-                  </span>
-                </h3>
-                <TypeIt options={{ speed: 10, cursor: false }}>
-                  <ReactMarkdown>{varianceInsight}</ReactMarkdown>
-                </TypeIt>
-                <br />
-                <br />
-              </>
-            )}
-            <div className="flex justify-center">
-              <button
-                onClick={() =>
-                  handleInterpret("variance-chart", setLoadingVarianceInsight, setVarianceInsight)
-                }
-                className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
-              >
-                <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
-              </button>
-            </div>
-          </div>
-          {renderFiniteShelfComponent()}
-          {renderInfiniteShelfComponent()}
-
+          <MaterialTotalTransaction
+            chartId="transactions-chart"
+            filteredTransactionData={filteredTransactionData}
+            loading={loadingTransactionsInsight}
+            insight={transactionsInsight}
+            onAskGemini={() =>
+              handleInterpret("transactions-chart", setLoadingTransactionsInsight, setTransactionsInsight)
+            }
+          />
+          <OverallMaterialConsumption
+            chartId="goods-receipt-chart"
+            filteredData={filteredData}
+            loading={loadingMaterialConsumptionInsight}
+            insight={MaterialConsumptionInsight}
+            onAskGemini={() =>
+              handleInterpret("goods-receipt-chart", setLoadingMaterialConsumptionInsight, setMaterialConsumptionInsight)
+            }
+          />
+          <MaterialsVariance
+            chartId="variance-chart"
+            varianceData={filteredVarianceData}
+            loading={loadingVarianceInsight}
+            insight={varianceInsight}
+            onAskGemini={() =>
+              handleInterpret("variance-chart", setLoadingVarianceInsight, setVarianceInsight)
+            }
+          />
+          <FiniteShelfComponent shelfData={finiteShelfData} />
+          <InfiniteShelfComponent shelfData={infiniteShelfData} />
 
           <h2 className="mt-6 text-xl font-semibold">Material-Level Analysis</h2>
 
