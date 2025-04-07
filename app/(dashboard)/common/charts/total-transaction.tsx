@@ -13,9 +13,6 @@ type TotalTransactionProps = ChartProps & {
 const TotalTransaction: React.FC<TotalTransactionProps> = ({
   chartId,
   filteredTransactionData,
-  loading,
-  insight,
-  onAskGemini,
 }) => {
   return (
     <div>
@@ -52,11 +49,7 @@ const TotalTransaction: React.FC<TotalTransactionProps> = ({
         }}
         style={{ width: "100%", height: "100%" }}
       />
-      <AskGeminiButton
-        loading={loading}
-        insight={insight}
-        onAskGemini={onAskGemini}
-      />
+      <AskGeminiButton chartId={chartId} />
     </div>
   );
 };

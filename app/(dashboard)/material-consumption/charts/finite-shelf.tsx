@@ -10,9 +10,7 @@ type FiniteShelfProps = ChartProps & {
 const FiniteShelf: React.FC<FiniteShelfProps> = ({
   chartId,
   shelfData,
-  loading,
-  insight,
-  onAskGemini, }) => {
+}) => {
   const shelfLength = shelfData.length;
 
   if (shelfLength === 0) {
@@ -51,11 +49,7 @@ const FiniteShelf: React.FC<FiniteShelfProps> = ({
         }}
         style={{ width: "100%", height: "100%" }}
       />
-      <AskGeminiButton
-        loading={loading}
-        insight={insight}
-        onAskGemini={onAskGemini}
-      />
+      <AskGeminiButton chartId={chartId} />
     </div>
   );
 };

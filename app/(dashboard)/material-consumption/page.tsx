@@ -47,22 +47,6 @@ export default function MaterialConsumption() {
   const [finiteShelfData, setFiniteShelfLifeData] = useState([]);
   const [infiniteShelfData, setInfiniteShelfLifeData] = useState([]);
 
-  // Separate states for each chart's insight and loading status
-  const [transactionsInsight, setTransactionsInsight] = useState("");
-  const [loadingTransactionsInsight, setLoadingTransactionsInsight] = useState(false);
-
-  const [MaterialConsumptionInsight, setMaterialConsumptionInsight] = useState("");
-  const [loadingMaterialConsumptionInsight, setLoadingMaterialConsumptionInsight] = useState(false);
-
-  const [varianceInsight, setVarianceInsight] = useState("");
-  const [loadingVarianceInsight, setLoadingVarianceInsight] = useState(false);
-
-  const [finiteShelfInsight, setFiniteShelfInsight] = useState("");
-  const [loadingFiniteShelfInsight, setLoadingFiniteShelfInsight] = useState(false);
-
-  const [materialAnalysisInsight, setMaterialAnalysisInsight] = useState("");
-  const [loadingMaterialAnalysisInsight, setLoadingMaterialAnalysisInsight] = useState(false);
-
   // Other States
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
@@ -203,45 +187,6 @@ export default function MaterialConsumption() {
     filteredData.some((topMaterial) => topMaterial["Material Number"] === material.materialNumber)
   );
 
-  const handleInterpret = async (chartId, setLoading, setInsight) => {
-    setLoading(true);
-    setInsight("");
-
-    try {
-      const chartElement = document.getElementById(chartId);
-
-      if (!chartElement) {
-        throw new Error("Chart element not found");
-      }
-
-      const imageData = await window.Plotly.toImage(chartElement, {
-        format: "png",
-        width: 800,
-        height: 600,
-      });
-
-      const base64Image = imageData.split(",")[1];
-
-      const response = await fetch("/api/insightImage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chartImage: base64Image,
-        }),
-      });
-
-      const data = await response.json();
-      setInsight(data.response || "No insight available.");
-    } catch (error) {
-      console.error("Error fetching insight:", error);
-      setInsight("Failed to fetch insight. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Material Consumption Analysis</h1>
@@ -273,50 +218,25 @@ export default function MaterialConsumption() {
           <TotalTransaction
             chartId={TRANSACTIONS_CHART_ID}
             filteredTransactionData={filteredTransactionData}
-            loading={loadingTransactionsInsight}
-            insight={transactionsInsight}
-            onAskGemini={() =>
-              handleInterpret(TRANSACTIONS_CHART_ID, setLoadingTransactionsInsight, setTransactionsInsight)
-            }
           />
           <OverallByMaterialNumber
             title={"Material Consumption"}
             chartId={GOODS_RECEIPT_CHART_ID}
             filteredData={filteredData}
-            loading={loadingMaterialConsumptionInsight}
-            insight={MaterialConsumptionInsight}
             yAxisFieldName={"Quantity"}
-            onAskGemini={() =>
-              handleInterpret(GOODS_RECEIPT_CHART_ID, setLoadingMaterialConsumptionInsight, setMaterialConsumptionInsight)
-            }
           />
           <MaterialsVariance
             chartId={VARIANCE_CHART_ID}
             varianceData={filteredVarianceData}
-            loading={loadingVarianceInsight}
-            insight={varianceInsight}
-            onAskGemini={() =>
-              handleInterpret(VARIANCE_CHART_ID, setLoadingVarianceInsight, setVarianceInsight)
-            }
           />
           <FiniteShelf
             chartId={FINITE_SHELF_CHART_ID}
             shelfData={finiteShelfData}
-            loading={loadingFiniteShelfInsight}
-            insight={finiteShelfInsight}
-            onAskGemini={() =>
-              handleInterpret(FINITE_SHELF_CHART_ID, setLoadingFiniteShelfInsight, setFiniteShelfInsight)
-            }
           />
           <InfiniteShelf shelfData={infiniteShelfData} />
           <MaterialLevelAnalysis
             chartId={MATERIAL_LEVEL_CHART_ID}
             materialData={plotData}
-            loading={loadingMaterialAnalysisInsight}
-            insight={materialAnalysisInsight}
-            onAskGemini={() =>
-              handleInterpret(MATERIAL_LEVEL_CHART_ID, setLoadingMaterialAnalysisInsight, setMaterialAnalysisInsight)
-            }
           />
         </>
       )}

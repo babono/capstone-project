@@ -15,10 +15,7 @@ const OverallByMaterialNumber: React.FC<OverallByMaterialNumberProps> = ({
   customKey,
   chartId,
   filteredData,
-  loading,
-  insight,
   yAxisFieldName,
-  onAskGemini,
 }) => {
   return (
     <div>
@@ -55,11 +52,7 @@ const OverallByMaterialNumber: React.FC<OverallByMaterialNumberProps> = ({
         }}
         style={{ width: "100%", height: "100%" }}
       />
-      <AskGeminiButton
-        loading={loading}
-        insight={insight}
-        onAskGemini={onAskGemini}
-      />
+      <AskGeminiButton chartId={chartId} />
     </div>
   );
 };

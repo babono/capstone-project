@@ -13,9 +13,6 @@ type MaterialsVarianceProps = ChartProps & {
 const MaterialsVariance: React.FC<MaterialsVarianceProps> = ({
   chartId,
   varianceData,
-  loading,
-  insight,
-  onAskGemini,
 }) => {
   const data = varianceData.map((material) => ({
     y: material.values,
@@ -48,11 +45,7 @@ const MaterialsVariance: React.FC<MaterialsVarianceProps> = ({
         layout={layout}
         style={{ width: "100%", height: "100%" }}
       />
-      <AskGeminiButton
-        loading={loading}
-        insight={insight}
-        onAskGemini={onAskGemini}
-      />
+      <AskGeminiButton chartId={chartId} />
     </div>
   );
 };

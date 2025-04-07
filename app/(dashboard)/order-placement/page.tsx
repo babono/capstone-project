@@ -28,7 +28,7 @@ export default function OrderPlacement() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  // Existing states
+  // State Variables
   const [file, setFile] = useState(null);
   const [plotData, setPlotData] = useState([]);
   const [topN, setTopN] = useState(10);
@@ -39,16 +39,7 @@ export default function OrderPlacement() {
   const [minDate, setMinDate] = useState(null);
   const [maxDate, setMaxDate] = useState(null);
 
-  // New states for insights and loading status for each plot
-  const [transactionsInsight, setTransactionsInsight] = useState("");
-  const [loadingTransactionsInsight, setLoadingTransactionsInsight] = useState(false);
-
-  const [orderPlacementInsight, setOrderPlacementInsight] = useState("");
-  const [loadingOrderPlacementInsight, setLoadingOrderPlacementInsight] = useState(false);
-
-  const [varianceInsight, setVarianceInsight] = useState("");
-  const [loadingVarianceInsight, setLoadingVarianceInsight] = useState(false);
-
+  // Other States
   const [plants, setPlants] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [vendors, setVendors] = useState([]);
@@ -187,48 +178,6 @@ export default function OrderPlacement() {
     filteredData.some((topMaterial) => topMaterial["Material Number"] === material.materialNumber)
   );
 
-  const handleInterpret = async (chartId, setLoading, setInsight) => {
-    setLoading(true);
-    setInsight(""); // Clear previous insight
-
-    try {
-      // Get the Plotly chart element
-      const chartElement = document.getElementById(chartId);
-
-      if (!chartElement) {
-        throw new Error("Chart element not found");
-      }
-
-      // Use Plotly's toImage function to generate a static image
-      const imageData = await window.Plotly.toImage(chartElement, {
-        format: "png",
-        width: 800,
-        height: 600,
-      });
-
-      const base64Image = imageData.split(",")[1]; // Remove the data URL prefix
-
-      // Send request to Google Gemini API
-      const response = await fetch("/api/insightImage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chartImage: base64Image,
-        }),
-      });
-
-      const data = await response.json();
-      setInsight(data.response || "No insight available.");
-    } catch (error) {
-      console.error("Error fetching insight:", error);
-      setInsight("Failed to fetch insight. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Order Placement Analysis</h1>
@@ -260,31 +209,16 @@ export default function OrderPlacement() {
           <TotalTransaction
             chartId={TRANSACTIONS_CHART_ID}
             filteredTransactionData={filteredTransactionData}
-            loading={loadingTransactionsInsight}
-            insight={transactionsInsight}
-            onAskGemini={() =>
-              handleInterpret(TRANSACTIONS_CHART_ID, setLoadingTransactionsInsight, setTransactionsInsight)
-            }
           />
           <OverallByMaterialNumber
             title={"Order Placement"}
             chartId={GOODS_RECEIPT_CHART_ID}
             filteredData={filteredData}
-            loading={loadingOrderPlacementInsight}
-            insight={orderPlacementInsight}
             yAxisFieldName={"Order Quantity"}
-            onAskGemini={() =>
-              handleInterpret(GOODS_RECEIPT_CHART_ID, setLoadingOrderPlacementInsight, setOrderPlacementInsight)
-            }
           />
           <MaterialsVariance
             chartId={VARIANCE_CHART_ID}
             varianceData={filteredVarianceData}
-            loading={loadingVarianceInsight}
-            insight={varianceInsight}
-            onAskGemini={() =>
-              handleInterpret(VARIANCE_CHART_ID, setLoadingVarianceInsight, setVarianceInsight)
-            }
           />
         </>
       )}
