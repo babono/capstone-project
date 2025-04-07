@@ -1,6 +1,6 @@
 import React from "react";
 import AskGeminiButton from "../ask-gemini";
-import { Plot } from "@/app/constants/plot";
+import { Plot } from "@/app/constants";
 import { ChartProps } from "@/app/types/materialConsumption";
 
 type MaterialsVarianceProps = ChartProps & {
@@ -32,6 +32,9 @@ const MaterialsVariance: React.FC<MaterialsVarianceProps> = ({
     },
     showlegend: false,
     autosize: true,
+    hoverlabel: {
+      align: "left",
+    },
   };
 
   return (

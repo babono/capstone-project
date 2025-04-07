@@ -16,7 +16,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Autocomplete from "@mui/material/Autocomplete";
 import TypeIt from "typeit-react";
 import ReactMarkdown from "react-markdown";
-import { GOODS_RECEIPT_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
+import { GOODS_RECEIPT_CHART_ID, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import FileUploader from "../common/file-uploader";
 import MaterialsVariance from "../common/charts/materials-variance";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
@@ -38,6 +38,8 @@ export default function OrderPlacement() {
   const [dateRange, setDateRange] = useState([null, null]);
   const [minDate, setMinDate] = useState(null);
   const [maxDate, setMaxDate] = useState(null);
+
+  const PAGE_LABEL = PAGE_LABELS.ORDER_PLACEMENT;
 
   // Other States
   const [plants, setPlants] = useState([]);
@@ -180,8 +182,8 @@ export default function OrderPlacement() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Order Placement Analysis</h1>
-      <FileUploader onDrop={onDrop} file={file} title={"Order Placement"} />
+      <h1 className="text-2xl font-bold mb-4">{PAGE_LABEL} Analysis</h1>
+      <FileUploader onDrop={onDrop} file={file} title={PAGE_LABEL} />
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}
@@ -211,7 +213,7 @@ export default function OrderPlacement() {
             filteredTransactionData={filteredTransactionData}
           />
           <OverallByMaterialNumber
-            title={"Order Placement"}
+            customKey={PAGE_LABEL}
             chartId={GOODS_RECEIPT_CHART_ID}
             filteredData={filteredData}
             yAxisFieldName={"Order Quantity"}
@@ -220,6 +222,7 @@ export default function OrderPlacement() {
             chartId={VARIANCE_CHART_ID}
             varianceData={filteredVarianceData}
           />
+          {/* Material Level Analysis Coming Soon */}
         </>
       )}
     </div>

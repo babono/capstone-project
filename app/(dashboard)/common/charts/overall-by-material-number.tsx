@@ -1,4 +1,4 @@
-import { Plot } from "@/app/constants/plot";
+import { Plot } from "@/app/constants";
 import React from "react";
 import AskGeminiButton from "../ask-gemini";
 import { ChartProps } from "@/app/types/materialConsumption";
@@ -32,7 +32,7 @@ const OverallByMaterialNumber: React.FC<OverallByMaterialNumberProps> = ({
             marker: { color: "blue" },
             text: filteredData.map(
               (item) =>
-                `Material Number: ${item["Material Number"]}<br>${customKey} ${yAxisFieldName}: ${item[yAxisFieldName as keyof typeof item]}`
+                `Material Number: ${item["Material Number"]}<br>Quantity: ${item[yAxisFieldName as keyof typeof item]}`
             ),
             hoverinfo: "text",
             textposition: "none",
@@ -44,11 +44,14 @@ const OverallByMaterialNumber: React.FC<OverallByMaterialNumberProps> = ({
             automargin: true,
           },
           yaxis: {
-            title: { text: `${yAxisFieldName}`, font: { color: "black" } },
+            title: { text: "Order Quantity", font: { color: "black" } },
             automargin: true,
           },
           showlegend: false,
           autosize: true,
+          hoverlabel: {
+            align: "left",
+          },
         }}
         style={{ width: "100%", height: "100%" }}
       />

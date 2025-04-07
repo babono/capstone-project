@@ -4,7 +4,7 @@ import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format, startOfWeek, startOfMonth, startOfQuarter } from "date-fns";
-import { Plot } from "@/app/constants/plot";
+import { Plot } from "@/app/constants";
 import AskGeminiButton from "../../common/ask-gemini";
 
 type MaterialLevelAnalysisProps = {
@@ -273,6 +273,9 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             title: "Transaction Count",
             overlaying: "y",
             side: "right",
+          },
+          hoverlabel: {
+            align: "left",
           },
         }}
         style={{ width: "100%", height: "100%" }}
