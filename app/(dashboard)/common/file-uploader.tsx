@@ -2,12 +2,13 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 
-type CSVUploaderProps = {
+type FileUploaderProps = {
   onDrop: (acceptedFiles: File[]) => void;
   file: File | null;
+  title: string;
 };
 
-const FileUploader: React.FC<CSVUploaderProps> = ({ onDrop, file }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ onDrop, file, title }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -37,7 +38,7 @@ const FileUploader: React.FC<CSVUploaderProps> = ({ onDrop, file }) => {
         </Typography>
       ) : (
         <Typography variant="body1" color="textSecondary">
-          Drag and drop the Material Consumption Excel file here to start the analysis, or click to select a file
+          {`Drag and drop the ${title} Excel file here to start the analysis, or click to select a file`}
         </Typography>
       )}
       {file && (

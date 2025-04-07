@@ -1,38 +1,41 @@
 import { Plot } from "@/app/constants/plot";
 import React from "react";
-import AskGeminiButton from "../../common/ask-gemini";
+import AskGeminiButton from "../ask-gemini";
 import { ChartProps } from "@/app/types/materialConsumption";
 
-type OverallMaterialConsumptionProps = ChartProps & {
+type OverallByMaterialNumberProps = ChartProps & {
   filteredData: Array<{
     "Material Number": string;
     Quantity: number;
   }>;
+  yAxisFieldName: string;
 };
 
-const OverallMaterialConsumption: React.FC<OverallMaterialConsumptionProps> = ({
+const OverallByMaterialNumber: React.FC<OverallByMaterialNumberProps> = ({
+  customKey,
   chartId,
   filteredData,
   loading,
   insight,
+  yAxisFieldName,
   onAskGemini,
 }) => {
   return (
     <div>
       <p className="mt-6 text-l font-semibold">
-        Overall Material Consumption by Material Number
+        {`Overall ${customKey} by Material Number`}
       </p>
       <Plot
         divId={chartId}
         data={[
           {
             x: filteredData.map((item) => item["Material Number"]),
-            y: filteredData.map((item) => item["Quantity"]),
+            y: filteredData.map((item) => item[yAxisFieldName as keyof typeof item]),
             type: "bar",
             marker: { color: "blue" },
             text: filteredData.map(
               (item) =>
-                `Material Number: ${item["Material Number"]}<br>Material Consumption Quantity: ${item["Quantity"]}`
+                `Material Number: ${item["Material Number"]}<br>${customKey} ${yAxisFieldName}: ${item[yAxisFieldName as keyof typeof item]}`
             ),
             hoverinfo: "text",
             textposition: "none",
@@ -44,7 +47,7 @@ const OverallMaterialConsumption: React.FC<OverallMaterialConsumptionProps> = ({
             automargin: true,
           },
           yaxis: {
-            title: { text: "Quantity", font: { color: "black" } },
+            title: { text: `${yAxisFieldName}`, font: { color: "black" } },
             automargin: true,
           },
           showlegend: false,
@@ -61,4 +64,4 @@ const OverallMaterialConsumption: React.FC<OverallMaterialConsumptionProps> = ({
   );
 };
 
-export default OverallMaterialConsumption;
+export default OverallByMaterialNumber;

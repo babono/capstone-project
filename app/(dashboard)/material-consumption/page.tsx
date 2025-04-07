@@ -19,13 +19,13 @@ import ReactMarkdown from "react-markdown";
 import FiniteShelf from "./charts/finite-shelf";
 import InfiniteShelf from "./charts/infinite-shelf";
 import AskGeminiButton from "../common/ask-gemini";
-import MaterialsVariance from "./charts/materials-variance";
-import OverallMaterialConsumption from "./charts/overall-material-consumption";
-import MaterialTotalTransaction from "./charts/material-total-consumption";
+import MaterialsVariance from "../common/charts/materials-variance";
+import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
+import TotalTransaction from "../common/charts/total-transaction";
 import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
-import FileUploader from "./file-uploader/file-uploader";
-import GlobalFilter from "./global-filter/global-filter";
+import FileUploader from "../common/file-uploader";
+import GlobalFilter from "../common/global-filter";
 
 export default function MaterialConsumption() {
   // NextAuth session
@@ -245,7 +245,7 @@ export default function MaterialConsumption() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Material Consumption Analysis</h1>
-      <FileUploader onDrop={onDrop} file={file} />
+      <FileUploader onDrop={onDrop} file={file} title={"Material Consumption"} />
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}
@@ -259,6 +259,9 @@ export default function MaterialConsumption() {
             vendors={vendors}
             selectedVendors={selectedVendors}
             setSelectedVendors={setSelectedVendors}
+            suppliers={[]}  // Intentionally left empty
+            selectedSuppliers={[]} // Intentionally left empty
+            setSelectedSuppliers={() => { }}  // Intentionally left empty
             dateRange={dateRange}
             setDateRange={setDateRange}
             minDate={minDate}
@@ -266,9 +269,8 @@ export default function MaterialConsumption() {
             topN={topN}
             setTopN={setTopN}
           />
-
           {/* ===== Chart Renders ===== */}
-          <MaterialTotalTransaction
+          <TotalTransaction
             chartId={TRANSACTIONS_CHART_ID}
             filteredTransactionData={filteredTransactionData}
             loading={loadingTransactionsInsight}
@@ -277,11 +279,13 @@ export default function MaterialConsumption() {
               handleInterpret(TRANSACTIONS_CHART_ID, setLoadingTransactionsInsight, setTransactionsInsight)
             }
           />
-          <OverallMaterialConsumption
+          <OverallByMaterialNumber
+            title={"Material Consumption"}
             chartId={GOODS_RECEIPT_CHART_ID}
             filteredData={filteredData}
             loading={loadingMaterialConsumptionInsight}
             insight={MaterialConsumptionInsight}
+            yAxisFieldName={"Quantity"}
             onAskGemini={() =>
               handleInterpret(GOODS_RECEIPT_CHART_ID, setLoadingMaterialConsumptionInsight, setMaterialConsumptionInsight)
             }

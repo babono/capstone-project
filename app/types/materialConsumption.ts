@@ -15,6 +15,7 @@ type MaterialConsumptionCSV = {
 export type MaterialConsumptionCSVData = MaterialConsumptionCSV[];
 
 export type ChartProps = {
+  customKey?: string;
   chartId: string;
   loading: boolean;
   insight: string;

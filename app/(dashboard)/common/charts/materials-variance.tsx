@@ -1,5 +1,5 @@
 import React from "react";
-import AskGeminiButton from "../../common/ask-gemini";
+import AskGeminiButton from "../ask-gemini";
 import { Plot } from "@/app/constants/plot";
 import { ChartProps } from "@/app/types/materialConsumption";
 

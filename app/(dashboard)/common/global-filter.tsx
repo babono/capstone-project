@@ -14,6 +14,9 @@ type GlobalFilterProps = {
   vendors: string[];
   selectedVendors: string[];
   setSelectedVendors: (value: string[]) => void;
+  suppliers: string[];
+  selectedSuppliers: string[];
+  setSelectedSuppliers: (value: string[]) => void;
   dateRange: [Date | null, Date | null];
   setDateRange: (value: [Date | null, Date | null]) => void;
   minDate: Date | undefined;
@@ -32,6 +35,9 @@ const GlobalFilter: React.FC<GlobalFilterProps> = ({
   vendors,
   selectedVendors,
   setSelectedVendors,
+  suppliers,
+  selectedSuppliers,
+  setSelectedSuppliers,
   dateRange,
   setDateRange,
   minDate,
@@ -39,35 +45,54 @@ const GlobalFilter: React.FC<GlobalFilterProps> = ({
   topN,
   setTopN,
 }) => {
+  const selectedPlantsWidth = sites.length > 0 ? "50%" : "100%";
+
   return (
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-4">Global Filters</h2>
       <Box sx={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <Autocomplete
-          multiple
-          options={plants}
-          value={selectedPlants}
-          onChange={(event, newValue) => setSelectedPlants(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
-          sx={{ width: "50%" }}
-        />
-        <Autocomplete
-          multiple
-          options={sites}
-          value={selectedSites}
-          onChange={(event, newValue) => setSelectedSites(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Sites" variant="outlined" />}
-          sx={{ width: "50%" }}
-        />
+        {plants.length > 0 && (
+          <Autocomplete
+            multiple
+            options={plants}
+            value={selectedPlants}
+            onChange={(event, newValue) => setSelectedPlants(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
+            sx={{ width: selectedPlantsWidth }}
+          />
+        )}
+        {sites.length > 0 && (
+          <Autocomplete
+            multiple
+            options={sites}
+            value={selectedSites}
+            onChange={(event, newValue) => setSelectedSites(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Sites" variant="outlined" />}
+            sx={{ width: "50%" }}
+          />
+        )}
       </Box>
-      <Autocomplete
-        multiple
-        options={vendors}
-        value={selectedVendors}
-        onChange={(event, newValue) => setSelectedVendors(newValue)}
-        renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
-        sx={{ marginBottom: "16px", width: "100%" }}
-      />
+      {vendors.length > 0 && (
+        <Autocomplete
+          multiple
+          options={vendors}
+          value={selectedVendors}
+          onChange={(event, newValue) => setSelectedVendors(newValue)}
+          renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
+          sx={{ marginBottom: "16px", width: "100%" }}
+        />
+
+      )}
+      {suppliers.length > 0 && (
+        <Autocomplete
+          multiple
+          options={suppliers}
+          value={selectedSuppliers}
+          onChange={(event, newValue) => setSelectedSuppliers(newValue)}
+          renderInput={(params) => <TextField {...params} label="Select Suppliers" variant="outlined" />}
+          sx={{ marginBottom: "16px", width: "100%" }}
+        />
+      )}
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <DateRangePicker
           value={dateRange}

@@ -1,16 +1,16 @@
 import React from "react";
-import AskGeminiButton from "../../common/ask-gemini";
+import AskGeminiButton from "../ask-gemini";
 import { Plot } from "@/app/constants/plot";
 import { ChartProps } from "@/app/types/materialConsumption";
 
-type MaterialTotalTransactionProps = ChartProps & {
+type TotalTransactionProps = ChartProps & {
   filteredTransactionData: Array<{
     "Material Number": string;
     "Transaction Count": number;
   }>;
 };
 
-const MaterialTotalTransaction: React.FC<MaterialTotalTransactionProps> = ({
+const TotalTransaction: React.FC<TotalTransactionProps> = ({
   chartId,
   filteredTransactionData,
   loading,
@@ -61,4 +61,4 @@ const MaterialTotalTransaction: React.FC<MaterialTotalTransactionProps> = ({
   );
 };
 
-export default MaterialTotalTransaction;
+export default TotalTransaction;
