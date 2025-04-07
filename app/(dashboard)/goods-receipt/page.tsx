@@ -74,7 +74,6 @@ export default function GoodsReceipt() {
     });
     const data = await response.json();
     setPlotData(data);
-    console.log(data);
 
     const uniquePlants = [...new Set(data.map((item) => item["Plant"]))];
     const uniqueSites = [...new Set(data.map((item) => item["Site"]))];
@@ -191,7 +190,6 @@ export default function GoodsReceipt() {
       });
 
       const base64Image = imageData.split(",")[1];
-      console.log(base64Image);
 
       const response = await fetch("/api/insightImage", {
         method: "POST",

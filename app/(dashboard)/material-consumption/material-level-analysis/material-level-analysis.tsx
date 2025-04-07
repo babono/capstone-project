@@ -3,6 +3,7 @@ import { Autocomplete, TextField, FormControl, InputLabel, Select, MenuItem, Box
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { format, startOfWeek, startOfMonth, startOfQuarter } from "date-fns";
 import { Plot } from "@/app/constants/plot";
 import AskGeminiButton from "../../common/ask-gemini";
 
@@ -78,6 +79,8 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
   // Filtered data based on selected material and filters
   const filteredData = useMemo(() => {
     let filtered = materialData;
+    const startDate = dateRange[0];
+    const endDate = dateRange[1];
 
     if (selectedMaterialNum) {
       filtered = filtered.filter((item) => item["Material Number"] === selectedMaterialNum);
@@ -95,11 +98,11 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       filtered = filtered.filter((item) => selectedVendors.includes(item["Vendor Number"]));
     }
 
-    if (dateRange[0] && dateRange[1]) {
+    if (startDate && endDate) {
       filtered = filtered.filter(
         (item) =>
-          new Date(item["Pstng Date"]) >= dateRange[0]! &&
-          new Date(item["Pstng Date"]) <= dateRange[1]!
+          new Date(item["Pstng Date"]) >= startDate! &&
+          new Date(item["Pstng Date"]) <= endDate!
       );
     }
 
@@ -109,24 +112,62 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
   // Aggregated data for visualization
   const aggregatedData = useMemo(() => {
     const groupedData: { [key: string]: { Quantity: number; TransactionCount: number } } = {};
-
-    filteredData.forEach((item) => {
-      const dateKey = new Date(item["Pstng Date"]).toISOString().split("T")[0]; // Group by date
-      if (!groupedData[dateKey]) {
-        groupedData[dateKey] = { Quantity: 0, TransactionCount: 0 };
+  
+    const dateSet = new Set<string>();
+    let dateCursor = dateRange[0] ? new Date(dateRange[0]) : null;
+    const endDate = dateRange[1] ? new Date(dateRange[1]) : null;
+  
+    // Generate all expected date keys (e.g., every day/month/etc)
+    const allKeys: string[] = [];
+    while (dateCursor && endDate && dateCursor <= endDate) {
+      let key = "";
+  
+      if (aggregationLevel === "Daily") {
+        key = format(dateCursor, "yyyy-MM-dd");
+        dateCursor.setDate(dateCursor.getDate() + 1);
+      } else if (aggregationLevel === "Weekly") {
+        key = format(startOfWeek(dateCursor), "yyyy-MM-dd");
+        dateCursor.setDate(dateCursor.getDate() + 7);
+      } else if (aggregationLevel === "Monthly") {
+        key = format(startOfMonth(dateCursor), "yyyy-MM");
+        dateCursor.setMonth(dateCursor.getMonth() + 1);
+      } else if (aggregationLevel === "Quarterly") {
+        key = format(startOfQuarter(dateCursor), "yyyy-'Q'Q");
+        dateCursor.setMonth(dateCursor.getMonth() + 3);
       }
-      groupedData[dateKey].Quantity += item["Quantity"];
-      groupedData[dateKey].TransactionCount += 1;
+  
+      if (!dateSet.has(key)) {
+        dateSet.add(key);
+        allKeys.push(key);
+      }
+    }
+  
+    // Aggregate actual data
+    filteredData.forEach((item) => {
+      const date = new Date(item["Pstng Date"]);
+      let key = "";
+  
+      if (aggregationLevel === "Daily") key = format(date, "yyyy-MM-dd");
+      else if (aggregationLevel === "Weekly") key = format(startOfWeek(date), "yyyy-MM-dd");
+      else if (aggregationLevel === "Monthly") key = format(startOfMonth(date), "yyyy-MM");
+      else if (aggregationLevel === "Quarterly") key = format(startOfQuarter(date), "yyyy-'Q'Q");
+  
+      if (!groupedData[key]) {
+        groupedData[key] = { Quantity: 0, TransactionCount: 0 };
+      }
+  
+      groupedData[key].Quantity += item["Quantity"];
+      groupedData[key].TransactionCount += 1;
     });
-
-    return Object.entries(groupedData)
-      .map(([date, values]) => ({
-        date,
-        ...values,
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [filteredData]);
-
+  
+    // Fill missing keys with zeros
+    return allKeys.map((key) => ({
+      date: key,
+      Quantity: groupedData[key]?.Quantity || 0,
+      TransactionCount: groupedData[key]?.TransactionCount || 0,
+    }));
+  }, [filteredData, aggregationLevel, dateRange]);
+  
   return (
     <div className="mt-6">
       <h1 className="text-2xl font-bold mb-4">Material-Level Analysis</h1>
@@ -211,9 +252,6 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       </FormControl>
 
       {/* Visualization */}
-      <p className="text-l font-semibold">
-        {`Consumption Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`}
-      </p>
       <Plot
         divId={chartId}
         data={[
@@ -234,20 +272,14 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
           },
         ]}
         layout={{
-          xaxis: {
-            title: { text: "Date", font: { color: "black" } },
-            automargin: true,
-          },
-          yaxis: {
-            title: { text: "Quantity", font: { color: "black" } },
-            automargin: true,
-          },
+          title: `Consumption Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`,
+          xaxis: { title: "Date" },
+          yaxis: { title: "Quantity" },
           yaxis2: {
             title: "Transaction Count",
             overlaying: "y",
             side: "right",
           },
-          autosize: true,
         }}
         style={{ width: "100%", height: "100%" }}
       />

@@ -77,7 +77,6 @@ export default function OrderPlacement() {
     });
     const data = await response.json();
     setPlotData(data); // Store the API response in state
-    console.log(data);
 
     // Extract unique values for filters
     const uniquePlants = [...new Set(data.map((item) => item["Plant"]))];
@@ -217,7 +216,6 @@ export default function OrderPlacement() {
       });
 
       const base64Image = imageData.split(",")[1]; // Remove the data URL prefix
-      console.log(base64Image);
 
       // Send request to Google Gemini API
       const response = await fetch("/api/insightImage", {

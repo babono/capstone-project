@@ -23,7 +23,7 @@ import MaterialsVariance from "./charts/materials-variance";
 import OverallMaterialConsumption from "./charts/overall-material-consumption";
 import MaterialTotalTransaction from "./charts/material-total-consumption";
 import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants/plot";
-import MaterialLevelAnalysis from "./material-analysis/material-analysis";
+import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import FileUploader from "./file-uploader/file-uploader";
 import GlobalFilter from "./global-filter/global-filter";
 

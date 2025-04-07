@@ -26,7 +26,6 @@ export default function HomePage() {
       },
       body: JSON.stringify({ prompt }),
     })
-    console.log(response)
     const data = await response.json()
     setInsight(data.response)
   }
