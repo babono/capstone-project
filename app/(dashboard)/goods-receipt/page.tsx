@@ -17,7 +17,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TypeIt from "typeit-react";
 import ReactMarkdown from "react-markdown";
 import MaterialsVariance from "../common/charts/materials-variance";
-import { GOODS_RECEIPT_CHART_ID, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
+import { GOODS_RECEIPT_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
 import TotalTransaction from "../common/charts/total-transaction";
 import GlobalFilter from "../common/global-filter";
@@ -46,22 +46,10 @@ export default function GoodsReceipt() {
   const [sites, setSites] = useState([]);
   const [vendors, setVendors] = useState([]);
 
-  const handleUpload = async (selectedFile) => {
-    if (!selectedFile) {
-      alert("Please select a file to upload.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
-    const response = await fetch("/api/py/uploadExcelGoodsReceipt", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await response.json();
+  const handleUploadComplete = async (data) => {
     setPlotData(data);
 
+    // Extract unique values for filters
     const uniquePlants = [...new Set(data.map((item) => item["Plant"]))];
     const uniqueSites = [...new Set(data.map((item) => item["Site"]))];
     const uniqueVendors = [...new Set(data.map((item) => item["Vendor Number"]))];
@@ -70,32 +58,21 @@ export default function GoodsReceipt() {
     setSites(uniqueSites);
     setVendors(uniqueVendors);
 
+    // Automatically select all plants, suppliers, and vendors
     setSelectedPlants(uniquePlants);
     setSelectedSites(uniqueSites);
     setSelectedVendors(uniqueVendors);
 
+    // Extract date range from the data
     const dates = data.map((item) => new Date(item["Pstng Date"]));
     const oldestDate = new Date(Math.min(...dates));
     const newestDate = new Date(Math.max(...dates));
     setMinDate(oldestDate);
     setMaxDate(newestDate);
 
+    // Automatically set the date range to the full range
     setDateRange([oldestDate, newestDate]);
   };
-
-  const onDrop = (acceptedFiles) => {
-    if (acceptedFiles.length > 0) {
-      const selectedFile = acceptedFiles[0];
-      setFile(selectedFile);
-      handleUpload(selectedFile);
-    }
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: ".xlsx, .xls",
-    multiple: false,
-  });
 
   useEffect(() => {
     if (status === "loading") return // Do nothing while loading
@@ -163,7 +140,13 @@ export default function GoodsReceipt() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">{PAGE_LABEL} Analysis</h1>
-      <FileUploader onDrop={onDrop} file={file} title={PAGE_LABEL} />
+      <FileUploader
+        type={PAGE_KEYS.GOODS_RECEIPT}
+        title={PAGE_LABEL}
+        onUploadComplete={(data) => {
+          handleUploadComplete(data);
+        }}
+      />
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}

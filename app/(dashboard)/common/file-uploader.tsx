@@ -1,21 +1,18 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { useDropzone } from "react-dropzone";
+import { useFileUpload } from "@/app/hooks/useFileUpload";
+import { PAGE_KEYS } from "@/app/constants";
 
 type FileUploaderProps = {
-  onDrop: (acceptedFiles: File[]) => void;
-  file: File | null;
+  type: PAGE_KEYS;
   title: string;
+  onUploadComplete: (data: any) => void;
 };
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onDrop, file, title }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
-      "application/vnd.ms-excel": [".xls"],
-    },
-    multiple: false,
+const FileUploader: React.FC<FileUploaderProps> = ({ type, onUploadComplete, title }) => {
+  const { file, getRootProps, getInputProps, isDragActive } = useFileUpload({
+    type,
+    onUploadComplete,
   });
 
   return (

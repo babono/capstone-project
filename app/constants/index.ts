@@ -25,9 +25,14 @@ export const VARIANCE_CHART_ID = "variance-chart";
 export const FINITE_SHELF_CHART_ID = "finite-shelf-chart";
 export const MATERIAL_LEVEL_CHART_ID = "material-level-chart";
 
-// Labels
 export enum PAGE_LABELS {
   MATERIAL_CONSUMPTION = 'Material Consumption',
   ORDER_PLACEMENT = 'Order Placement',
   GOODS_RECEIPT = 'Goods Receipt'
+}
+
+export enum PAGE_KEYS {
+  MATERIAL_CONSUMPTION = 'material-consumption',
+  ORDER_PLACEMENT = 'order-placement',
+  GOODS_RECEIPT = 'goods-receipt'
 }
