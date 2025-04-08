@@ -3,19 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import dynamic from "next/dynamic";
-import { useDropzone } from "react-dropzone";
-import { Box, Typography, Select, MenuItem, FormControl, InputLabel, TextField } from "@mui/material";
-import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import Image from "next/image"
 import iconDT from "../../../public/ic-dt.svg"
-import logoGemini from "../../../public/logo-gemini.svg"
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import Autocomplete from "@mui/material/Autocomplete";
-import TypeIt from "typeit-react";
-import ReactMarkdown from "react-markdown";
 import { GOODS_RECEIPT_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import FileUploader from "../common/file-uploader";
 import MaterialsVariance from "../common/charts/materials-variance";
@@ -29,7 +18,6 @@ export default function OrderPlacement() {
   const router = useRouter()
 
   // State Variables
-  const [file, setFile] = useState(null);
   const [plotData, setPlotData] = useState([]);
   const [topN, setTopN] = useState(10);
   const [selectedPlants, setSelectedPlants] = useState([]);
