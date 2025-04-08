@@ -300,6 +300,9 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 
       {/* Goods Receipt Quality*/}
       <h1 className="text-2xl font-bold mb-4">Goods Receipt Quantity by Plant Over Time</h1>
+      <p className="text-l font-semibold">
+        {`Goods Receipt Quantity by Plant (${aggregationLevel}) for ${selectedMaterialNum}`}
+      </p>
       <Plot
         divId={chartIdQuantity}
         data={plants.map((plant) => ({
