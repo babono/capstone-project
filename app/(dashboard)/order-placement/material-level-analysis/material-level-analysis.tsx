@@ -155,32 +155,30 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 
       <h2 className="text-xl font-semibold mb-4">Filters</h2>
       <div className="mb-6">
-        <Box sx={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-          <Autocomplete
-            multiple
-            options={plants}
-            value={selectedPlants}
-            onChange={(event, newValue) => setSelectedPlants(newValue)}
-            renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
-            sx={{ width: "33.33%" }}
-          />
-          <Autocomplete
-            multiple
-            options={suppliers}
-            value={selectedSuppliers}
-            onChange={(event, newValue) => setSelectedSuppliers(newValue)}
-            renderInput={(params) => <TextField {...params} label="Select Suppliers" variant="outlined" />}
-            sx={{ width: "33.33%" }}
-          />
-          <Autocomplete
-            multiple
-            options={vendors}
-            value={selectedVendors}
-            onChange={(event, newValue) => setSelectedVendors(newValue)}
-            renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
-            sx={{ width: "33.33%" }}
-          />
-        </Box>
+        <Autocomplete
+          multiple
+          options={plants}
+          value={selectedPlants}
+          onChange={(event, newValue) => setSelectedPlants(newValue)}
+          renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
+          sx={{ marginBottom: "16px", width: "100%" }}
+        />
+        <Autocomplete
+          multiple
+          options={suppliers}
+          value={selectedSuppliers}
+          onChange={(event, newValue) => setSelectedSuppliers(newValue)}
+          renderInput={(params) => <TextField {...params} label="Select Suppliers" variant="outlined" />}
+          sx={{ marginBottom: "16px", width: "100%" }}
+        />
+        <Autocomplete
+          multiple
+          options={vendors}
+          value={selectedVendors}
+          onChange={(event, newValue) => setSelectedVendors(newValue)}
+          renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
+          sx={{ marginBottom: "16px", width: "100%" }}
+        />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateRangePicker
             value={dateRange}
@@ -216,6 +214,9 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       </FormControl>
 
       {/* Visualization */}
+      <p className="text-l font-semibold">
+        {`Order Placement Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`}
+      </p>
       <Plot
         divId={chartId}
         data={[
@@ -236,7 +237,6 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
           },
         ]}
         layout={{
-          title: `Order Placement Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`,
           xaxis: { title: "Date" },
           yaxis: { title: "Order Quantity" },
           yaxis2: {

@@ -246,6 +246,9 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       </FormControl>
 
       {/* Visualization */}
+      <p className="text-l font-semibold">
+        {`Consumption Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`}
+      </p>
       <Plot
         divId={chartId}
         data={[
@@ -266,7 +269,6 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
           },
         ]}
         layout={{
-          title: `Consumption Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`,
           xaxis: { title: "Date" },
           yaxis: { title: "Quantity" },
           yaxis2: {
