@@ -18,13 +18,13 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 }) => {
   // States for filters and selections
   const [plants, setPlants] = useState<string[]>([]);
-  const [suppliers, setSuppliers] = useState<string[]>([]);
+  const [sites, setSites] = useState<string[]>([]);
   const [vendors, setVendors] = useState<string[]>([]);
   const [minDate, setMinDate] = useState<Date | undefined>();
   const [maxDate, setMaxDate] = useState<Date | undefined>();
   const [selectedMaterialNum, setSelectedMaterial] = useState<string | null>(null);
   const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
+  const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [aggregationLevel, setAggregationLevel] = useState<string>("Daily");
@@ -32,18 +32,18 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
   // Helper function to update filters based on material
   const updateFilters = (filteredData: any[]) => {
     const uniquePlants = [...new Set(filteredData.map((item) => item["Plant"]))];
-    const uniqueSuppliers = [...new Set(filteredData.map((item) => item["Supplier"] || "Unknown"))];
-    const uniqueVendors = [...new Set(filteredData.map((item) => item["Vendor Number"] || "Unknown"))];
+    const uniqueSites = [...new Set(filteredData.map((item) => item["Site"]))];
+    const uniqueVendors = [...new Set(filteredData.map((item) => item["Vendor Number"]))];
 
     setPlants(uniquePlants);
-    setSuppliers(uniqueSuppliers);
+    setSites(uniqueSites);
     setVendors(uniqueVendors);
 
     setSelectedPlants(uniquePlants);
-    setSelectedSuppliers(uniqueSuppliers);
+    setSelectedSites(uniqueSites);
     setSelectedVendors(uniqueVendors);
 
-    const timestamps = filteredData.map((item) => new Date(item["Document Date"]).getTime());
+    const timestamps = filteredData.map((item) => new Date(item["Pstng Date"]).getTime());
     const oldestDate = new Date(Math.min(...timestamps));
     const newestDate = new Date(Math.max(...timestamps));
 
@@ -84,24 +84,24 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       filtered = filtered.filter((item) => selectedPlants.includes(item["Plant"]));
     }
 
-    if (selectedSuppliers.length > 0) {
-      filtered = filtered.filter((item) => selectedSuppliers.includes(item["Supplier"] || "Unknown"));
+    if (selectedSites.length > 0) {
+      filtered = filtered.filter((item) => selectedSites.includes(item["Site"]));
     }
 
     if (selectedVendors.length > 0) {
-      filtered = filtered.filter((item) => selectedVendors.includes(item["Vendor Number"] || "Unknown"));
+      filtered = filtered.filter((item) => selectedVendors.includes(item["Vendor Number"]));
     }
 
     if (startDate && endDate) {
       filtered = filtered.filter(
         (item) =>
-          new Date(item["Document Date"]) >= startDate! &&
-          new Date(item["Document Date"]) <= endDate!
+          new Date(item["Pstng Date"]) >= startDate! &&
+          new Date(item["Pstng Date"]) <= endDate!
       );
     }
 
     return filtered;
-  }, [materialData, selectedMaterialNum, selectedPlants, selectedSuppliers, selectedVendors, dateRange]);
+  }, [materialData, selectedMaterialNum, selectedPlants, selectedSites, selectedVendors, dateRange]);
 
   // Aggregated data for visualization
   const aggregatedData = useMemo(() => {
@@ -138,7 +138,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 
     // Aggregate actual data
     filteredData.forEach((item) => {
-      const date = new Date(item["Document Date"]);
+      const date = new Date(item["Pstng Date"]);
       let key = "";
 
       if (aggregationLevel === "Daily") key = format(date, "yyyy-MM-dd");
@@ -150,7 +150,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         groupedData[key] = { Quantity: 0, TransactionCount: 0 };
       }
 
-      groupedData[key].Quantity += item["Order Quantity"];
+      groupedData[key].Quantity += item["Quantity"];
       groupedData[key].TransactionCount += 1;
     });
 
@@ -185,30 +185,32 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 
       <h2 className="text-xl font-semibold mb-4">Filters</h2>
       <div className="mb-6">
-        <Autocomplete
-          multiple
-          options={plants}
-          value={selectedPlants}
-          onChange={(event, newValue) => setSelectedPlants(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
-          sx={{ marginBottom: "16px", width: "100%" }}
-        />
-        <Autocomplete
-          multiple
-          options={suppliers}
-          value={selectedSuppliers}
-          onChange={(event, newValue) => setSelectedSuppliers(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Suppliers" variant="outlined" />}
-          sx={{ marginBottom: "16px", width: "100%" }}
-        />
-        <Autocomplete
-          multiple
-          options={vendors}
-          value={selectedVendors}
-          onChange={(event, newValue) => setSelectedVendors(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
-          sx={{ marginBottom: "16px", width: "100%" }}
-        />
+        <Box sx={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <Autocomplete
+            multiple
+            options={plants}
+            value={selectedPlants}
+            onChange={(event, newValue) => setSelectedPlants(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Plants" variant="outlined" />}
+            sx={{ width: "33.33%" }}
+          />
+          <Autocomplete
+            multiple
+            options={sites}
+            value={selectedSites}
+            onChange={(event, newValue) => setSelectedSites(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Sites" variant="outlined" />}
+            sx={{ width: "33.33%" }}
+          />
+          <Autocomplete
+            multiple
+            options={vendors}
+            value={selectedVendors}
+            onChange={(event, newValue) => setSelectedVendors(newValue)}
+            renderInput={(params) => <TextField {...params} label="Select Vendors" variant="outlined" />}
+            sx={{ width: "33.33%" }}
+          />
+        </Box>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DateRangePicker
             value={dateRange}
@@ -245,7 +247,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
 
       {/* Visualization */}
       <p className="text-l font-semibold">
-        {`Order Placement Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`}
+        {`Goods Receipt Trend and Transaction Count (${aggregationLevel}) for ${selectedMaterialNum}`}
       </p>
       <Plot
         divId={chartId}
@@ -255,7 +257,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             y: aggregatedData.map((item) => item.Quantity),
             type: "scatter",
             mode: "lines+markers",
-            name: "Order Quantity",
+            name: "Quantity",
           },
           {
             x: aggregatedData.map((item) => item.date),
@@ -268,7 +270,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         ]}
         layout={{
           xaxis: { title: "Date" },
-          yaxis: { title: "Order Quantity" },
+          yaxis: { title: "Quantity" },
           yaxis2: {
             title: "Transaction Count",
             overlaying: "y",
