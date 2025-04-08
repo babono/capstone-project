@@ -10,11 +10,13 @@ import AskGeminiButton from "../../common/ask-gemini";
 type MaterialLevelAnalysisProps = {
   materialData: any[];
   chartId: string;
+  chartIdQuantity: string;
 };
 
 const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
   materialData,
   chartId,
+  chartIdQuantity,
 }) => {
   // States for filters and selections
   const [plants, setPlants] = useState<string[]>([]);
@@ -44,12 +46,9 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
     setSelectedVendors(uniqueVendors);
 
     const timestamps = filteredData.map((item) => new Date(item["Pstng Date"]).getTime());
-    const oldestDate = new Date(Math.min(...timestamps));
-    const newestDate = new Date(Math.max(...timestamps));
-
-    setMinDate(oldestDate);
-    setMaxDate(newestDate);
-    setDateRange([oldestDate, newestDate]);
+    setMinDate(new Date(Math.min(...timestamps)));
+    setMaxDate(new Date(Math.max(...timestamps)));
+    setDateRange([new Date(Math.min(...timestamps)), new Date(Math.max(...timestamps))]);
   };
 
   // Automatically set the first material number and adjust filters
@@ -57,65 +56,42 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
     if (materialData.length > 0) {
       const firstMaterial = materialData[0]["Material Number"];
       setSelectedMaterial(firstMaterial);
-      const filteredData = materialData.filter((item) => item["Material Number"] === firstMaterial);
-      updateFilters(filteredData);
+      updateFilters(materialData.filter((item) => item["Material Number"] === firstMaterial));
     }
   }, [materialData]);
 
   // Adjust filters dynamically when the material number changes
   useEffect(() => {
     if (selectedMaterialNum) {
-      const filteredData = materialData.filter((item) => item["Material Number"] === selectedMaterialNum);
-      updateFilters(filteredData);
+      updateFilters(materialData.filter((item) => item["Material Number"] === selectedMaterialNum));
     }
   }, [selectedMaterialNum, materialData]);
 
   // Filtered data based on selected material and filters
   const filteredData = useMemo(() => {
-    let filtered = materialData;
-    const startDate = dateRange[0];
-    const endDate = dateRange[1];
+    return materialData.filter((item) => {
+      const isMaterialMatch = !selectedMaterialNum || item["Material Number"] === selectedMaterialNum;
+      const isPlantMatch = selectedPlants.length === 0 || selectedPlants.includes(item["Plant"]);
+      const isSiteMatch = selectedSites.length === 0 || selectedSites.includes(item["Site"]);
+      const isVendorMatch = selectedVendors.length === 0 || selectedVendors.includes(item["Vendor Number"]);
+      const isDateMatch =
+        (!dateRange[0] || new Date(item["Pstng Date"]) >= dateRange[0]) &&
+        (!dateRange[1] || new Date(item["Pstng Date"]) <= dateRange[1]);
 
-    if (selectedMaterialNum) {
-      filtered = filtered.filter((item) => item["Material Number"] === selectedMaterialNum);
-    }
-
-    if (selectedPlants.length > 0) {
-      filtered = filtered.filter((item) => selectedPlants.includes(item["Plant"]));
-    }
-
-    if (selectedSites.length > 0) {
-      filtered = filtered.filter((item) => selectedSites.includes(item["Site"]));
-    }
-
-    if (selectedVendors.length > 0) {
-      filtered = filtered.filter((item) => selectedVendors.includes(item["Vendor Number"]));
-    }
-
-    if (startDate && endDate) {
-      filtered = filtered.filter(
-        (item) =>
-          new Date(item["Pstng Date"]) >= startDate! &&
-          new Date(item["Pstng Date"]) <= endDate!
-      );
-    }
-
-    return filtered;
+      return isMaterialMatch && isPlantMatch && isSiteMatch && isVendorMatch && isDateMatch;
+    });
   }, [materialData, selectedMaterialNum, selectedPlants, selectedSites, selectedVendors, dateRange]);
 
   // Aggregated data for visualization
   const aggregatedData = useMemo(() => {
     const groupedData: { [key: string]: { Quantity: number; TransactionCount: number } } = {};
-
-    const dateSet = new Set<string>();
+    const allKeys: string[] = [];
     const dateCursor = dateRange[0] ? new Date(dateRange[0]) : null;
     const endDate = dateRange[1] ? new Date(dateRange[1]) : null;
 
-    // Generate all expected date keys (e.g., every day/month/etc)
-    const allKeys: string[] = [];
+    // Generate all expected date keys
     while (dateCursor && endDate && dateCursor <= endDate) {
       let key = "";
-
       if (aggregationLevel === "Daily") {
         key = format(dateCursor, "yyyy-MM-dd");
         dateCursor.setDate(dateCursor.getDate() + 1);
@@ -129,27 +105,24 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         key = format(startOfQuarter(dateCursor), "yyyy-'Q'Q");
         dateCursor.setMonth(dateCursor.getMonth() + 3);
       }
-
-      if (!dateSet.has(key)) {
-        dateSet.add(key);
-        allKeys.push(key);
-      }
+      allKeys.push(key);
     }
 
     // Aggregate actual data
     filteredData.forEach((item) => {
       const date = new Date(item["Pstng Date"]);
-      let key = "";
-
-      if (aggregationLevel === "Daily") key = format(date, "yyyy-MM-dd");
-      else if (aggregationLevel === "Weekly") key = format(startOfWeek(date), "yyyy-MM-dd");
-      else if (aggregationLevel === "Monthly") key = format(startOfMonth(date), "yyyy-MM");
-      else if (aggregationLevel === "Quarterly") key = format(startOfQuarter(date), "yyyy-'Q'Q");
+      const key =
+        aggregationLevel === "Daily"
+          ? format(date, "yyyy-MM-dd")
+          : aggregationLevel === "Weekly"
+            ? format(startOfWeek(date), "yyyy-MM-dd")
+            : aggregationLevel === "Monthly"
+              ? format(startOfMonth(date), "yyyy-MM")
+              : format(startOfQuarter(date), "yyyy-'Q'Q");
 
       if (!groupedData[key]) {
         groupedData[key] = { Quantity: 0, TransactionCount: 0 };
       }
-
       groupedData[key].Quantity += item["Quantity"];
       groupedData[key].TransactionCount += 1;
     });
@@ -157,10 +130,50 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
     // Fill missing keys with zeros
     return allKeys.map((key) => ({
       date: key,
-      Quantity: groupedData[key]?.Quantity || 0,
-      TransactionCount: groupedData[key]?.TransactionCount || 0,
+      quantity: groupedData[key]?.Quantity || 0,
+      transactionCount: groupedData[key]?.TransactionCount || 0,
     }));
   }, [filteredData, aggregationLevel, dateRange]);
+
+  // Aggregated data for Quantity by Plant over Time
+  const plantAggregatedData = useMemo(() => {
+    const groupedData: { [key: string]: { [plant: string]: number } } = {};
+    const allDates = new Set<string>();
+    const allPlants = new Set<string>(plants);
+
+    filteredData.forEach((item) => {
+      const date = new Date(item["Pstng Date"]);
+      const key =
+        aggregationLevel === "Daily"
+          ? format(date, "yyyy-MM-dd")
+          : aggregationLevel === "Weekly"
+            ? format(startOfWeek(date), "yyyy-MM-dd")
+            : aggregationLevel === "Monthly"
+              ? format(startOfMonth(date), "yyyy-MM")
+              : format(startOfQuarter(date), "yyyy-'Q'Q");
+
+      allDates.add(key);
+
+      if (!groupedData[key]) {
+        groupedData[key] = {};
+      }
+      groupedData[key][item["Plant"]] = (groupedData[key][item["Plant"]] || 0) + item["Quantity"];
+    });
+
+    // Fill missing combinations of dates and plants with zeros
+    const result: { date: string; plant: string; quantity: number }[] = [];
+    allDates.forEach((date) => {
+      allPlants.forEach((plant) => {
+        result.push({
+          date,
+          plant,
+          quantity: groupedData[date]?.[plant] || 0,
+        });
+      });
+    });
+
+    return result;
+  }, [filteredData, aggregationLevel, plants]);
 
   return (
     <div className="mt-6">
@@ -254,14 +267,14 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         data={[
           {
             x: aggregatedData.map((item) => item.date),
-            y: aggregatedData.map((item) => item.Quantity),
+            y: aggregatedData.map((item) => item.quantity),
             type: "scatter",
             mode: "lines+markers",
             name: "Quantity",
           },
           {
             x: aggregatedData.map((item) => item.date),
-            y: aggregatedData.map((item) => item.TransactionCount),
+            y: aggregatedData.map((item) => item.transactionCount),
             type: "scatter",
             mode: "lines+markers",
             name: "Transaction Count",
@@ -283,6 +296,28 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
         style={{ width: "100%", height: "100%" }}
       />
       <AskGeminiButton chartId={chartId} />
+      <br></br>
+
+      {/* Goods Receipt Quality*/}
+      <h1 className="text-2xl font-bold mb-4">Goods Receipt Quantity by Plant Over Time</h1>
+      <Plot
+        divId={chartIdQuantity}
+        data={plants.map((plant) => ({
+          x: plantAggregatedData.filter((item) => item.plant === plant).map((item) => item.date),
+          y: plantAggregatedData.filter((item) => item.plant === plant).map((item) => item.quantity),
+          type: "bar",
+          name: plant,
+          marker: { color: "blue" },
+        }))}
+        layout={{
+          barmode: "group",
+          xaxis: { title: "Date" },
+          yaxis: { title: "Quantity" },
+          title: `Goods Receipt Quantity by Plant Over Time (${aggregationLevel})`,
+        }}
+        style={{ width: "100%", height: "100%" }}
+      />
+      <AskGeminiButton chartId={chartIdQuantity} />
     </div>
   );
 };

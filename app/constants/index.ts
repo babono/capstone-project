@@ -24,6 +24,7 @@ export const GOODS_RECEIPT_CHART_ID = "goods-receipt-chart";
 export const VARIANCE_CHART_ID = "variance-chart";
 export const FINITE_SHELF_CHART_ID = "finite-shelf-chart";
 export const MATERIAL_LEVEL_CHART_ID = "material-level-chart";
+export const QUANTITY_BY_PLANT_CHART_ID = "quantity-by-plant-chart";
 
 export enum PAGE_LABELS {
   MATERIAL_CONSUMPTION = 'Material Consumption',
