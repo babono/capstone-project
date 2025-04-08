@@ -108,7 +108,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
     const groupedData: { [key: string]: { Quantity: number; TransactionCount: number } } = {};
 
     const dateSet = new Set<string>();
-    let dateCursor = dateRange[0] ? new Date(dateRange[0]) : null;
+    const dateCursor = dateRange[0] ? new Date(dateRange[0]) : null;
     const endDate = dateRange[1] ? new Date(dateRange[1]) : null;
 
     // Generate all expected date keys (e.g., every day/month/etc)
