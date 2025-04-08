@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation"
 import Image from "next/image";
 import iconDT from "../../../public/ic-dt.svg";
 import MaterialsVariance from "../common/charts/materials-variance";
-import { GOODS_RECEIPT_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
+import { GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
 import TotalTransaction from "../common/charts/total-transaction";
 import GlobalFilter from "../common/global-filter";
 import FileUploader from "../common/file-uploader";
+import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 
 export default function GoodsReceipt() {
   // NextAuth session
@@ -172,6 +173,10 @@ export default function GoodsReceipt() {
           <MaterialsVariance
             chartId={VARIANCE_CHART_ID}
             varianceData={filteredVarianceData}
+          />
+          <MaterialLevelAnalysis
+            chartId={MATERIAL_LEVEL_CHART_ID}
+            materialData={plotData}
           />
         </>
       )}
