@@ -16,6 +16,18 @@ export default function HomePage() {
   }, [session, status, router])
 
 
+  const handlePromptSubmit = async () => {
+    const response = await fetch('/api/insight', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt }),
+    })
+    const data = await response.json()
+    setInsight(data.response)
+  }
+
   if (status === "loading" || !session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
