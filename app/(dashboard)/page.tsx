@@ -15,19 +15,7 @@ export default function HomePage() {
     if (!session) router.push("/login")
   }, [session, status, router])
 
-
-  const handlePromptSubmit = async () => {
-    const response = await fetch('/api/insight', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt }),
-    })
-    const data = await response.json()
-    setInsight(data.response)
-  }
-
+  // Redirect if not logged in
   if (status === "loading" || !session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
