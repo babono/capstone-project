@@ -255,6 +255,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             y: aggregatedData.map((item) => item.Quantity),
             type: "scatter",
             mode: "lines+markers",
+            marker: { color: "blue" },
             name: "Order Quantity",
           },
           {
@@ -262,6 +263,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             y: aggregatedData.map((item) => item.TransactionCount),
             type: "scatter",
             mode: "lines+markers",
+            marker: { color: "#8880FA" },
             name: "Transaction Count",
             yaxis: "y2",
           },

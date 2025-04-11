@@ -270,6 +270,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             y: aggregatedData.map((item) => item.quantity),
             type: "scatter",
             mode: "lines+markers",
+            marker: { color: "blue" },
             name: "Quantity",
           },
           {
@@ -277,6 +278,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
             y: aggregatedData.map((item) => item.transactionCount),
             type: "scatter",
             mode: "lines+markers",
+            marker: { color: "#8880FA" },
             name: "Transaction Count",
             yaxis: "y2",
           },
@@ -298,7 +300,7 @@ const MaterialLevelAnalysis: React.FC<MaterialLevelAnalysisProps> = ({
       <AskGeminiButton chartId={chartId} />
       <br></br>
 
-      {/* Goods Receipt Quality*/}
+      {/* Goods Receipt Quantity*/}
       <h1 className="text-2xl font-bold mb-4">Goods Receipt Quantity by Plant Over Time</h1>
       <p className="text-l font-semibold">
         {`Goods Receipt Quantity by Plant (${aggregationLevel}) for ${selectedMaterialNum}`}
