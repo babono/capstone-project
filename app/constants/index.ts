@@ -29,11 +29,13 @@ export const QUANTITY_BY_PLANT_CHART_ID = "quantity-by-plant-chart";
 export enum PAGE_LABELS {
   MATERIAL_CONSUMPTION = 'Material Consumption',
   ORDER_PLACEMENT = 'Order Placement',
-  GOODS_RECEIPT = 'Goods Receipt'
+  GOODS_RECEIPT = 'Goods Receipt',
+  HOME= 'Home'
 }
 
 export enum PAGE_KEYS {
   MATERIAL_CONSUMPTION = 'material-consumption',
   ORDER_PLACEMENT = 'order-placement',
-  GOODS_RECEIPT = 'goods-receipt'
+  GOODS_RECEIPT = 'goods-receipt',
+  HOME = 'home',
 }

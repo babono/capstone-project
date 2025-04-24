@@ -19,6 +19,8 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
         return "/api/py/uploadExcelOrderPlacement";
       case PAGE_KEYS.GOODS_RECEIPT:
         return "/api/py/uploadExcelGoodsReceipt";
+      case PAGE_KEYS.HOME:
+        return "/api/py/uploadShortageZip";
       default:
         throw new Error("Invalid type provided to useFileUpload");
     }
@@ -57,6 +59,7 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
     accept: {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
       "application/vnd.ms-excel": [".xls"],
+      "application/zip": [".zip"],
     },
     multiple: false,
   });

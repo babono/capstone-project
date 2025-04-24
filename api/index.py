@@ -1,10 +1,14 @@
 import io
 import pandas as pd
 import logging
+import zipfile
+import os
+import tempfile
 
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -121,3 +125,56 @@ async def visualization_data(data: list, material_column: str = "Material Number
     material_counts = df[material_column].value_counts().reset_index()
     material_counts.columns = [material_column, "Transaction Count"]
     return material_counts.to_dict(orient="records")
+
+async def extract_data_from_zip(zip_file: UploadFile):
+    """Extracts data from XLSX files within a ZIP archive and returns a raw json"""
+
+    try:
+        content = await zip_file.read()
+        zip_buffer = io.BytesIO(content)
+
+        with zipfile.ZipFile(zip_buffer, "r") as zip_archive:
+            data = {}
+            for filename in zip_archive.namelist():
+                # log the filename
+                logger.info(f"Processing file: {filename}")
+                print(f"Processing file: {filename}")
+                if filename.endswith(".xlsx"):
+                    try:
+                        excel_file = zip_archive.open(filename)
+                        df = pd.read_excel(excel_file)
+
+                        # Handle NaN values by replacing them with empty strings
+                        df = df.fillna('')
+
+                        data[filename] = df.to_dict(orient="records")  # Convert to list of dictionaries for JSON
+                        # log the current data
+                        logger.info(f"Data extracted from {filename}: {data[filename]}")
+                        print(f"Data extracted from {filename}: {data[filename]}")
+                    except Exception as e:
+                        logger.error(f"Error reading {filename}: {e}", exc_info=True)  # Log the error with traceback
+                        raise HTTPException(status_code=500, detail=f"Error reading {filename}: {e}")  # Abort and return error and message
+
+            return data  # The data dict has the filename and the corresponding json.
+    except zipfile.BadZipFile:
+        raise HTTPException(status_code=400, detail="Invalid ZIP file")
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {str(e)}", exc_info=True)  # Log the unexpected error with traceback
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+@app.post("/api/py/uploadShortageZip")
+async def upload_zip(file: UploadFile = File(...)):
+    """Upload a ZIP file containing XLSX files and get the raw data in JSON format."""
+
+    if not file.filename.endswith(".zip"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only ZIP files are allowed.")
+
+    try:
+        data = await extract_data_from_zip(file)  # Call the function to extract data
+
+        return data  #Return the response to the client.
+    except HTTPException as http_exc:
+        raise http_exc  #Re-raise HTTPExceptions to preserve their status codes.
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
