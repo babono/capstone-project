@@ -178,3 +178,20 @@ async def upload_zip(file: UploadFile = File(...)):
         raise http_exc  #Re-raise HTTPExceptions to preserve their status codes.
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+@app.post("/api/py/uploadShortageXlsx")
+async def upload_xlsx(file: UploadFile = File(...)):
+    """Upload an XLSX file and get the raw data in JSON format."""
+
+    if not file.filename.endswith((".xlsx", ".xls")):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only XLSX or XLS files are allowed.")
+
+    try:
+        contents = await file.read()
+        df = pd.read_excel(io.BytesIO(contents))
+        df = df.fillna('')
+        data = df.to_dict(orient="records")
+        return data
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

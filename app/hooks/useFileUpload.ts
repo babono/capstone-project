@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { PAGE_KEYS } from "../constants";
+import JSZip from 'jszip';
 
 type UseFileUploadProps = {
   type: PAGE_KEYS;
@@ -20,9 +21,45 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
       case PAGE_KEYS.GOODS_RECEIPT:
         return "/api/py/uploadExcelGoodsReceipt";
       case PAGE_KEYS.HOME:
-        return "/api/py/uploadShortageZip";
+        return "/api/py/uploadShortageXlsx"; // Modified endpoint name
       default:
         throw new Error("Invalid type provided to useFileUpload");
+    }
+  };
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const apiEndpoint = getApiEndpoint();
+    const response = await fetch(apiEndpoint, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      console.error(`Failed to upload ${file.name}`);
+      return false; // Indicate failure
+    }
+    return await response.json();
+  };
+
+  const handleZipUpload = async (zipFile: File) => {
+    try {
+      const zip = await JSZip.loadAsync(zipFile);
+      const files = Object.values(zip.files).filter(file => !file.dir && (file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))); // Filter out directories and non-excel files
+      const uploadResults = [];
+
+      for (const file of files) {
+        const blob = await file.async("blob");
+        const fileObject = new File([blob], file.name);
+        const result = await uploadFile(fileObject);
+        console.log("Uploaded data:", result);
+        uploadResults.push(result);
+      }
+
+      onUploadComplete(uploadResults); // Pass the uploaded data back to the parent component
+    } catch (error) {
+      console.error("Error extracting or uploading files from zip:", error);
+      alert("Failed to process the zip file. Please try again.");
     }
   };
 
@@ -31,19 +68,13 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
       alert("Please select a file to upload.");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    const apiEndpoint = getApiEndpoint();
-    const response = await fetch(apiEndpoint, {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
-      alert("Failed to upload the file. Please try again.");
-      return;
+
+    if (selectedFile.type === 'application/zip' || selectedFile.name.endsWith('.zip')) {
+      await handleZipUpload(selectedFile);
+    } else {
+      const data = await uploadFile(selectedFile);
+      onUploadComplete(data);
     }
-    const data = await response.json();
-    onUploadComplete(data); // Pass the uploaded data back to the parent component
   };
 
   const onDrop = (acceptedFiles: File[]) => {
@@ -62,6 +93,10 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
       "application/zip": [".zip"],
     },
     multiple: false,
+    onError: (error) => {
+      console.error("Error uploading file:", error);
+      alert("An error occurred while uploading the file. Please try again.");
+    }
   });
 
   return { file, getRootProps, getInputProps, isDragActive };

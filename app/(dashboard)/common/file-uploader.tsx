@@ -1,3 +1,4 @@
+export const maxDuration = 300;
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useFileUpload } from "@/app/hooks/useFileUpload";

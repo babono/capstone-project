@@ -33,6 +33,7 @@
     "concurrently": "^9.0.1",
     "date-fns": "^2.30.0",
     "html2canvas": "^1.4.1",
+    "jszip": "^3.10.1",
     "next": "15.2.0",
     "next-auth": "^4.24.11",
     "papaparse": "^5.5.2",
