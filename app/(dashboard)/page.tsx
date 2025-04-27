@@ -13,8 +13,7 @@ import {
   Select,
   MenuItem,
   TextField,
-  Autocomplete,
-  Box,
+  Autocomplete,  
   Button,
   Table,
   TableBody,
@@ -224,7 +223,7 @@ export default function HomePage() {
   function generateWeeksRange(startWeek: number, numWeeks: number): string[] {
     const weeksRange: string[] = [];
     for (let i = 0; i < 2 * numWeeks + 1; i++) {
-      let week = (startWeek + i - numWeeks) % 52 || 52;
+      const week = (startWeek + i - numWeeks) % 52 || 52;
       if (startWeek - numWeeks < 1 && week > startWeek + numWeeks) {
         continue;
       }
@@ -263,7 +262,7 @@ export default function HomePage() {
     return plotData;
   };
 
-  const checkWosAgainstLeadTime = (data: any[]) => {
+  const checkWosAgainstLeadTime = () => {
     const messages: string[] = [];
     // Implement your logic here to compare Weeks of Supply against Lead Time
     // and generate messages.
