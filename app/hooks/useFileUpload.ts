@@ -45,7 +45,13 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
   const handleZipUpload = async (zipFile: File) => {
     try {
       const zip = await JSZip.loadAsync(zipFile);
-      const files = Object.values(zip.files).filter(file => !file.dir && (file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))); // Filter out directories and non-excel files
+      let files = Object.values(zip.files).filter(file => !file.dir && (file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))); // Filter out directories and non-excel files
+
+      // Sort files by name in ascending order using natural sorting
+      const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+      files.sort((a, b) => collator.compare(a.name, b.name));
+
+      console.log("Extracted files:", files);
       const uploadResults = [];
 
       for (const file of files) {

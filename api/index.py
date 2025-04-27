@@ -190,6 +190,7 @@ async def upload_xlsx(file: UploadFile = File(...)):
         contents = await file.read()
         df = pd.read_excel(io.BytesIO(contents))
         df = df.fillna('')
+
         data = df.to_dict(orient="records")
         return data
     except Exception as e:

@@ -45,3 +45,4 @@ __pycache__/
 *.py[cod]
 *.pyc
 /api/__pycache__/
+/public/uploadedData.json
