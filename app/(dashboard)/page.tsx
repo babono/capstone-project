@@ -30,7 +30,7 @@ import dynamic from "next/dynamic";
 // Handle dynamic import for Plotly JS for Next.js. For different components usage
 // DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
 
-export const Plot = dynamic(
+const Plot = dynamic(
   () =>
     import("react-plotly.js").then(
       (mod) =>
