@@ -47,3 +47,4 @@ __pycache__/
 /api/__pycache__/
 /public/uploadedData.json
 /serviceaccount.json
+/to-uninstall.txt

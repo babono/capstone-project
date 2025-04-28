@@ -2,29 +2,14 @@ import io, json
 import pandas as pd
 import logging
 import zipfile
-import json
 import asyncio
+import requests  # Added for HTTP requests
 from fastapi import FastAPI, UploadFile, File, HTTPException, Response
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-
 from decouple import config
-SERVICE_ACCOUNT_FILE_VAR = config("SERVICE_ACCOUNT_GOOGLE")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-
-SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-SERVICE_ACCOUNT_FILE = json.loads(SERVICE_ACCOUNT_FILE_VAR)
-with open('serviceaccount.json', 'w', encoding='utf-8') as f:
-    json.dump(SERVICE_ACCOUNT_FILE, f, ensure_ascii=False, indent=4)
-
-# Create Drive API service
-credentials = service_account.Credentials.from_service_account_file(
-    'serviceaccount.json', scopes=SCOPES)
-drive_service = build('drive', 'v3', credentials=credentials)
 
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 
@@ -35,54 +20,33 @@ def hello_fast_api():
 @app.post("/api/py/uploadExcelMaterialConsumption")
 async def upload_file(file: UploadFile):
     try:
-        # Log the start of the process
         logger.info("Starting uploadExcelMaterialConsumption endpoint")
-        print("Starting uploadExcelMaterialConsumption endpoint")
-
-        # Read the file contents
         contents = await file.read()
         logger.info("File read successfully")
-
-        # Load the Excel file into a DataFrame
         data = pd.read_excel(io.BytesIO(contents))
         logger.info("Excel file loaded into DataFrame")
-
-        # Strip leading and trailing spaces from all string columns
         data = data.applymap(lambda x: x.strip() if isinstance(x, str) else x)
         data.columns = data.columns.str.strip()
         logger.info("Stripped leading and trailing spaces from columns and data")
-
-        # Replace empty strings or unexpected values with "Unknown"
         data.replace(["", " ", None], "Unknown", inplace=True)
-        logger.info("Replaced empty strings and unexpected values with 'Unknown'")
-
-        # Convert 'Pstng Date' to datetime
+        logger.info("Replaced empty strings with 'Unknown'")
         if 'Pstng Date' in data.columns:
             data['Pstng Date'] = pd.to_datetime(data['Pstng Date'], errors='coerce')
             logger.info("'Pstng Date' column converted to datetime")
-
-        # Convert 'SLED/BBD' to datetime, handling errors
         if 'SLED/BBD' in data.columns:
             data['SLED/BBD'] = pd.to_datetime(data['SLED/BBD'], errors='coerce')
             logger.info("'SLED/BBD' column converted to datetime")
-
-        # Convert negative consumption values to positive
         if 'Quantity' in data.columns:
             data['Quantity'] = data['Quantity'].abs()
-            logger.info("Negative values in 'Quantity' column converted to positive")
-
+            logger.info("Negative values in 'Quantity' converted to positive")
         if 'Quantity in UnE' in data.columns:
             data['Quantity in UnE'] = data['Quantity in UnE'].abs()
-            logger.info("Negative values in 'Quantity in UnE' column converted to positive")
-
-        # Convert to dictionary and return
+            logger.info("Negative values in 'Quantity in UnE' converted to positive")
         result = data.to_dict(orient="records")
-        logger.info("Data successfully converted to dictionary and returned")
+        logger.info("Data converted to dictionary and returned")
         return result
-
     except Exception as e:
-        # Log the exception
-        logger.error(f"An error occurred: {e}", exc_info=True)
+        logger.error(f"Error: {e}", exc_info=True)
         return {"error": "An internal server error occurred. Please check the logs for more details."}
 
 @app.post("/api/py/uploadExcelOrderPlacement")
@@ -210,32 +174,17 @@ async def upload_xlsx(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 @app.get("/api/py/fetchWaterfallJson")
-async def fetch_google_json():
+async def fetch_public_json():
     """
-    Fetches a JSON file from Google Drive using the Google Drive API.
+    Fetches a JSON file using the public URL:
+    https://storage.googleapis.com/babono_bucket/uploadedData.json
     """
-    file_id = "1PqmCSh3OUj80lrU-jV0AOQ113uYvq-AT"
-    
-    def download_file():
-        try:
-            request = drive_service.files().get_media(fileId=file_id)
-            file_data = io.BytesIO()
-            downloader = MediaIoBaseDownload(file_data, request)
-            done = False
-            while not done:
-                status, done = downloader.next_chunk()
-                logger.info(f"Download progress: {int(status.progress() * 100)}%")
-            file_data.seek(0)
-            return file_data.read().decode('utf-8')
-        except Exception as e:
-            logger.error(f"Error during file download: {str(e)}", exc_info=True)
-            raise
-        
+    public_url = "https://storage.googleapis.com/babono_bucket/uploadedData.json"
     try:
-        # Run the blocking download in a separate thread
-        json_str = await asyncio.to_thread(download_file)
-        data = json.loads(json_str)
+        response = requests.get(public_url)
+        response.raise_for_status()
+        data = response.json()
         return data
     except Exception as e:
-        logger.error(f"Error fetching JSON from Google Drive: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        logger.error(f"Error fetching JSON from public URL: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")

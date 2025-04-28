@@ -6,7 +6,4 @@ chardet
 pandas
 openpyxl
 python-decouple
-
-# Google Drive API dependencies
-google-auth-httplib2
-google-auth-oauthlib
+requests
