@@ -2,11 +2,12 @@
 "use client"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import iconDT from "../../public/ic-dt.svg"
 import { PAGE_KEYS, PAGE_LABELS } from "@/app/constants"
 import FileUploader from "./common/file-uploader"
+import html2canvas from "html2canvas"
 import {
   FormControl,
   InputLabel,
@@ -86,6 +87,7 @@ export default function HomePage() {
   // New states for progressive filtering.
   const [filteredPlants, setFilteredPlants] = useState<string[]>([]);
   const [filteredSites, setFilteredSites] = useState<string[]>([]);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (status === "loading") return // Do nothing while loading
@@ -420,6 +422,19 @@ export default function HomePage() {
     }
   };
 
+  const handleDownloadReport = () => {
+    if (reportRef.current) {
+      html2canvas(reportRef.current, { scrollY: -window.scrollY }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "report.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    } else {
+      alert("No report available to download");
+    }
+  };
+
   // Redirect if not logged in
   if (status === "loading" || !session) {
     return (
@@ -432,7 +447,6 @@ export default function HomePage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Waterfall</h1>
-      <h2>Still undergoing development, can check other features first</h2>
       <FileUploader
         type={PAGE_KEYS.HOME}
         title={PAGE_LABELS.HOME}
@@ -527,166 +541,177 @@ export default function HomePage() {
         </div>
       )}
 
-      {analysisResult && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-2">Waterfall Table</h2>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell colSpan={3 + weeksRange.length} align="center">
-                    <strong>Material Number:</strong> {selectedMaterialNumber} | <strong>Plant:</strong> {selectedPlant} | <strong>Site:</strong> {selectedSite}
-                  </StyledTableCell>
-                </TableRow>
-                <TableRow>
-                  <StyledTableCell>Snapshot</StyledTableCell>
-                  <StyledTableCell align="right">Measures</StyledTableCell>
-                  <StyledTableCell align="right">Inventory On-Hand</StyledTableCell>
-                  {weeksRange.map((week) => (
-                    <StyledTableCell key={week} align="right">{week}</StyledTableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {analysisResult.map((row, rowIndex) => (
-                  <StyledTableRow key={rowIndex}>
-                    <StyledTableCell component="th" scope="row">
-                      {row.Snapshot}
-                    </StyledTableCell>
-                    <StyledTableCell align="right">{row.Measures}</StyledTableCell>
-                    <StyledTableCell align="right">{row["Inventory-On-Hand"] || row["Inventory\nOn-Hand"]}</StyledTableCell>
-                    {weeksRange.map((week, weekIndex) => {
-                      let cellContent = "";
-                      let cellBgColor = "inherit";
-                      let cellTextColor = "inherit";
-
-                      if (row.Measures === "Weeks of Stock") {
-                        // Apply conditional formatting for "Weeks of Stock" rows.
-                        const numericValue = parseFloat(row[week]);
-                        if (!isNaN(numericValue)) {
-                          if (numericValue === 0) {
-                            // 0 value: pastel yellow background with orange text.
-                            cellBgColor = "#FFF9C4";
-                            cellTextColor = "#EF6C00";
-                            cellContent = numericValue.toFixed(1);
-                          } else if (numericValue > 0) {
-                            // Positive: pastel green background with dark green text.
-                            cellBgColor = "#C8E6C9";
-                            cellTextColor = "#2E7D32";
-                            cellContent = numericValue.toFixed(4);
-                          } else if (numericValue < 0) {
-                            // Negative: pastel red background with dark red text.
-                            cellBgColor = "#FFCDD2";
-                            cellTextColor = "#C62828";
-                            cellContent = `(${Math.abs(numericValue).toFixed(4)})`;
-                          }
-                        } else {
-                          // Fallback for non-numeric values.
-                          cellBgColor = "#FFF9C4";
-                          cellTextColor = "#EF6C00";
-                          cellContent = `0`;
-                        }
-                        // Now apply the waterfall effect logic on top—even for "Weeks of Stock" rows.
-                        if (weekIndex < weeksRange.length - 1) {
-                          const cutoff = parseInt(weeksRange[weekIndex + 1].replace("WW", ""), 10);
-                          const rowSnapshotNum = parseInt(row.Snapshot.replace("WW", ""), 10);
-                          if (rowSnapshotNum >= cutoff) {
-                            cellBgColor = "#ADD8E6"; // blue pastel for waterfall
-                            cellTextColor = "transparent";
-                            cellContent = "";
-                          }
-                        }
-                      } else {
-                        // For non–"Weeks of Stock" rows, apply the waterfall effect logic.
-                        let isWaterfall = false;
-                        if (weekIndex < weeksRange.length - 1) {
-                          const cutoff = parseInt(weeksRange[weekIndex + 1].replace("WW", ""), 10);
-                          const rowSnapshotNum = parseInt(row.Snapshot.replace("WW", ""), 10);
-                          // If the row's snapshot is greater than or equal to the next week's number, mark as waterfall.
-                          isWaterfall = rowSnapshotNum >= cutoff;
-                        }
-                        if (isWaterfall) {
-                          cellBgColor = "#ADD8E6"; // blue pastel
-                          cellTextColor = "transparent";
-                          cellContent = "";
-                        } else {
-                          if (row[week] !== undefined && row[week] !== "" && !isNaN(Number(row[week]))) {
-                            cellContent = parseFloat(row[week]).toFixed(1);
-                          } else {
-                            cellContent = row[week] || "-";
-                          }
-                        }
-                      }
-
-                      return (
-                        <StyledTableCell
-                          key={week}
-                          align="right"
-                          sx={{
-                            backgroundColor: cellBgColor,
-                            color: cellTextColor,
-                          }}
-                        >
-                          {cellContent}
+      {(analysisResult && plotData) && (
+        <>
+          <div className="mt-4">
+            <Button variant="outlined" color="secondary" onClick={handleDownloadReport}>
+              Download Report
+            </Button>
+          </div>
+          <div ref={reportRef} style={{ padding: "20px"}}>
+            {analysisResult && (
+              <div className="mt-4">
+                <h2 className="text-xl font-semibold mb-2">Waterfall Table</h2>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell colSpan={3 + weeksRange.length} align="center">
+                          <strong>Material Number:</strong> {selectedMaterialNumber} | <strong>Plant:</strong> {selectedPlant} | <strong>Site:</strong> {selectedSite}
                         </StyledTableCell>
-                      );
-                    })}
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      )}
+                      </TableRow>
+                      <TableRow>
+                        <StyledTableCell>Snapshot</StyledTableCell>
+                        <StyledTableCell align="right">Measures</StyledTableCell>
+                        <StyledTableCell align="right">Inventory On-Hand</StyledTableCell>
+                        {weeksRange.map((week) => (
+                          <StyledTableCell key={week} align="right">{week}</StyledTableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {analysisResult.map((row, rowIndex) => (
+                        <StyledTableRow key={rowIndex}>
+                          <StyledTableCell component="th" scope="row">
+                            {row.Snapshot}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">{row.Measures}</StyledTableCell>
+                          <StyledTableCell align="right">{row["Inventory-On-Hand"] || row["Inventory\nOn-Hand"]}</StyledTableCell>
+                          {weeksRange.map((week, weekIndex) => {
+                            let cellContent = "";
+                            let cellBgColor = "inherit";
+                            let cellTextColor = "inherit";
 
-      {plotData && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-2">Actual vs. Predicted Weeks of Stock</h2>
-          <Plot data={plotData.data} layout={plotData.layout} style={{ width: "100%", height: "100%" }} />
-        </div>
-      )}
+                            if (row.Measures === "Weeks of Stock") {
+                              // Apply conditional formatting for "Weeks of Stock" rows.
+                              const numericValue = parseFloat(row[week]);
+                              if (!isNaN(numericValue)) {
+                                if (numericValue === 0) {
+                                  // 0 value: pastel yellow background with orange text.
+                                  cellBgColor = "#FFF9C4";
+                                  cellTextColor = "#EF6C00";
+                                  cellContent = numericValue.toFixed(1);
+                                } else if (numericValue > 0) {
+                                  // Positive: pastel green background with dark green text.
+                                  cellBgColor = "#C8E6C9";
+                                  cellTextColor = "#2E7D32";
+                                  cellContent = numericValue.toFixed(4);
+                                } else if (numericValue < 0) {
+                                  // Negative: pastel red background with dark red text.
+                                  cellBgColor = "#FFCDD2";
+                                  cellTextColor = "#C62828";
+                                  cellContent = `(${Math.abs(numericValue).toFixed(4)})`;
+                                }
+                              } else {
+                                // Fallback for non-numeric values.
+                                cellBgColor = "#FFF9C4";
+                                cellTextColor = "#EF6C00";
+                                cellContent = `0`;
+                              }
+                              // Now apply the waterfall effect logic on top—even for "Weeks of Stock" rows.
+                              if (weekIndex < weeksRange.length - 1) {
+                                const cutoff = parseInt(weeksRange[weekIndex + 1].replace("WW", ""), 10);
+                                const rowSnapshotNum = parseInt(row.Snapshot.replace("WW", ""), 10);
+                                if (rowSnapshotNum >= cutoff) {
+                                  cellBgColor = "#ADD8E6"; // blue pastel for waterfall
+                                  cellTextColor = "transparent";
+                                  cellContent = "";
+                                }
+                              }
+                            } else {
+                              // For non–"Weeks of Stock" rows, apply the waterfall effect logic.
+                              let isWaterfall = false;
+                              if (weekIndex < weeksRange.length - 1) {
+                                const cutoff = parseInt(weeksRange[weekIndex + 1].replace("WW", ""), 10);
+                                const rowSnapshotNum = parseInt(row.Snapshot.replace("WW", ""), 10);
+                                // If the row's snapshot is greater than or equal to the next week's number, mark as waterfall.
+                                isWaterfall = rowSnapshotNum >= cutoff;
+                              }
+                              if (isWaterfall) {
+                                cellBgColor = "#ADD8E6"; // blue pastel
+                                cellTextColor = "transparent";
+                                cellContent = "";
+                              } else {
+                                if (row[week] !== undefined && row[week] !== "" && !isNaN(Number(row[week]))) {
+                                  cellContent = parseFloat(row[week]).toFixed(1);
+                                } else {
+                                  cellContent = row[week] || "-";
+                                }
+                              }
+                            }
 
-      {/* Conclusion Section */}
-      {plotData && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-2">Conclusion</h2>
-          <Paper variant="outlined" sx={{ p: 2, background: "#fff" }}>
-            <div style={{ background: "#BFE4F6", color: "#228B22", fontWeight: "bold", padding: "4px 8px", marginBottom: 8 }}>
-              NO RISK.<br />
-              <span style={{ color: "#228B22" }}>No shortage within lead time.</span>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <strong>Root cause</strong>
-              <div style={{ marginLeft: 16 }}>
-                Insufficient PO coverage to consider on hand expiry &amp; 13 WOS demand during IQ to QU<br />
-                <span style={{ color: "#D32F2F", fontWeight: "bold" }}>
-                  Material expired 28kg on 8/6 WW32. Based on LT 9 weeks, order should be loaded by WW23 from NPI team to cover 13 wos based on demand with buffer.<br />
-                  Actual PO loaded time: WW27
-                </span>
+                            return (
+                              <StyledTableCell
+                                key={week}
+                                align="right"
+                                sx={{
+                                  backgroundColor: cellBgColor,
+                                  color: cellTextColor,
+                                }}
+                              >
+                                {cellContent}
+                              </StyledTableCell>
+                            );
+                          })}
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </div>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <strong>Inventory status</strong>
-              <div style={{ marginLeft: 16 }}>
-                Confirmed with POM &amp; ZH: forwarded 44kg to HVM, keep 16kg for NPI Build (Samsung)<br />
-                <strong>Action:</strong> Explore expired material for NPI build
+            )}
+
+            {plotData && (
+              <div className="mt-4">
+                <h2 className="text-xl font-semibold mb-2">Actual vs. Predicted Weeks of Stock</h2>
+                <Plot data={plotData.data} layout={plotData.layout} style={{ width: "100%", height: "100%" }} />
               </div>
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <strong>Current demand status</strong>
-              <div style={{ marginLeft: 16 }}>
-                <strong>Action:</strong> Request MP to clarify the demand is included in NPI (DC/DOQ/QS)
+            )}
+
+            {/* Conclusion Section */}
+            {plotData && (
+              <div className="mt-4">
+                <h2 className="text-xl font-semibold mb-2">Conclusion</h2>
+                <Paper variant="outlined" sx={{ p: 2, background: "#fff" }}>
+                  <div style={{ background: "#BFE4F6", color: "#228B22", fontWeight: "bold", padding: "4px 8px", marginBottom: 8 }}>
+                    NO RISK.<br />
+                    <span style={{ color: "#228B22" }}>No shortage within lead time.</span>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <strong>Root cause</strong>
+                    <div style={{ marginLeft: 16 }}>
+                      Insufficient PO coverage to consider on hand expiry &amp; 13 WOS demand during IQ to QU<br />
+                      <span style={{ color: "#D32F2F", fontWeight: "bold" }}>
+                        Material expired 28kg on 8/6 WW32. Based on LT 9 weeks, order should be loaded by WW23 from NPI team to cover 13 wos based on demand with buffer.<br />
+                        Actual PO loaded time: WW27
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <strong>Inventory status</strong>
+                    <div style={{ marginLeft: 16 }}>
+                      Confirmed with POM &amp; ZH: forwarded 44kg to HVM, keep 16kg for NPI Build (Samsung)<br />
+                      <strong>Action:</strong> Explore expired material for NPI build
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <strong>Current demand status</strong>
+                    <div style={{ marginLeft: 16 }}>
+                      <strong>Action:</strong> Request MP to clarify the demand is included in NPI (DC/DOQ/QS)
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Current PO status:</strong>
+                    <div style={{ marginLeft: 16 }}>
+                      NPI PO: 60kg ETA 8/8 (received), another 30kg just loaded on 8/6 WW32. no ETA yet.<br />
+                      As per WW32, no HVM open order. Highlighted to MP to review and raise manual PO if needed to cover Dec onwards based on 44kg available stock.
+                    </div>
+                  </div>
+                </Paper>
               </div>
-            </div>
-            <div>
-              <strong>Current PO status:</strong>
-              <div style={{ marginLeft: 16 }}>
-                NPI PO: 60kg ETA 8/8 (received), another 30kg just loaded on 8/6 WW32. no ETA yet.<br />
-                As per WW32, no HVM open order. Highlighted to MP to review and raise manual PO if needed to cover Dec onwards based on 44kg available stock.
-              </div>
-            </div>
-          </Paper>
-        </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   )
