@@ -36,7 +36,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, onUploadComplete, tit
         </Typography>
       ) : (
         <Typography variant="body1" color="textSecondary">
-          {`Drag and drop the ${title} Excel file here to start the analysis, or click to select a file`}
+          {`Drag and drop the ${title} file here to start the analysis, or click to select a file`}
         </Typography>
       )}
       {file && (
