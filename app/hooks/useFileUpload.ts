@@ -10,6 +10,7 @@ type UseFileUploadProps = {
 
 export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0); // New state
 
   // Determine the API endpoint based on the type
   const getApiEndpoint = () => {
@@ -53,13 +54,17 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
 
       console.log("Extracted files:", files);
       const uploadResults = [];
+      setUploadProgress(0); // Reset progress
 
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const blob = await file.async("blob");
         const fileObject = new File([blob], file.name);
         const result = await uploadFile(fileObject);
         console.log("Uploaded data:", result);
         uploadResults.push(result);
+        // Update progress based on number of files processed
+        setUploadProgress(Math.round(((i + 1) / files.length) * 100));
       }
 
       onUploadComplete(uploadResults); // Pass the uploaded data back to the parent component
@@ -79,6 +84,7 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
       await handleZipUpload(selectedFile);
     } else {
       const data = await uploadFile(selectedFile);
+      setUploadProgress(100); // Complete for non-zip file
       onUploadComplete(data);
     }
   };
@@ -105,5 +111,5 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
     }
   });
 
-  return { file, getRootProps, getInputProps, isDragActive };
+  return { file, getRootProps, getInputProps, isDragActive, uploadProgress };
 };

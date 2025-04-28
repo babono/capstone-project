@@ -1,6 +1,6 @@
 export const maxDuration = 300;
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, LinearProgress } from "@mui/material";
 import { useFileUpload } from "@/app/hooks/useFileUpload";
 import { PAGE_KEYS } from "@/app/constants";
 
@@ -11,7 +11,7 @@ type FileUploaderProps = {
 };
 
 const FileUploader: React.FC<FileUploaderProps> = ({ type, onUploadComplete, title }) => {
-  const { file, getRootProps, getInputProps, isDragActive } = useFileUpload({
+  const { file, getRootProps, getInputProps, isDragActive, uploadProgress } = useFileUpload({
     type,
     onUploadComplete,
   });
@@ -43,6 +43,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, onUploadComplete, tit
         <Typography variant="body2" color="textSecondary" sx={{ marginTop: "8px" }}>
           Selected file: {file.name}
         </Typography>
+      )}
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <Box sx={{ marginTop: "16px" }}>
+          <LinearProgress variant="determinate" value={uploadProgress} />
+          <Typography variant="caption">{uploadProgress}%</Typography>
+        </Box>
       )}
     </Box>
   );
