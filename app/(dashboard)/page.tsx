@@ -157,7 +157,10 @@ export default function HomePage() {
       const uniqueSites = [
         ...new Set(filtered.map((item) => item["Site"]))
       ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-      setFilteredSites(uniqueSites);
+      setFilteredSites(uniqueSites);      
+    }
+    else{
+      setFilteredSites(sites);      
     }
   }, [uploadData, selectedMaterialNumber, selectedPlant]);
 
@@ -675,7 +678,7 @@ export default function HomePage() {
                 <Paper variant="outlined" sx={{ p: 2, background: "#fff" }}>
                   <div style={{ background: "#BFE4F6", color: "#228B22", fontWeight: "bold", padding: "4px 8px", marginBottom: 8 }}>
                     NO RISK.<br />
-                    <span style={{ color: "#228B22" }}>No shortage within lead time.</span>
+                    <span style={{ color: "#228B22" }}>No shortage within lead time.{analysisMessages}</span>
                   </div>
                   <div style={{ marginBottom: 8 }}>
                     <strong>Root cause</strong>
