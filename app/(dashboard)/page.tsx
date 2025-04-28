@@ -178,7 +178,7 @@ export default function HomePage() {
 
   // Load data from the JSON file in the public folder on component mount
   useEffect(() => {
-    const fileName = "uploadedData.json";
+    const fileName = "api/py/fetchWaterfallJson";
     const filePath = `/${fileName}`;
 
     fetch(filePath)

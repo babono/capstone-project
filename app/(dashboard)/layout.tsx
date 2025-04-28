@@ -1,4 +1,4 @@
-export const maxDuration = 60;
+export const maxDuration = 300;
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { Providers } from "../providers";
