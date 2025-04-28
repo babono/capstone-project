@@ -5,7 +5,6 @@ python-multipart
 chardet
 pandas
 openpyxl
-python-dotenv
 python-decouple
 
 # Google Drive API dependencies

@@ -2,15 +2,9 @@ import io, json
 import pandas as pd
 import logging
 import zipfile
-import os
-import tempfile
-import httpx  # Import httpx for HTTP requests
 import json
 import asyncio
 from fastapi import FastAPI, UploadFile, File, HTTPException, Response
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Union, List
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
@@ -23,7 +17,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-logger.info(SERVICE_ACCOUNT_FILE_VAR)
 SERVICE_ACCOUNT_FILE = json.loads(SERVICE_ACCOUNT_FILE_VAR)
 with open('serviceaccount.json', 'w', encoding='utf-8') as f:
     json.dump(SERVICE_ACCOUNT_FILE, f, ensure_ascii=False, indent=4)
