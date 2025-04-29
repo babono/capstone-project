@@ -2,10 +2,12 @@ import io, json
 import pandas as pd
 import logging
 import zipfile
-import asyncio
-import requests  # Added for HTTP requests
+import aiohttp
 from fastapi import FastAPI, UploadFile, File, HTTPException, Response
+from fastapi.responses import StreamingResponse
 from decouple import config
+import asyncio
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -176,15 +178,32 @@ async def upload_xlsx(file: UploadFile = File(...)):
 @app.get("/api/py/fetchWaterfallJson")
 async def fetch_public_json():
     """
-    Fetches a JSON file using the public URL:
-    https://storage.googleapis.com/babono_bucket/uploadedData.json
+    Streams a JSON file from the public URL using chunked transfer encoding.
+    Logs the download progress every 1 second.
     """
     public_url = "https://storage.googleapis.com/babono_bucket/uploadedData.json"
-    try:
-        response = requests.get(public_url)
-        response.raise_for_status()
-        data = response.json()
-        return data
-    except Exception as e:
-        logger.error(f"Error fetching JSON from public URL: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+    async def stream_content():
+        # Yield an initial chunk to trigger the client’s progress update
+        yield b" "
+
+        total_bytes = 0
+        last_logged = time.time()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(public_url) as response:
+                response.raise_for_status()
+                async for chunk in response.content.iter_chunked(8192):
+                    total_bytes += len(chunk)
+                    current_time = time.time()
+                    if current_time - last_logged >= 1:
+                        logger.info(f"Downloaded {total_bytes} bytes so far")
+                        last_logged = current_time
+                    yield chunk
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Transfer-Encoding": "chunked"
+    }
+    return StreamingResponse(stream_content(), headers=headers, media_type="application/json")

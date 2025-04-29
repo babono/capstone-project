@@ -23,6 +23,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  LinearProgress  // <-- Import LinearProgress for the progress bar
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { tableCellClasses } from '@mui/material/TableCell';
@@ -30,7 +31,6 @@ import dynamic from "next/dynamic";
 
 // Handle dynamic import for Plotly JS for Next.js. For different components usage
 // DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
-
 const Plot = dynamic(
   () =>
     import("react-plotly.js").then(
@@ -83,6 +83,8 @@ export default function HomePage() {
   const [plotData, setPlotData] = useState<any | null>(null);
   const [analysisMessages, setAnalysisMessages] = useState<string[]>([]);
   const [weeksRange, setWeeksRange] = useState<string[]>([]);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   // New states for progressive filtering.
   const [filteredPlants, setFilteredPlants] = useState<string[]>([]);
@@ -102,13 +104,16 @@ export default function HomePage() {
     if (uploadData && Array.isArray(uploadData)) {
       // Flatten the array of arrays
       const flattenedData = uploadData.flat();
-
-      // Extract unique values for filters and sort them numerically
-      const uniqueMaterialNumbers = [...new Set(flattenedData.map((item) => item["Material Number"]))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-      const uniquePlants = [...new Set(flattenedData.map((item) => item["Plant"]))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-      const uniqueSites = [...new Set(flattenedData.map((item) => item["Site"]))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-      const uniqueStartWeeks = Array.from({ length: 51 }, (_, i) => `WW${String(i + 2).padStart(2, '0')}`);
-
+      const uniqueMaterialNumbers = [...new Set(flattenedData.map((item) => item["Material Number"]))].sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true })
+      );
+      const uniquePlants = [...new Set(flattenedData.map((item) => item["Plant"]))].sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true })
+      );
+      const uniqueSites = [...new Set(flattenedData.map((item) => item["Site"]))].sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true })
+      );
+      const uniqueStartWeeks = Array.from({ length: 51 }, (_, i) => `WW${String(i + 2).padStart(2, "0")}`);
       setMaterialNumbers(uniqueMaterialNumbers);
       setPlants(uniquePlants);
       setSites(uniqueSites);
@@ -130,20 +135,17 @@ export default function HomePage() {
         ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
         setFilteredPlants(uniquePlants);
       } else {
-        // Show all available plants when no material is selected.
         setFilteredPlants(plants);
       }
     }
   }, [uploadData, selectedMaterialNumber, plants]);
 
-  // If the selected plant is no longer available, reset it.
   useEffect(() => {
     if (selectedPlant && !filteredPlants.includes(selectedPlant)) {
       setSelectedPlant(null);
     }
   }, [filteredPlants, selectedPlant]);
 
-  // Update filteredSites when material or plant is selected.
   useEffect(() => {
     if (uploadData && Array.isArray(uploadData)) {
       const flatData = uploadData.flat();
@@ -158,45 +160,72 @@ export default function HomePage() {
         ...new Set(filtered.map((item) => item["Site"]))
       ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
       setFilteredSites(uniqueSites);      
-    }
-    else{
+    } else {
       setFilteredSites(sites);      
     }
   }, [uploadData, selectedMaterialNumber, selectedPlant]);
 
-  // If the selected site is no longer available, reset it.
   useEffect(() => {
     if (selectedSite && !filteredSites.includes(selectedSite)) {
       setSelectedSite(null);
     }
   }, [filteredSites, selectedSite]);
 
-  const handleUploadComplete = async (data) => {
+  // Preserve the existing handleUploadComplete function
+  const handleUploadComplete = (data) => {
     console.log("Uploaded data:", data);
     setUploadData(data);
   };
 
-  // Load data from the JSON file in the public folder on component mount
-  useEffect(() => {
-    const fileName = "api/py/fetchWaterfallJson";
-    const filePath = `/${fileName}`;
+  // Updated fetchJsonWithProgress to use public URL and report download progress
+  const fetchJsonWithProgress = async (url: string) => {
+    setLoading(true);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Failed to load JSON data");
+    }
+    const contentLength = response.headers.get("Content-Length");
+    const total = contentLength ? parseInt(contentLength, 10) : null;
+    // Check if the response supports streaming
+    if (!response.body || !response.body.getReader) {
+      setLoading(false);
+      setDownloadProgress(100);
+      return response.json();
+    }
+    const reader = response.body.getReader();
+    let receivedLength = 0;
+    const chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      receivedLength += value.length;
+      if (total) {
+        setDownloadProgress((receivedLength / total) * 100);
+      }
+    }
+    const chunksAll = new Uint8Array(receivedLength);
+    let position = 0;
+    for (let chunk of chunks) {
+      chunksAll.set(chunk, position);
+      position += chunk.length;
+    }
+    const resultString = new TextDecoder("utf-8").decode(chunksAll);
+    setLoading(false);
+    setDownloadProgress(100);
+    return JSON.parse(resultString);
+  };
 
-    fetch(filePath)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to load uploaded data");
-        }
-        return response.json();
-      })
+  // Updated handler to trigger download from the public bucket URL
+  const handleDownloadFromBucket = () => {
+    const publicUrl = "https://babono_bucket.storage.googleapis.com/uploadedData.json";
+    fetchJsonWithProgress(publicUrl)
       .then((parsedData) => {
         setUploadData(parsedData);
-
-        // Extract unique values for filters
         const uniqueMaterialNumbers = [...new Set(parsedData.map((item) => item["Material Number"]))];
         const uniquePlants = [...new Set(parsedData.map((item) => item["Plant"]))];
         const uniqueSites = [...new Set(parsedData.map((item) => item["Site"]))];
         const uniqueStartWeeks = [...new Set(parsedData.map((item) => item["Snapshot"]))];
-
         setMaterialNumbers(uniqueMaterialNumbers);
         setPlants(uniquePlants);
         setSites(uniqueSites);
@@ -205,9 +234,8 @@ export default function HomePage() {
       .catch((error) => {
         console.error("Error loading uploaded data:", error);
       });
-  }, []);
+  };
 
-  // Function to extract and aggregate weekly data (similar to Python function)
   const extractAndAggregateWeeklyData = (
     data: any[], // data is uploadData
     materialNumber: string | null,
@@ -450,11 +478,27 @@ export default function HomePage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Waterfall</h1>
+      
+      {/* Show progress bar during initial download */}
+      {loading && (
+        <div style={{ width: "100%", marginBottom: 16 }}>
+          <LinearProgress variant="determinate" value={downloadProgress} />
+          <p>{Math.round(downloadProgress)}% downloaded</p>
+        </div>
+      )}
+
       <FileUploader
         type={PAGE_KEYS.HOME}
         title={PAGE_LABELS.HOME}
         onUploadComplete={handleUploadComplete}
       />
+
+      {/* New button to trigger download from public bucket */}
+      <div style={{ marginTop: 16 }}>
+        <Button variant="outlined" color="secondary" onClick={handleDownloadFromBucket}>
+          Download Data from Bucket
+        </Button>
+      </div>
 
       {/* Filters */}
       {uploadData && (
