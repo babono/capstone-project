@@ -206,7 +206,7 @@ export default function HomePage() {
     }
     const chunksAll = new Uint8Array(receivedLength);
     let position = 0;
-    for (let chunk of chunks) {
+    for (const chunk of chunks) {
       chunksAll.set(chunk, position);
       position += chunk.length;
     }
@@ -218,7 +218,7 @@ export default function HomePage() {
 
   // Updated handler to trigger download from the public bucket URL
   const handleDownloadFromBucket = () => {
-    const publicUrl = "https://babono_bucket.storage.googleapis.com/uploadedData.json";
+    const publicUrl = "https://storage.googleapis.com/babono_bucket/uploadedData.json";
     fetchJsonWithProgress(publicUrl)
       .then((parsedData) => {
         setUploadData(parsedData);
