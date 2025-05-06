@@ -30,6 +30,8 @@ import { tableCellClasses } from '@mui/material/TableCell';
 import dynamic from "next/dynamic";
 import DownloadBucket from "./common/download-bucket"
 import { Plot } from "@/app/constants";
+import { downloadImageReport } from "../utils/downloadImageReport"
+import DownloadReport from "./common/download-report"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -384,19 +386,6 @@ export default function HomePage() {
     }
   };
 
-  const handleDownloadReport = () => {
-    if (reportRef.current) {
-      html2canvas(reportRef.current, { scrollY: -window.scrollY }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "report.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    } else {
-      alert("No report available to download");
-    }
-  };
-
   // Redirect if not logged in
   if (status === "loading" || !session) {
     return (
@@ -507,11 +496,7 @@ export default function HomePage() {
 
       {(analysisResult && plotData) && (
         <>
-          <div className="mt-4">
-            <Button variant="outlined" color="secondary" onClick={handleDownloadReport}>
-              Download Report
-            </Button>
-          </div>
+          <DownloadReport reportRefObj={reportRef} />
           <div ref={reportRef} style={{ padding: "20px" }}>
             {analysisResult && (
               <div className="mt-4">
