@@ -165,7 +165,6 @@ export default function MaterialConsumption() {
         fileBucketURL={MATERIAL_CONSUMPTION_BUCKET_URL}
         onDataRetrieved={handleDataProcessing}
       />
-      <br></br>
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}
@@ -189,9 +188,9 @@ export default function MaterialConsumption() {
             topN={topN}
             setTopN={setTopN}
           />
-          {/* ===== Chart Renders ===== */}
           <DownloadReport reportRefObj={reportRef} />
-          <div ref={reportRef} style={{ padding: "20px" }}>
+          {/* ===== Chart Renders ===== */}
+          <div ref={reportRef}>
             <TotalTransaction
               chartId={TRANSACTIONS_CHART_ID}
               filteredTransactionData={filteredTransactionData}
