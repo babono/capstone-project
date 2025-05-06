@@ -5,10 +5,10 @@ import JSZip from 'jszip';
 
 type UseFileUploadProps = {
   type: PAGE_KEYS;
-  onUploadComplete: (data: any) => void;
+  onDataRetrieved: (data: any) => void;
 };
 
-export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) => {
+export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0); // New state
 
@@ -67,7 +67,7 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
         setUploadProgress(Math.round(((i + 1) / files.length) * 100));
       }
 
-      onUploadComplete(uploadResults); // Pass the uploaded data back to the parent component
+      onDataRetrieved(uploadResults); // Pass the uploaded data back to the parent component
     } catch (error) {
       console.error("Error extracting or uploading files from zip:", error);
       alert("Failed to process the zip file. Please try again.");
@@ -85,7 +85,7 @@ export const useFileUpload = ({ type, onUploadComplete }: UseFileUploadProps) =>
     } else {
       const data = await uploadFile(selectedFile);
       setUploadProgress(100); // Complete for non-zip file
-      onUploadComplete(data);
+      onDataRetrieved(data);
     }
   };
 

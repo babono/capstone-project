@@ -10,7 +10,7 @@ import InfiniteShelf from "./charts/infinite-shelf";
 import MaterialsVariance from "../common/charts/materials-variance";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
 import TotalTransaction from "../common/charts/total-transaction";
-import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
+import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_CONSUMPTION_BUCKET_URL, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import FileUploader from "../common/file-uploader";
 import GlobalFilter from "../common/global-filter";
@@ -41,7 +41,7 @@ export default function MaterialConsumption() {
   const [finiteShelfData, setFiniteShelfLifeData] = useState([]);
   const [infiniteShelfData, setInfiniteShelfLifeData] = useState([]);
 
-  const handleUploadComplete = async (data) => {
+  const handleDataProcessing = async (data) => {
     setPlotData(data);
 
     // Extract unique values for filters
@@ -159,10 +159,10 @@ export default function MaterialConsumption() {
       <FileUploader
         type={PAGE_KEYS.MATERIAL_CONSUMPTION}
         title={PAGE_LABEL}
-        onUploadComplete={(data) => {
-          handleUploadComplete(data);
-        }}
+        fileBucketURL={MATERIAL_CONSUMPTION_BUCKET_URL}
+        onDataRetrieved={handleDataProcessing}
       />
+      <br></br>
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}

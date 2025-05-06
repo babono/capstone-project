@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
 // Handle dynamic import for Plotly JS for Next.js. For different components usage
-// DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
+// If you want to import Plot, DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
 
 export const Plot = dynamic(
   () =>
@@ -30,7 +30,7 @@ export enum PAGE_LABELS {
   MATERIAL_CONSUMPTION = 'Material Consumption',
   ORDER_PLACEMENT = 'Order Placement',
   GOODS_RECEIPT = 'Goods Receipt',
-  HOME= 'Home'
+  HOME = 'Home'
 }
 
 export enum PAGE_KEYS {
@@ -39,3 +39,11 @@ export enum PAGE_KEYS {
   GOODS_RECEIPT = 'goods-receipt',
   HOME = 'home',
 }
+
+export const ERR_BUCKET_LOAD_PREFIX = "Error loading uplaoded data: ";
+
+// Bucket JSON URL
+export const WATERFALL_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/uploadedData.json";
+export const MATERIAL_CONSUMPTION_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/materialConsumption260.json";
+export const ORDER_PLACEMENT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/orderPlacement260.json";
+export const GOODS_RECEIPT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/goodsReceipt260.json";
