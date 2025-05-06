@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image";
@@ -14,6 +14,7 @@ import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_CONSUMPTION_BUC
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import FileUploader from "../common/file-uploader";
 import GlobalFilter from "../common/global-filter";
+import DownloadReport from "../common/download-report";
 
 export default function MaterialConsumption() {
   // NextAuth session
@@ -36,6 +37,8 @@ export default function MaterialConsumption() {
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
   const [vendors, setVendors] = useState([]);
+
+  const reportRef = useRef<HTMLDivElement>(null);
 
   // Shelf Data
   const [finiteShelfData, setFiniteShelfLifeData] = useState([]);
@@ -187,29 +190,32 @@ export default function MaterialConsumption() {
             setTopN={setTopN}
           />
           {/* ===== Chart Renders ===== */}
-          <TotalTransaction
-            chartId={TRANSACTIONS_CHART_ID}
-            filteredTransactionData={filteredTransactionData}
-          />
-          <OverallByMaterialNumber
-            customKey={PAGE_LABEL}
-            chartId={GOODS_RECEIPT_CHART_ID}
-            filteredData={filteredData}
-            yAxisFieldName={"Quantity"}
-          />
-          <MaterialsVariance
-            chartId={VARIANCE_CHART_ID}
-            varianceData={filteredVarianceData}
-          />
-          <FiniteShelf
-            chartId={FINITE_SHELF_CHART_ID}
-            shelfData={finiteShelfData}
-          />
-          <InfiniteShelf shelfData={infiniteShelfData} />
-          <MaterialLevelAnalysis
-            chartId={MATERIAL_LEVEL_CHART_ID}
-            materialData={plotData}
-          />
+          <DownloadReport reportRefObj={reportRef} />
+          <div ref={reportRef} style={{ padding: "20px" }}>
+            <TotalTransaction
+              chartId={TRANSACTIONS_CHART_ID}
+              filteredTransactionData={filteredTransactionData}
+            />
+            <OverallByMaterialNumber
+              customKey={PAGE_LABEL}
+              chartId={GOODS_RECEIPT_CHART_ID}
+              filteredData={filteredData}
+              yAxisFieldName={"Quantity"}
+            />
+            <MaterialsVariance
+              chartId={VARIANCE_CHART_ID}
+              varianceData={filteredVarianceData}
+            />
+            <FiniteShelf
+              chartId={FINITE_SHELF_CHART_ID}
+              shelfData={finiteShelfData}
+            />
+            <InfiniteShelf shelfData={infiniteShelfData} />
+            <MaterialLevelAnalysis
+              chartId={MATERIAL_LEVEL_CHART_ID}
+              materialData={plotData}
+            />
+          </div>
         </>
       )}
     </div>

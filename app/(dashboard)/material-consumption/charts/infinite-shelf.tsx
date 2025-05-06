@@ -22,7 +22,7 @@ const InfiniteShelf: React.FC<InfiniteShelfProps> = ({ shelfData }) => {
       <p>Number of Items with Infinite Shelf Life: {shelfLength}</p>
       <p>Items with Infinite Shelf Life:</p>
       <br />
-      <div className="overflow-y-auto max-h-110 border border-gray-300 rounded-lg">
+      <div className="overflow-y-auto border border-gray-300 rounded-lg">
         <table className="table-auto border-collapse border border-gray-300 w-full">
           <thead>
             <tr>

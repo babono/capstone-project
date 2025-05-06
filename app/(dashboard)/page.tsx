@@ -7,7 +7,6 @@ import Image from "next/image"
 import iconDT from "../../public/ic-dt.svg"
 import { ERR_BUCKET_LOAD_PREFIX, PAGE_KEYS, PAGE_LABELS, WATERFALL_BUCKET_URL } from "@/app/constants"
 import FileUploader from "./common/file-uploader"
-import html2canvas from "html2canvas"
 import {
   FormControl,
   InputLabel,
