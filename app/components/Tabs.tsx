@@ -8,7 +8,7 @@ function Tabs() {
   return (
     <div className="flex">
       <Link href="/">
-        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Overview</div>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Waterfall</div>
       </Link>
       <Link href="/material-consumption">
         <div className={`px-5 py-2 rounded-t-xl ${pathname === '/material-consumption' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Material Consumption</div>
@@ -23,7 +23,7 @@ function Tabs() {
         <div className={`px-5 py-2 rounded-t-xl ${pathname === '/lead-time' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Lead Time</div>
       </Link>
       <Link href="/forecast">
-        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/forecast' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Forecast</div>
+        <div className={`px-5 py-2 rounded-t-xl ${pathname === '/forecast' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Forecast Demand</div>
       </Link>
       <Link href="/inventory-simulation">
         <div className={`px-5 py-2 rounded-t-xl ${pathname === '/inventory-simulation' ? 'bg-white font-semibold' : 'bg-gray-200'}`}>Inventory Simulation</div>
