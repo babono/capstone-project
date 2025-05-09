@@ -27,19 +27,64 @@ const teamMembers = [
     }
 ];
 
+const features = [
+    {
+        title: "Waterfall Analysis",
+        description: "This feature provides a detailed week-by-week breakdown of inventory changes, comparing planned supply and demand against actual purchase order receipts and consumption. It helps identify discrepancies, root causes for inventory imbalances (like inadequate PO coverage or demand spikes), and projects future inventory levels based on confirmed POs.",
+        imageSrc: "/placeholder-feature1.png", // Replace with actual image path
+        altText: "Waterfall Analysis Thumbnail"
+    },
+    {
+        title: "Material Consumption Analysis",
+        description: "This tool analyzes how materials are used over time, offering insights into overall consumption trends, identifying unusual spikes or drops (outliers), and allowing deep dives into specific materials. It can break down consumption by vendor, plant, and site, helping to understand usage patterns across different dimensions.",
+        imageSrc: "/placeholder-feature2.png", // Replace with actual image path
+        altText: "Material Consumption Analysis Thumbnail"
+    },
+    {
+        title: "Order Placement Analysis",
+        description: "This feature examines patterns in how purchase orders are created. It visualizes overall ordering trends, allows for analysis of specific materials, and can break down order quantities by supplier and plant. It also includes an ABC analysis to categorize materials based on their order value.",
+        imageSrc: "/placeholder-feature3.png", // Replace with actual image path
+        altText: "Order Placement Analysis Thumbnail"
+    },
+    {
+        title: "Goods Receipt Analysis",
+        description: "This focuses on the process of receiving materials, tracking quantities received over time. It highlights overall goods receipt patterns, detects outliers, and enables detailed analysis for specific materials, including trends and receipts by plant, site, and vendor.",
+        imageSrc: "/placeholder-feature4.png", // Replace with actual image path
+        altText: "Goods Receipt Analysis Thumbnail"
+    },
+    {
+        title: "Lead Time Analysis",
+        description: "This feature measures and analyzes the duration between placing an order and receiving the goods. It processes order placement and goods receipt data to calculate actual lead times, compares them against planned lead times, and provides summaries at both material and supplier levels to identify delays or inconsistencies.",
+        imageSrc: "/placeholder-feature5.png", // Replace with actual image path
+        altText: "Lead Time Analysis Thumbnail"
+    },
+    {
+        title: "Forecast",
+        description: "This capability predicts future material demand based on historical consumption data. Users can select different forecasting models (like XGBoost or ARIMA), specify the forecast period, and account for seasonality to generate demand projections for specific materials.",
+        imageSrc: "/placeholder-feature6.png", // Replace with actual image path
+        altText: "Forecast Thumbnail"
+    },
+    {
+        title: "Inventory Simulation",
+        description: "This tool runs Monte Carlo simulations to model inventory levels under various scenarios. It considers inputs like initial stock, reorder points, lead times, and demand variability (either fixed or based on statistical distributions). The simulation compares reactive versus proactive ordering strategies, highlighting potential stockout weeks and calculating Weeks of Stock to help optimize inventory policies.",
+        imageSrc: "/placeholder-feature7.png", // Replace with actual image path
+        altText: "Inventory Simulation Thumbnail"
+    }
+];
+
 export default function AboutUsPage() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen relative z-10 py-10">
             <div className="w-full max-w-7xl flex flex-col px-4 pb-8">
                 <div className="w-full max-w-7xl flex justify-start px-4 mb-4 py-4 mt-4"> {/* Container for the button */}
                     <Link href="/" legacyBehavior>
-                        <a className="bg-blue-500 hover:bg-blue-700 text-white underline font-bold py-2 px-4 rounded">
+                        <a className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
                         « Back to Home
                         </a>
                     </Link>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-lg mb-4">
-                    <div className="flex justify-center mb-4"> {/* Logo container */}
+                    <div className="flex justify-center mb-10"> {/* Logo container */}
                         <Image
                             src="/logo-digital-trinity-primary.svg"
                             alt="Digital Trinity Logo"
@@ -49,11 +94,26 @@ export default function AboutUsPage() {
                         />
                     </div>
                     <div className="font-bold text-2xl mt-2">About Digital Trinity</div> {/* Centered title */}
-                    <div className="text-lg mt-4 mb-4"><strong>Digital Trinity</strong> is a dynamic team of Master of Science candidates in Industry 4.0, collaborating as part of their IND5005B consulting project course. Focused on aiding Micron's digital evolution, the group is specifically tackling Proactive Supply Chain Risk Management: Leveraging AI for Predictive Weeks of Supply and Recovery Insights. By combining their diverse expertise in data science, engineering, and digital business strategy, Digital Trinity aims to deliver innovative, data-driven solutions that enhance Micron's operational resilience, predictive capabilities, and overall efficiency within its complex supply chain.</div>
+                    <div className="flex flex-col md:flex-row items-start mt-4 mb-4"> {/* Flex container for image and text */}
+                        <div className="w-full md:w-2/5 mb-4 md:mb-0"> {/* Image container */}
+                            <div className="relative aspect-[640/300]"> {/* Aspect ratio container */}
+                                <Image
+                                    src="/photo-group.jpg"
+                                    alt="Digital Trinity Team Photo"
+                                    fill
+                                    objectFit='contain'
+                                    className=""
+                                />
+                            </div>
+                        </div>
+                        <div className="w-full md:ml-6 md:w-3/5 text-lg"> {/* Text container */}
+                            <strong>Digital Trinity</strong> is a dynamic team of Master of Science candidates in Industry 4.0 in NUS, collaborating as part of their IND5005B consulting project course. Focused on aiding Micron's digital evolution, the group is specifically tackling Proactive Supply Chain Risk Management: Leveraging AI for Predictive Weeks of Supply and Recovery Insights. By combining their diverse expertise in data science, engineering, and digital business strategy, Digital Trinity aims to deliver innovative, data-driven solutions that enhance Micron's operational resilience, predictive capabilities, and overall efficiency within its complex supply chain.
+                        </div>
+                    </div>
                     <div className="font-bold text-2xl mt-8 mb-6">Meet the Team</div>
-                    <div className="flex flex-wrap justify-center gap-4 mb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 justify-center gap-10 mb-6 ">
                         {teamMembers.map((member) => (
-                            <div key={member.name} className='w-full'>
+                            <div key={member.name}> {/* Adjust width as needed */}
                                 <Tooltip                                     
                                     title={member.description} // Directly use the description string
                                     arrow
@@ -75,16 +135,14 @@ export default function AboutUsPage() {
                                         },
                                     }}
                                 >
-                                    <div className="flex flex-col items-center text-center cursor-pointer"> {/* Added cursor-pointer */}
-                                        <div className="w-48 h-48 md:w-52 lg:w-56 md:h-52 lg:h-56 mb-2"> {/* Responsive image container */}
-                                            <Image
-                                                src={member.photo}
-                                                alt={`Photo of ${member.name}`}
-                                                width={224} // Aspect ratio hint (e.g., for w-56)
-                                                height={224} // Aspect ratio hint (e.g., for h-56)
-                                                className="object-contain w-full h-full rounded-md shadow-md"
-                                            />
-                                        </div>
+                                    <div className="flex flex-col items-center text-center cursor-pointer relative aspect-[3/5]"> {/* Added cursor-pointer */}                                        
+                                        <Image
+                                            src={member.photo}
+                                            alt={`Photo of ${member.name}`}
+                                            fill
+                                            objectFit='contain'
+                                            className="object-contain w-full h-full"
+                                        />                                        
                                     </div>
                                 </Tooltip>
                             </div>
@@ -92,8 +150,28 @@ export default function AboutUsPage() {
                     </div>
                     <div className="font-bold text-2xl mt-8 mb-6">Company Overview</div>
                     <div className="text-lg mt-4 mb-4"><strong>Micron Technology</strong>, founded in 1978 in Boise, Idaho, has grown into a leading global manufacturer of memory and storage solutions, specializing in critical technologies like DRAM and NAND flash, with an extensive workforce of 43,000 employees across 17 countries. Their primary products, including DRAM (Dynamic Random Access Memory) and NAND Flash Memory SSDs (Solid-State Drives), are integral to a wide range of applications, powering consumer electronics, data centres, mobile devices, and automotive systems. Micron's robust market presence is demonstrated by its global operations, with major manufacturing, R&D, and sales facilities strategically located in the U.S., Taiwan, Singapore, Japan, and India, complemented by significant engineering, sales, and testing operations throughout Europe, China, and Malaysia.</div>
-                    <div className="font-bold text-2xl mt-8 mb-6">Project Ovevrview</div>
+                    <div className="font-bold text-2xl mt-8 mb-6">Project Overview</div>
                     <div className="text-lg mt-4 mb-4">This project tackles the challenge of Micron's "Weeks of Supply" (WoS) metric, which currently offers descriptive insights into raw material inventory rather than proactive guidance for optimal levels amidst demand fluctuations. The project's scope includes simulating ideal inventory levels using Monte Carlo methods to mitigate stockouts and overstocking, optimizing order lead times through historical data analysis, and leveraging machine learning and time series models to predict WoS for proactive procurement, with a prototype developed in Streamlit and Plotly, eventually scaled to a Next.js application. Ultimately, the objective is to construct a data-driven simulation model for Micron's supply chain, utilizing historical data, ARIMA forecasting, Monte Carlo simulations, and reinforcement learning, culminating in an AI-powered dashboard that enables stakeholders to visualize demand and consumption patterns, facilitate inventory optimization, and make more informed strategic decisions.</div>
+                    <div className="font-bold text-2xl mt-8 mb-6">Feature Overview</div>
+                    <div>
+                        {features.map((feature, index) => (
+                            <div key={index} className="flex flex-col md:flex-row items-start mt-6 mb-8">
+                                <div className="w-full md:w-1/4 mb-4 md:mb-0 md:mr-6"> {/* Image container - smaller width */}
+                                    <Image
+                                        src={feature.imageSrc}
+                                        alt={feature.altText}
+                                        width={200} // Adjust width as needed
+                                        height={150} // Adjust height as needed
+                                        className="rounded-lg shadow-md object-cover" // Added object-cover
+                                    />
+                                </div>
+                                <div className="w-full md:w-3/4 text-lg"> {/* Text container */}
+                                    <h3 className="font-semibold text-xl mb-2">{feature.title}</h3>
+                                    <p>{feature.description}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

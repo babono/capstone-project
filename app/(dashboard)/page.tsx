@@ -477,7 +477,7 @@ export default function HomePage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Waterfall</h1>
+      <h1 className="text-2xl font-bold mb-4">Waterfall Analysis</h1>
       
       {/* Show progress bar during initial download */}
       {loading && (
