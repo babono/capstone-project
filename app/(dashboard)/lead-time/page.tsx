@@ -13,6 +13,8 @@ import { Plot } from "@/app/constants";
 import FileUploaderSection from "./file-uploader-section";
 import FiltersSection from "./filter-section";
 import AskGeminiButton from "../common/ask-gemini";
+import LeadTimeFigure from "./lead-time-figure";
+import { analyzeAndPlotLeadTimeDifferences } from "@/app/utils/lead-time-utils";
 
 export default function LeadTime() {
   // NextAuth session
@@ -277,141 +279,6 @@ export default function LeadTime() {
     return mergedData;
   };
 
-  // Visualization
-  const analyzeAndPlotLeadTimeDifferences = (data: any[]) => {
-    if (!data || data.length === 0) {
-      console.warn("No data available for analysis.");
-      return;
-    }
-
-    // Add a combined Material-Plant identifier
-    const enrichedData = data.map((row) => ({
-      ...row,
-      "Material-Plant": `${row["Material Number"]} - ${row["Plant"]}`,
-    }));
-
-    // Plot 1: Top 10 by absolute difference
-    const top10Diff = [...enrichedData]
-      .sort((a, b) => Math.abs(b["Lead Time Difference (Days)"]) - Math.abs(a["Lead Time Difference (Days)"]))
-      .slice(0, 10);
-
-    // Group data by Material Number
-    const groupedByMaterialNumber = top10Diff.reduce((acc, row) => {
-      const materialNumber = row["Material Number"];
-      if (!acc[materialNumber]) {
-        acc[materialNumber] = [];
-      }
-      acc[materialNumber].push(row);
-      return acc;
-    }, {});
-
-    // Create data traces for each Material Number
-    const fig1CombinedData = Object.entries(groupedByMaterialNumber).map(([materialNumber, rows], index) => ({
-      x: rows.map((row) => row["Material-Plant"]),
-      y: rows.map((row) => row["Lead Time Difference (Days)"]),
-      type: "bar",
-      name: materialNumber,
-      marker: {
-        color: portlandColors[index % portlandColors.length],
-      },
-      hoverinfo: "text",
-      text: rows.map(
-        (item) =>
-          `Material Number: ${item["Material Number"]}<br>Material-Plant: ${item["Material-Plant"]}<br>Lead Time Difference (Days): ${item["Lead Time Difference (Days)"]}`
-      ),
-      textposition: "none",
-    }));
-
-    const fig1 = {
-      data: fig1CombinedData,
-      layout: {
-        showlegend: true,
-        legend: {
-          title: {
-            text: "Material Number",
-            font: {
-              size: 14,
-              color: "black",
-            },
-          },
-          x: 1,
-          y: 1,
-        },
-        autosize: true,
-        xaxis: {
-          title: { text: "Material-Plant", tickangle: -45, font: { color: "black" }, automargin: true },
-          automargin: true,
-        },
-        yaxis: {
-          title: { text: "Lead Time Difference (Days)", font: { color: "black" }, automargin: true },
-          automargin: true,
-        },
-      },
-    };
-
-    setFig1Data(fig1);
-
-    // Plot 2: Top 10 Over-Estimated (Late Deliveries)
-    const lateDeliveries = enrichedData
-      .filter((row) => row["Lead Time Difference (Days)"] > 0)
-      .sort((a, b) => b["Lead Time Difference (Days)"] - a["Lead Time Difference (Days)"])
-      .slice(0, 10);
-
-    const fig2 = {
-      data: Object.entries(
-        lateDeliveries.reduce((acc, row) => {
-          const materialNumber = row["Material Number"];
-          if (!acc[materialNumber]) {
-            acc[materialNumber] = [];
-          }
-          acc[materialNumber].push(row);
-          return acc;
-        }, {})
-      ).map(([materialNumber, rows], index) => ({
-        x: rows.map((row) => row["Material-Plant"]),
-        y: rows.map((row) => row["Lead Time Difference (Days)"]),
-        type: "bar",
-        name: materialNumber, // Grouping by Material Number
-        marker: {
-          color: `rgba(255, ${100 + index * 15}, ${100 + index * 15}, 1)`, // Sequential Reds
-        },
-        hoverinfo: "text",
-        text: rows.map(
-          (row) =>
-            `Material Number: ${row["Material Number"]}<br>Material-Plant: ${row["Material-Plant"]}<br>Lead Time Difference: ${row["Lead Time Difference (Days)"]}`
-        ),
-        textposition: "none",
-      })),
-      layout: {
-        showlegend: true,
-        legend: {
-          title: {
-            text: "Material Number",
-            font: { size: 12, color: "black" },
-          },
-          x: 1,
-          y: 1,
-        },
-        autosize: true,
-        xaxis: {
-          title: "Material-Plant",
-          automargin: true,
-          titlefont: { color: "black" },
-        },
-        yaxis: {
-          title: "Lead Time Difference (Days)",
-          automargin: true,
-          titlefont: { color: "black" },
-        },
-        title: "Top 10 Material-Plant Combinations Delivered Late",
-      },
-    };
-
-    setFig2Data(fig2);
-
-    //
-  };
-
   // Process DataFrames when both datasets are available
   useEffect(() => {
     if (orderPlacementData.length > 0 && goodsReceiptData.length > 0) {
@@ -461,7 +328,7 @@ export default function LeadTime() {
   // To handle visualization
   useEffect(() => {
     if (filteredFinalResult.length > 0) {
-      analyzeAndPlotLeadTimeDifferences(filteredFinalResult);
+      analyzeAndPlotLeadTimeDifferences(filteredFinalResult, portlandColors, setFig1Data, setFig2Data);
     }
   }, [filteredFinalResult]);
 
@@ -522,7 +389,6 @@ export default function LeadTime() {
         handleShortageReportData={handleShortageReportData}
       />
 
-
       {orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0 && (
         <div>
           <FiltersSection
@@ -535,24 +401,20 @@ export default function LeadTime() {
             handleDateRangeChange={handleDateRangeChange}
           />
           {fig1Data && (
-            <div>
-              <p className="text-l font-semibold">
-                Top 10 Material-Plant Combinations with the Largest Lead Time Difference
-              </p>
-              <Plot data={fig1Data.data} layout={fig1Data.layout} style={{ width: "100%", height: "125%" }} />
-              <br></br>
-              <AskGeminiButton chartId={'test1'} />
-            </div>
+            <LeadTimeFigure
+              title="Top 10 Material-Plant Combinations with the Largest Lead Time Difference"
+              chartId="lead-time-difference"
+              data={fig1Data.data}
+              layout={fig1Data.layout}
+            />
           )}
           {fig2Data && (
-            <div className="mt-8">
-              <p className="text-l font-semibold">
-                Top 10 Material-Plant Combinations Delivered Late
-              </p>
-              <Plot data={fig2Data.data} layout={fig2Data.layout} style={{ width: "100%", height: "125%" }} />
-              <br></br>
-              <AskGeminiButton chartId={'test2'} />
-            </div>
+            <LeadTimeFigure
+              title="Top 10 Material-Plant Combinations Delivered Late"
+              chartId="leaf-time-delivered-late"
+              data={fig2Data.data}
+              layout={fig2Data.layout}
+            />
           )}
         </div>
       )}
