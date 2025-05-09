@@ -9,6 +9,7 @@ import { Autocomplete, TextField, FormControl, InputLabel, Select, MenuItem, Box
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { Plot } from "@/app/constants";
 
 export default function LeadTime() {
   // NextAuth session
@@ -39,6 +40,18 @@ export default function LeadTime() {
   const [maxDate, setMaxDate] = useState<Date | null>(null);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
 
+  // Plotly Chart States
+  const [fig1Data, setFig1Data] = useState(null);
+  const [fig2Data, setFig2Data] = useState(null);
+  const [fig3Data, setFig3Data] = useState(null);
+  const [fig4Data, setFig4Data] = useState(null);
+
+  const portlandColors = [
+    "#0c3383", "#2a5ca8", "#4c7ec5", "#6e9fd9", "#91c0e5",
+    "#b5d9ef", "#d9f1f7", "#f7e8c8", "#f4c38c", "#e99654",
+    "#d6642b", "#b3311a", "#8c0d0d"
+  ];
+
   useEffect(() => {
     if (status === "loading") return; // Do nothing while loading
     if (!session) router.push("/login");
@@ -50,6 +63,11 @@ export default function LeadTime() {
 
   const handleGoodsReceiptData = (data) => {
     setGoodsReceiptData(data);
+
+    // Automatically set min and max dates based on the data
+    const timestamps = data.map((item) => new Date(item["Pstng Date"]).getTime());
+    const oldestDate = new Date(Math.min(...timestamps));
+    const newestDate = new Date(Math.max(...timestamps));
 
     setMinDate(oldestDate);
     setMaxDate(newestDate);
@@ -260,6 +278,80 @@ export default function LeadTime() {
     return mergedData;
   };
 
+  // Visualization
+  const analyzeAndPlotLeadTimeDifferences = (data: any[]) => {
+    // Add a combined Material-Plant identifier
+    const enrichedData = data.map((row) => ({
+      ...row,
+      "Material-Plant": `${row["Material Number"]} - ${row["Plant"]}`,
+    }));
+
+    // Plot 1: Top 10 by absolute difference
+    const top10Diff = [...enrichedData]
+      .sort((a, b) => Math.abs(b["Lead Time Difference (Days)"]) - Math.abs(a["Lead Time Difference (Days)"]))
+      .slice(0, 10);
+
+    // Group data by Material Number
+    const groupedByMaterialNumber = top10Diff.reduce((acc, row) => {
+      const materialNumber = row["Material Number"];
+      if (!acc[materialNumber]) {
+        acc[materialNumber] = [];
+      }
+      acc[materialNumber].push(row);
+      return acc;
+    }, {});
+
+    // Create data traces for each Material Number
+    const dataTraces = Object.entries(groupedByMaterialNumber).map(([materialNumber, rows], index) => ({
+      x: rows.map((row) => row["Material-Plant"]),
+      y: rows.map((row) => row["Lead Time Difference (Days)"]),
+      type: "bar",
+      name: materialNumber,
+      marker: {
+        color: portlandColors[index % portlandColors.length],
+      },
+      hoverinfo: "text",
+      text: rows.map(
+        (item) =>
+          `Material Number: ${item["Material Number"]}<br>Material-Plant: ${item["Material-Plant"]}<br>Lead Time Difference (Days): ${item["Lead Time Difference (Days)"]}`
+      ),
+      textposition: "none",
+    }));
+
+    const fig1 = {
+      data: dataTraces,
+      layout: {
+        showlegend: true,
+        legend: {
+          title: {
+            text: "Material Number",
+            font: {
+              size: 14,
+              color: "black",
+            },
+          },
+          x: 1,
+          y: 1,
+        },
+        autosize: true,
+        hoverlabel: {
+          align: "left",
+        },
+        title: "Top 10 Material-Plant Combinations with the Largest Lead Time Difference",
+        xaxis: {
+          title: { text: "Material-Plant", tickangle: -45, font: { color: "black" }, automargin: true },
+          automargin: true,
+        },
+        yaxis: {
+          title: { text: "Lead Time Difference (Days)", font: { color: "black" }, automargin: true },
+          automargin: true,
+        },
+      },
+    };
+
+    setFig1Data(fig1);
+  };
+
   // Process DataFrames when both datasets are available
   useEffect(() => {
     if (orderPlacementData.length > 0 && goodsReceiptData.length > 0) {
@@ -306,6 +398,13 @@ export default function LeadTime() {
     }
   }, [leadTimeDifferences]);
 
+  // To handle visualization
+  useEffect(() => {
+    if (filteredFinalResult.length > 0) {
+      analyzeAndPlotLeadTimeDifferences(filteredFinalResult);
+    }
+  }, [filteredFinalResult]);
+
   // Handle Supplier Selection
   const handleSupplierChange = (event) => {
     const value = event.target.value;
@@ -314,9 +413,7 @@ export default function LeadTime() {
     if (value === "All") {
       setFilteredFinalResult(leadTimeDifferences);
     } else {
-      const filtered = leadTimeDifferences.filter(
-        (row) => row["Supplier"] === value
-      );
+      const filtered = leadTimeDifferences.filter((row) => row["Supplier"] === value);
       setFilteredFinalResult(filtered);
     }
   };
@@ -381,58 +478,65 @@ export default function LeadTime() {
         onDataRetrieved={handleShortageReportData}
       />
 
-      {/* Supplier Selection */}
-      <div className="mb-4">
-        <FormControl fullWidth>
-          <InputLabel>Select Supplier (Optional)</InputLabel>
-          <Select
-            id="supplier"
-            labelId="supplier-label"
-            label="Select Supplier (Optional)"
-            value={selectedSupplier}
-            onChange={handleSupplierChange}
-          >
-            {[
-              "All",
-              "Unknown",
-              ...suppliers
-                .filter((supplier) => supplier !== "All" && supplier !== "Unknown")
-                .sort((a, b) => a.localeCompare(b)),
-            ].map((supplier) => (
-              <MenuItem key={supplier} value={supplier}>
-                {supplier}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
-
-      {/* Date Range Selection */}
-      <div className="mb-4">
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DateRangePicker
-            value={dateRange}
-            minDate={minDate}
-            maxDate={maxDate}
-            onChange={handleDateRangeChange}
-            slots={{ textField: TextField }}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                sx: { marginBottom: "16px" },
-              },
-            }}
-            format="yyyy/MM/dd"
-          />
-        </LocalizationProvider>
-      </div>
-
-      {/* Display Processed Data */}
-      {filteredFinalResult.length > 0 && (
+      {orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mt-4">Filtered Results</h2>
-          <p>Length: {filteredFinalResult.length}</p>
-          <pre>{JSON.stringify(filteredFinalResult, null, 2)}</pre>
+          {/* Supplier Selection */}
+          <div className="mb-4">
+            <FormControl fullWidth>
+              <InputLabel>Select Supplier (Optional)</InputLabel>
+              <Select
+                id="supplier"
+                labelId="supplier-label"
+                label="Select Supplier (Optional)"
+                value={selectedSupplier}
+                onChange={handleSupplierChange}
+              >
+                {[
+                  "All",
+                  "Unknown",
+                  ...suppliers
+                    .filter((supplier) => supplier !== "All" && supplier !== "Unknown")
+                    .sort((a, b) => a.localeCompare(b)),
+                ].map((supplier) => (
+                  <MenuItem key={supplier} value={supplier}>
+                    {supplier}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+
+          {/* Date Range Selection */}
+          <div className="mb-4">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateRangePicker
+                value={dateRange}
+                minDate={minDate}
+                maxDate={maxDate}
+                onChange={handleDateRangeChange}
+                slots={{ textField: TextField }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    sx: { marginBottom: "16px" },
+                  },
+                }}
+                format="yyyy/MM/dd"
+              />
+            </LocalizationProvider>
+          </div>
+
+          <h1 className="text-2xl font-bold mb-4">Material Level Lead Time Analysis Results:</h1>
+          {/* Visualization */}
+          <p className="mt-6 text-l font-semibold">
+            Top 10 Material-Plant Combinations with the Largest Lead Time Difference
+          </p>
+          {fig1Data && (
+            <div>
+              <Plot data={fig1Data.data} layout={fig1Data.layout} style={{ width: "100%", height: "125%" }}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
