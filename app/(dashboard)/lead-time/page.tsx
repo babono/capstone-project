@@ -10,6 +10,9 @@ import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { Plot } from "@/app/constants";
+import FileUploaderSection from "./file-uploader-section";
+import FiltersSection from "./filter-section";
+import AskGeminiButton from "../common/ask-gemini";
 
 export default function LeadTime() {
   // NextAuth session
@@ -63,15 +66,11 @@ export default function LeadTime() {
 
   const handleGoodsReceiptData = (data) => {
     setGoodsReceiptData(data);
-
     // Automatically set min and max dates based on the data
     const timestamps = data.map((item) => new Date(item["Pstng Date"]).getTime());
-    const oldestDate = new Date(Math.min(...timestamps));
-    const newestDate = new Date(Math.max(...timestamps));
-
-    setMinDate(oldestDate);
-    setMaxDate(newestDate);
-    setDateRange([oldestDate, newestDate]);
+    setMinDate(new Date(Math.min(...timestamps)));
+    setMaxDate(new Date(Math.max(...timestamps)));
+    setDateRange([new Date(Math.min(...timestamps)), new Date(Math.max(...timestamps))]);
   };
 
   const handleShortageReportData = (data) => {
@@ -280,6 +279,11 @@ export default function LeadTime() {
 
   // Visualization
   const analyzeAndPlotLeadTimeDifferences = (data: any[]) => {
+    if (!data || data.length === 0) {
+      console.warn("No data available for analysis.");
+      return;
+    }
+
     // Add a combined Material-Plant identifier
     const enrichedData = data.map((row) => ({
       ...row,
@@ -302,7 +306,7 @@ export default function LeadTime() {
     }, {});
 
     // Create data traces for each Material Number
-    const dataTraces = Object.entries(groupedByMaterialNumber).map(([materialNumber, rows], index) => ({
+    const fig1CombinedData = Object.entries(groupedByMaterialNumber).map(([materialNumber, rows], index) => ({
       x: rows.map((row) => row["Material-Plant"]),
       y: rows.map((row) => row["Lead Time Difference (Days)"]),
       type: "bar",
@@ -319,7 +323,7 @@ export default function LeadTime() {
     }));
 
     const fig1 = {
-      data: dataTraces,
+      data: fig1CombinedData,
       layout: {
         showlegend: true,
         legend: {
@@ -334,10 +338,6 @@ export default function LeadTime() {
           y: 1,
         },
         autosize: true,
-        hoverlabel: {
-          align: "left",
-        },
-        title: "Top 10 Material-Plant Combinations with the Largest Lead Time Difference",
         xaxis: {
           title: { text: "Material-Plant", tickangle: -45, font: { color: "black" }, automargin: true },
           automargin: true,
@@ -350,6 +350,66 @@ export default function LeadTime() {
     };
 
     setFig1Data(fig1);
+
+    // Plot 2: Top 10 Over-Estimated (Late Deliveries)
+    const lateDeliveries = enrichedData
+      .filter((row) => row["Lead Time Difference (Days)"] > 0)
+      .sort((a, b) => b["Lead Time Difference (Days)"] - a["Lead Time Difference (Days)"])
+      .slice(0, 10);
+
+    const fig2 = {
+      data: Object.entries(
+        lateDeliveries.reduce((acc, row) => {
+          const materialNumber = row["Material Number"];
+          if (!acc[materialNumber]) {
+            acc[materialNumber] = [];
+          }
+          acc[materialNumber].push(row);
+          return acc;
+        }, {})
+      ).map(([materialNumber, rows], index) => ({
+        x: rows.map((row) => row["Material-Plant"]),
+        y: rows.map((row) => row["Lead Time Difference (Days)"]),
+        type: "bar",
+        name: materialNumber, // Grouping by Material Number
+        marker: {
+          color: `rgba(255, ${100 + index * 15}, ${100 + index * 15}, 1)`, // Sequential Reds
+        },
+        hoverinfo: "text",
+        text: rows.map(
+          (row) =>
+            `Material Number: ${row["Material Number"]}<br>Material-Plant: ${row["Material-Plant"]}<br>Lead Time Difference: ${row["Lead Time Difference (Days)"]}`
+        ),
+        textposition: "none",
+      })),
+      layout: {
+        showlegend: true,
+        legend: {
+          title: {
+            text: "Material Number",
+            font: { size: 12, color: "black" },
+          },
+          x: 1,
+          y: 1,
+        },
+        autosize: true,
+        xaxis: {
+          title: "Material-Plant",
+          automargin: true,
+          titlefont: { color: "black" },
+        },
+        yaxis: {
+          title: "Lead Time Difference (Days)",
+          automargin: true,
+          titlefont: { color: "black" },
+        },
+        title: "Top 10 Material-Plant Combinations Delivered Late",
+      },
+    };
+
+    setFig2Data(fig2);
+
+    //
   };
 
   // Process DataFrames when both datasets are available
@@ -409,13 +469,11 @@ export default function LeadTime() {
   const handleSupplierChange = (event) => {
     const value = event.target.value;
     setSelectedSupplier(value);
-
-    if (value === "All") {
-      setFilteredFinalResult(leadTimeDifferences);
-    } else {
-      const filtered = leadTimeDifferences.filter((row) => row["Supplier"] === value);
-      setFilteredFinalResult(filtered);
-    }
+    setFilteredFinalResult(
+      value === "All"
+        ? leadTimeDifferences
+        : leadTimeDifferences.filter((row) => row["Supplier"] === value)
+    );
   };
 
   // Handle Date Range Selection
@@ -458,83 +516,42 @@ export default function LeadTime() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">{PAGE_LABEL} Analysis</h1>
+      <FileUploaderSection
+        handleOrderPlacementData={handleOrderPlacementData}
+        handleGoodsReceiptData={handleGoodsReceiptData}
+        handleShortageReportData={handleShortageReportData}
+      />
 
-      <FileUploader
-        type={PAGE_KEYS.ORDER_PLACEMENT}
-        title={PAGE_LABELS.ORDER_PLACEMENT}
-        fileBucketURL={ORDER_PLACEMENT_BUCKET_URL}
-        onDataRetrieved={handleOrderPlacementData}
-      />
-      <FileUploader
-        type={PAGE_KEYS.GOODS_RECEIPT}
-        title={PAGE_LABELS.GOODS_RECEIPT}
-        fileBucketURL={GOODS_RECEIPT_BUCKET_URL}
-        onDataRetrieved={handleGoodsReceiptData}
-      />
-      <FileUploader
-        type={PAGE_KEYS.SHORTAGE_REPORT}
-        title={PAGE_LABEL}
-        fileBucketURL={SHORTAGE_REPORT_BUCKET_URL}
-        onDataRetrieved={handleShortageReportData}
-      />
 
       {orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0 && (
         <div>
-          {/* Supplier Selection */}
-          <div className="mb-4">
-            <FormControl fullWidth>
-              <InputLabel>Select Supplier (Optional)</InputLabel>
-              <Select
-                id="supplier"
-                labelId="supplier-label"
-                label="Select Supplier (Optional)"
-                value={selectedSupplier}
-                onChange={handleSupplierChange}
-              >
-                {[
-                  "All",
-                  "Unknown",
-                  ...suppliers
-                    .filter((supplier) => supplier !== "All" && supplier !== "Unknown")
-                    .sort((a, b) => a.localeCompare(b)),
-                ].map((supplier) => (
-                  <MenuItem key={supplier} value={supplier}>
-                    {supplier}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-
-          {/* Date Range Selection */}
-          <div className="mb-4">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateRangePicker
-                value={dateRange}
-                minDate={minDate}
-                maxDate={maxDate}
-                onChange={handleDateRangeChange}
-                slots={{ textField: TextField }}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    sx: { marginBottom: "16px" },
-                  },
-                }}
-                format="yyyy/MM/dd"
-              />
-            </LocalizationProvider>
-          </div>
-
-          <h1 className="text-2xl font-bold mb-4">Material Level Lead Time Analysis Results:</h1>
-          {/* Visualization */}
-          <p className="mt-6 text-l font-semibold">
-            Top 10 Material-Plant Combinations with the Largest Lead Time Difference
-          </p>
+          <FiltersSection
+            suppliers={suppliers}
+            selectedSupplier={selectedSupplier}
+            handleSupplierChange={handleSupplierChange}
+            dateRange={dateRange}
+            minDate={minDate}
+            maxDate={maxDate}
+            handleDateRangeChange={handleDateRangeChange}
+          />
           {fig1Data && (
             <div>
-              <Plot data={fig1Data.data} layout={fig1Data.layout} style={{ width: "100%", height: "125%" }}
-              />
+              <p className="text-l font-semibold">
+                Top 10 Material-Plant Combinations with the Largest Lead Time Difference
+              </p>
+              <Plot data={fig1Data.data} layout={fig1Data.layout} style={{ width: "100%", height: "125%" }} />
+              <br></br>
+              <AskGeminiButton chartId={'test1'} />
+            </div>
+          )}
+          {fig2Data && (
+            <div className="mt-8">
+              <p className="text-l font-semibold">
+                Top 10 Material-Plant Combinations Delivered Late
+              </p>
+              <Plot data={fig2Data.data} layout={fig2Data.layout} style={{ width: "100%", height: "125%" }} />
+              <br></br>
+              <AskGeminiButton chartId={'test2'} />
             </div>
           )}
         </div>
