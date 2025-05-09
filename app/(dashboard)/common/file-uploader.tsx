@@ -38,7 +38,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
   const percentageToShow = isUploading ? uploadProgress : downloadProgress;
 
   return (
-    <>
+    <div className="mb-8">
       {/* File Uploader */}
       {!isDataProcessing && (
         <Box
@@ -89,7 +89,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
       <div style={{ marginTop: 16 }}>
         <DownloadBucket onClick={handleDownloadFromBucket} isLoading={isDataProcessing} />
       </div>
-    </>
+    </div>
   );
 };
 

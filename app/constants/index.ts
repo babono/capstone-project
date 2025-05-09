@@ -30,6 +30,7 @@ export enum PAGE_LABELS {
   MATERIAL_CONSUMPTION = 'Material Consumption',
   ORDER_PLACEMENT = 'Order Placement',
   GOODS_RECEIPT = 'Goods Receipt',
+  LEAD_TIME = 'Lead Time',
   HOME = 'Home'
 }
 
@@ -37,6 +38,7 @@ export enum PAGE_KEYS {
   MATERIAL_CONSUMPTION = 'material-consumption',
   ORDER_PLACEMENT = 'order-placement',
   GOODS_RECEIPT = 'goods-receipt',
+  SHORTAGE_REPORT = 'shortage-report',
   HOME = 'home',
 }
 
@@ -47,3 +49,6 @@ export const WATERFALL_BUCKET_URL = "https://storage.googleapis.com/babono_bucke
 export const MATERIAL_CONSUMPTION_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/materialConsumption260.json";
 export const ORDER_PLACEMENT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/orderPlacement260.json";
 export const GOODS_RECEIPT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/goodsReceipt260.json";
+
+// TODO: Confirm is this real upload the zip instead of the excel files inside it
+export const SHORTAGE_REPORT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/Shortage_Report_2024_Copy.zip";

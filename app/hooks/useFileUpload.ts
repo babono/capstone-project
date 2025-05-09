@@ -21,6 +21,8 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
         return "/api/py/uploadExcelOrderPlacement";
       case PAGE_KEYS.GOODS_RECEIPT:
         return "/api/py/uploadExcelGoodsReceipt";
+      case PAGE_KEYS.SHORTAGE_REPORT:
+          return "/api/py/uploadShortageXlsx";
       case PAGE_KEYS.HOME:
         return "/api/py/uploadShortageXlsx"; // Modified endpoint name
       default:
