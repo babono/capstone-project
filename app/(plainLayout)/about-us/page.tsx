@@ -31,43 +31,43 @@ const features = [
     {
         title: "Waterfall Analysis",
         description: "This feature provides a detailed week-by-week breakdown of inventory changes, comparing planned supply and demand against actual purchase order receipts and consumption. It helps identify discrepancies, root causes for inventory imbalances (like inadequate PO coverage or demand spikes), and projects future inventory levels based on confirmed POs.",
-        imageSrc: "/placeholder-feature1.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Waterfall Analysis Thumbnail"
     },
     {
         title: "Material Consumption Analysis",
         description: "This tool analyzes how materials are used over time, offering insights into overall consumption trends, identifying unusual spikes or drops (outliers), and allowing deep dives into specific materials. It can break down consumption by vendor, plant, and site, helping to understand usage patterns across different dimensions.",
-        imageSrc: "/placeholder-feature2.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Material Consumption Analysis Thumbnail"
     },
     {
         title: "Order Placement Analysis",
         description: "This feature examines patterns in how purchase orders are created. It visualizes overall ordering trends, allows for analysis of specific materials, and can break down order quantities by supplier and plant. It also includes an ABC analysis to categorize materials based on their order value.",
-        imageSrc: "/placeholder-feature3.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Order Placement Analysis Thumbnail"
     },
     {
         title: "Goods Receipt Analysis",
         description: "This focuses on the process of receiving materials, tracking quantities received over time. It highlights overall goods receipt patterns, detects outliers, and enables detailed analysis for specific materials, including trends and receipts by plant, site, and vendor.",
-        imageSrc: "/placeholder-feature4.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Goods Receipt Analysis Thumbnail"
     },
     {
         title: "Lead Time Analysis",
         description: "This feature measures and analyzes the duration between placing an order and receiving the goods. It processes order placement and goods receipt data to calculate actual lead times, compares them against planned lead times, and provides summaries at both material and supplier levels to identify delays or inconsistencies.",
-        imageSrc: "/placeholder-feature5.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Lead Time Analysis Thumbnail"
     },
     {
         title: "Forecast",
         description: "This capability predicts future material demand based on historical consumption data. Users can select different forecasting models (like XGBoost or ARIMA), specify the forecast period, and account for seasonality to generate demand projections for specific materials.",
-        imageSrc: "/placeholder-feature6.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Forecast Thumbnail"
     },
     {
         title: "Inventory Simulation",
         description: "This tool runs Monte Carlo simulations to model inventory levels under various scenarios. It considers inputs like initial stock, reorder points, lead times, and demand variability (either fixed or based on statistical distributions). The simulation compares reactive versus proactive ordering strategies, highlighting potential stockout weeks and calculating Weeks of Stock to help optimize inventory policies.",
-        imageSrc: "/placeholder-feature7.png", // Replace with actual image path
+        imageSrc: "/feature-waterfall.gif", // Replace with actual image path
         altText: "Inventory Simulation Thumbnail"
     }
 ];
@@ -156,13 +156,13 @@ export default function AboutUsPage() {
                     <div>
                         {features.map((feature, index) => (
                             <div key={index} className="flex flex-col md:flex-row items-start mt-6 mb-8">
-                                <div className="w-full md:w-1/4 mb-4 md:mb-0 md:mr-6"> {/* Image container - smaller width */}
+                                <div className="w-full md:w-1/4 mb-4 md:mb-0 md:mr-6 relative aspect-[160/90]"> {/* Image container - smaller width */}
                                     <Image
                                         src={feature.imageSrc}
                                         alt={feature.altText}
-                                        width={200} // Adjust width as needed
-                                        height={150} // Adjust height as needed
-                                        className="rounded-lg shadow-md object-cover" // Added object-cover
+                                        fill
+                                        objectFit='contain'
+                                        className="shadow-md object-contain" // Added object-cover
                                     />
                                 </div>
                                 <div className="w-full md:w-3/4 text-lg"> {/* Text container */}
