@@ -711,7 +711,7 @@ export default function HomePage() {
             {plotData && (
               <div className="mt-4">
                 <h2 className="text-xl font-semibold mb-2">Actual vs. Predicted Weeks of Stock</h2>
-                <Plot data={plotData.data} layout={plotData.layout} style={{ width: "100%", height: "100%" }} />
+                <Plot data={plotData.data} layout={plotData.layout} style={{ width: "100%", height: "100%" }} config={{ responsive: true }} />
               </div>
             )}
 

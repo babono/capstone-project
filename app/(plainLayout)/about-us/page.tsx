@@ -83,7 +83,7 @@ export default function AboutUsPage() {
                         </a>
                     </Link>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-4">
+                <div className="bg-white p-8 rounded-lg shadow-lg mb-4">
                     <div className="flex justify-center mb-10"> {/* Logo container */}
                         <Image
                             src="/logo-digital-trinity-primary.svg"

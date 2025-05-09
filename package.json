@@ -24,6 +24,7 @@
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
+    "arima": "^0.2.5",
     "bcrypt": "^5.1.1",
     "concurrently": "^9.0.1",
     "date-fns": "^2.30.0",
