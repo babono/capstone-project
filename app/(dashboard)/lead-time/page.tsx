@@ -4,7 +4,7 @@ import { GOODS_RECEIPT_BUCKET_URL, ORDER_PLACEMENT_BUCKET_URL, PAGE_KEYS, PAGE_L
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import FileUploader from "../common/file-uploader";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Autocomplete, TextField, FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -15,6 +15,7 @@ import FiltersSection from "./filter-section";
 import AskGeminiButton from "../common/ask-gemini";
 import LeadTimeFigure from "./lead-time-figure";
 import { analyzeAndPlotLeadTimeDifferences } from "@/app/utils/lead-time-utils";
+import DownloadReport from "../common/download-report";
 
 export default function LeadTime() {
   // NextAuth session
@@ -53,6 +54,9 @@ export default function LeadTime() {
   const [fig5Data, setFig5Data] = useState(null);
   const [fig6Data, setFig6Data] = useState(null);
   const [fig7Data, setFig7Data] = useState(null);
+
+  // Other States
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const portlandColors = [
     "#0c3383", "#2a5ca8", "#4c7ec5", "#6e9fd9", "#91c0e5",
@@ -412,65 +416,68 @@ export default function LeadTime() {
             maxDate={maxDate}
             handleDateRangeChange={handleDateRangeChange}
           />
-          <h1 className="text-2xl font-bold mb-4">Material Level Lead Time Analysis Results:</h1>
-          {fig1Data && (
-            <LeadTimeFigure
-              title="Top 10 Material-Plant Combinations with the Largest Lead Time Difference"
-              chartId="lead-time-difference"
-              data={fig1Data.data}
-              layout={fig1Data.layout}
-            />
-          )}
-          {fig2Data && (
-            <LeadTimeFigure
-              title="Top 10 Material-Plant Combinations Delivered Late"
-              chartId="leaf-time-delivered-late"
-              data={fig2Data.data}
-              layout={fig2Data.layout}
-            />
-          )}
-          {fig3Data && (
-            <LeadTimeFigure
-              title="Top 10 Material-Plant Combinations Delivered Early"
-              chartId="leaf-time-delivered-early"
-              data={fig3Data.data}
-              layout={fig3Data.layout}
-            />
-          )}
-          {fig4Data && (
-            <LeadTimeFigure
-              title="Distribution of Lead Time Differences"
-              chartId="lead-time-differences"
-              data={fig4Data.data}
-              layout={fig4Data.layout}
-            />
-          )}
-          <br></br>
-          <h1 className="text-2xl font-bold mb-4">Supplier Level Lead Time Analysis Results:</h1>
-          {fig5Data && (
-            <LeadTimeFigure
-              title="Top 5 Suppliers (Delivering Earliest on Average)"
-              chartId="supplier-level-lead-time-analysis"
-              data={fig5Data.data}
-              layout={fig5Data.layout}
-            />
-          )}
-          {fig6Data && (
-            <LeadTimeFigure
-              title="Bottom 5 Suppliers (Delivering Latest on Average)"
-              chartId="supplier-level-lead-time-analysis-bottom"
-              data={fig6Data.data}
-              layout={fig6Data.layout}
-            />
-          )}
-          {fig7Data && (
-            <LeadTimeFigure
-              title="Distribution of Average Lead Time Difference Across All Suppliers"
-              chartId="distribution-avg-lead-time-diff"
-              data={fig7Data.data}
-              layout={fig7Data.layout}
-            />
-          )}
+          <DownloadReport reportRefObj={reportRef} />
+          <div ref={reportRef}>
+            <h1 className="text-2xl font-bold mb-4">Material Level Lead Time Analysis Results:</h1>
+            {fig1Data && (
+              <LeadTimeFigure
+                title="Top 10 Material-Plant Combinations with the Largest Lead Time Difference"
+                chartId="lead-time-difference"
+                data={fig1Data.data}
+                layout={fig1Data.layout}
+              />
+            )}
+            {fig2Data && (
+              <LeadTimeFigure
+                title="Top 10 Material-Plant Combinations Delivered Late"
+                chartId="leaf-time-delivered-late"
+                data={fig2Data.data}
+                layout={fig2Data.layout}
+              />
+            )}
+            {fig3Data && (
+              <LeadTimeFigure
+                title="Top 10 Material-Plant Combinations Delivered Early"
+                chartId="leaf-time-delivered-early"
+                data={fig3Data.data}
+                layout={fig3Data.layout}
+              />
+            )}
+            {fig4Data && (
+              <LeadTimeFigure
+                title="Distribution of Lead Time Differences"
+                chartId="lead-time-differences"
+                data={fig4Data.data}
+                layout={fig4Data.layout}
+              />
+            )}
+            <br></br>
+            <h1 className="text-2xl font-bold mb-4">Supplier Level Lead Time Analysis Results:</h1>
+            {fig5Data && (
+              <LeadTimeFigure
+                title="Top 5 Suppliers (Delivering Earliest on Average)"
+                chartId="supplier-level-lead-time-analysis"
+                data={fig5Data.data}
+                layout={fig5Data.layout}
+              />
+            )}
+            {fig6Data && (
+              <LeadTimeFigure
+                title="Bottom 5 Suppliers (Delivering Latest on Average)"
+                chartId="supplier-level-lead-time-analysis-bottom"
+                data={fig6Data.data}
+                layout={fig6Data.layout}
+              />
+            )}
+            {fig7Data && (
+              <LeadTimeFigure
+                title="Distribution of Average Lead Time Difference Across All Suppliers"
+                chartId="distribution-avg-lead-time-diff"
+                data={fig7Data.data}
+                layout={fig7Data.layout}
+              />
+            )}
+          </div>
         </div>
       )}
     </div>

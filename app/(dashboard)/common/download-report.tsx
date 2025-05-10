@@ -23,7 +23,7 @@ const DownloadReport: React.FC<DownloadReportProps> = ({ reportRefObj }) => {
   }
 
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <Button variant="outlined" color="secondary" onClick={() => downloadImageReport(reportRefObj)}>
         Download Report
       </Button>
