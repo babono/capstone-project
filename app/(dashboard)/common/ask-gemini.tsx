@@ -83,7 +83,7 @@ const AskGeminiButton: React.FC<AskGeminiButtonProps> = ({ chartId }) => {
       <div className="flex justify-center">
         <button
           onClick={handleInterpret}
-          className="bg-dt-primary text-white px-4 py-2 rounded mt-2 hover:bg-indigo-700 transition flex items-center"
+          className="bg-dt-primary text-white px-4 py-2 rounded hover:bg-indigo-700 transition flex items-center"
         >
           <AutoAwesomeIcon className="mr-2" /> Ask Gemini for Insight
         </button>
