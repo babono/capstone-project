@@ -14,7 +14,7 @@ const DownloadBucket: React.FC<DownloadButtonProps> = ({ onClick, isLoading }) =
       onClick={onClick}
       disabled={isLoading}
     >
-      {isLoading ? "Downloading..." : "Download Data from Bucket"}
+      {isLoading ? "Downloading..." : "Download Sample File"}
     </Button>
   );
 };

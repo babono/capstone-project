@@ -113,5 +113,5 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
     }
   });
 
-  return { file, getRootProps, getInputProps, isDragActive, uploadProgress };
+  return { file, setFile, getRootProps, getInputProps, isDragActive, uploadProgress };
 };

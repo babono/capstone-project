@@ -1,5 +1,6 @@
-import React from "react";
-import { Box, Typography, LinearProgress } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, LinearProgress, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useFileUpload } from "@/app/hooks/useFileUpload";
 import { ERR_BUCKET_LOAD_PREFIX, PAGE_KEYS } from "@/app/constants";
 import DownloadBucket from "./download-bucket";
@@ -13,34 +14,39 @@ type FileUploaderProps = {
 };
 
 const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL, onDataRetrieved }) => {
-  const { file, getRootProps, getInputProps, isDragActive, uploadProgress } = useFileUpload({
+  const { file, setFile, getRootProps, getInputProps, isDragActive, uploadProgress } = useFileUpload({
     type,
     onDataRetrieved,
   });
 
-  // For download file from bucket
   const { fetchJsonWithProgress, downloadProgress } = useFetchWithProgress();
+  const [downloadedFileName, setDownloadedFileName] = useState<string | null>(null);
 
-  // Updated handler to trigger download from the public bucket URL
   const handleDownloadFromBucket = () => {
     fetchJsonWithProgress(fileBucketURL)
       .then((parsedData) => {
         onDataRetrieved(parsedData);
+        setDownloadedFileName("Sample file has been downloaded");
       })
       .catch((error) => {
         console.error(ERR_BUCKET_LOAD_PREFIX, error);
       });
   };
 
+  const handleReset = () => {
+    setDownloadedFileName(null); // Reset the downloaded file state
+    setFile(null); // Reset the file state
+  };
+
   const isUploading = uploadProgress > 0 && uploadProgress < 100;
-  const isDownloading = downloadProgress > 0 && downloadProgress < 100
+  const isDownloading = downloadProgress > 0 && downloadProgress < 100;
   const isDataProcessing = isUploading || isDownloading;
   const percentageToShow = isUploading ? uploadProgress : downloadProgress;
 
   return (
     <div>
       {/* File Uploader */}
-      {!isDataProcessing && (
+      {!isDataProcessing && !downloadedFileName && (
         <Box
           {...getRootProps()}
           sx={{
@@ -85,10 +91,35 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
         </div>
       )}
 
+      {/* Show downloaded file name with reset button */}
+      {downloadedFileName && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            border: "2px dashed #3719D3",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            marginBottom: "16px",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body1" color="textSecondary">
+            {downloadedFileName}
+          </Typography>
+          <IconButton onClick={handleReset} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      )}
+
       {/* Button to trigger download from public bucket */}
-      <div style={{ marginTop: 16 }} className="mb-4">
-        <DownloadBucket onClick={handleDownloadFromBucket} isLoading={isDataProcessing} />
-      </div>
+      {!downloadedFileName && (
+        <div style={{ marginTop: 16 }} className="mb-4">
+          <DownloadBucket onClick={handleDownloadFromBucket} isLoading={isDataProcessing} />
+        </div>
+      )}
     </div>
   );
 };
