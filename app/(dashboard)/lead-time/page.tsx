@@ -50,6 +50,9 @@ export default function LeadTime() {
   const [fig2Data, setFig2Data] = useState(null);
   const [fig3Data, setFig3Data] = useState(null);
   const [fig4Data, setFig4Data] = useState(null);
+  const [fig5Data, setFig5Data] = useState(null);
+  const [fig6Data, setFig6Data] = useState(null);
+  const [fig7Data, setFig7Data] = useState(null);
 
   const portlandColors = [
     "#0c3383", "#2a5ca8", "#4c7ec5", "#6e9fd9", "#91c0e5",
@@ -328,7 +331,17 @@ export default function LeadTime() {
   // To handle visualization
   useEffect(() => {
     if (filteredFinalResult.length > 0) {
-      analyzeAndPlotLeadTimeDifferences(filteredFinalResult, portlandColors, setFig1Data, setFig2Data, setFig3Data, setFig4Data);
+      analyzeAndPlotLeadTimeDifferences(
+        filteredFinalResult,
+        portlandColors,
+        setFig1Data,
+        setFig2Data,
+        setFig3Data,
+        setFig4Data,
+        setFig5Data,
+        setFig6Data,
+        setFig7Data
+      );
     }
   }, [filteredFinalResult]);
 
@@ -433,7 +446,16 @@ export default function LeadTime() {
               layout={fig4Data.layout}
             />
           )}
+          <br></br>
           <h1 className="text-2xl font-bold mb-4">Supplier Level Lead Time Analysis Results:</h1>
+          {fig5Data && (
+            <LeadTimeFigure
+              title="Top 5 Suppliers (Delivering Earliest on Average)"
+              chartId="supplier-level-lead-time-analysis"
+              data={fig5Data.data}
+              layout={fig5Data.layout}
+            />
+          )}
         </div>
       )}
     </div>
