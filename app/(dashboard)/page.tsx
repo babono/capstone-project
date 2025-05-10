@@ -396,7 +396,7 @@ export default function HomePage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Waterfall</h1>
+      <h1 className="text-2xl font-bold mb-4">Waterfall Analysis</h1>
 
       <FileUploader
         type={PAGE_KEYS.HOME}
@@ -612,7 +612,7 @@ export default function HomePage() {
             {plotData && (
               <div className="mt-4">
                 <h2 className="text-xl font-semibold mb-2">Actual vs. Predicted Weeks of Stock</h2>
-                <Plot data={plotData.data} layout={plotData.layout} style={{ width: "100%", height: "100%" }} />
+                <Plot data={plotData.data} layout={plotData.layout} style={{ width: "100%", height: "100%" }} config={{ responsive: true }} />
               </div>
             )}
 

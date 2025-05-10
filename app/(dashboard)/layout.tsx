@@ -2,6 +2,7 @@ export const maxDuration = 60;
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { Providers } from "../providers";
+import Link from "next/link";
 import Tabs from "../components/Tabs";
 import Header from "../components/Header";
 import "../globals.css";
@@ -35,7 +36,7 @@ export default function RootLayout({
             </div>
           </main>
           <footer className="flex items-center justify-center p-4 bg-dt-secondary text-white">
-            <p>Powered by Digital Trinity</p>
+            <p>Powered by <Link href="/about-us" className="underline">Digital Trinity</Link></p>
           </footer>
         </Providers>
       </body>
