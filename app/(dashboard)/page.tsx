@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import iconDT from "../../public/ic-dt.svg"
-import { ERR_BUCKET_LOAD_PREFIX, PAGE_KEYS, PAGE_LABELS, WATERFALL_BUCKET_URL } from "@/app/constants"
+import { ERR_BUCKET_LOAD_PREFIX, GENERATE_RESULT_CAPTIONS, PAGE_KEYS, PAGE_LABELS, WATERFALL_BUCKET_URL } from "@/app/constants"
 import FileUploader from "./common/file-uploader"
 import {
   FormControl,
@@ -31,6 +31,7 @@ import DownloadBucket from "./common/download-bucket"
 import { Plot } from "@/app/constants";
 import { downloadImageReport } from "../utils/downloadImageReport"
 import DownloadReport from "./common/download-report"
+import GenerateResultCaption from "./common/generate-result-caption"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -404,6 +405,10 @@ export default function HomePage() {
         fileBucketURL={WATERFALL_BUCKET_URL}
         onDataRetrieved={handleUploadComplete}
       />
+
+      {!plotData && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
 
       {/* Filters */}
       {uploadData && (

@@ -10,11 +10,12 @@ import InfiniteShelf from "./charts/infinite-shelf";
 import MaterialsVariance from "../common/charts/materials-variance";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
 import TotalTransaction from "../common/charts/total-transaction";
-import { FINITE_SHELF_CHART_ID, GOODS_RECEIPT_CHART_ID, MATERIAL_CONSUMPTION_BUCKET_URL, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
+import { FINITE_SHELF_CHART_ID, GENERATE_RESULT_CAPTIONS, GOODS_RECEIPT_CHART_ID, MATERIAL_CONSUMPTION_BUCKET_URL, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import FileUploader from "../common/file-uploader";
 import GlobalFilter from "../common/global-filter";
 import DownloadReport from "../common/download-report";
+import GenerateResultCaption from "../common/generate-result-caption";
 
 export default function MaterialConsumption() {
   // NextAuth session
@@ -165,6 +166,9 @@ export default function MaterialConsumption() {
         fileBucketURL={MATERIAL_CONSUMPTION_BUCKET_URL}
         onDataRetrieved={handleDataProcessing}
       />
+      {plotData.length === 0 && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}

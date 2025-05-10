@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client";
-import { GOODS_RECEIPT_BUCKET_URL, ORDER_PLACEMENT_BUCKET_URL, PAGE_KEYS, PAGE_LABELS, SHORTAGE_REPORT_BUCKET_URL } from "@/app/constants";
+import { GENERATE_RESULT_CAPTIONS, GOODS_RECEIPT_BUCKET_URL, ORDER_PLACEMENT_BUCKET_URL, PAGE_KEYS, PAGE_LABELS, SHORTAGE_REPORT_BUCKET_URL } from "@/app/constants";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import FileUploader from "../common/file-uploader";
@@ -16,6 +16,7 @@ import AskGeminiButton from "../common/ask-gemini";
 import LeadTimeFigure from "./lead-time-figure";
 import { analyzeAndPlotLeadTimeDifferences } from "@/app/utils/lead-time-utils";
 import DownloadReport from "../common/download-report";
+import GenerateResultCaption from "../common/generate-result-caption";
 
 export default function LeadTime() {
   // NextAuth session
@@ -397,6 +398,9 @@ export default function LeadTime() {
     }
   };
 
+  const isUploadFilesIncomplete = orderPlacementData.length === 0 || goodsReceiptData.length === 0 || shortageReportData.length === 0;
+  const isUploadFilesComplete = orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">{PAGE_LABEL} Analysis</h1>
@@ -405,7 +409,10 @@ export default function LeadTime() {
         handleGoodsReceiptData={handleGoodsReceiptData}
         handleShortageReportData={handleShortageReportData}
       />
-      {orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0 && (
+      {isUploadFilesIncomplete && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
+      {isUploadFilesComplete && (
         <div>
           <FiltersSection
             suppliers={suppliers}

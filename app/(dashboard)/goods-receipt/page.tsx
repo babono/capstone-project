@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation"
 import Image from "next/image";
 import iconDT from "../../../public/ic-dt.svg";
 import MaterialsVariance from "../common/charts/materials-variance";
-import { GOODS_RECEIPT_BUCKET_URL, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, QUANTITY_BY_PLANT_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
+import { GENERATE_RESULT_CAPTIONS, GOODS_RECEIPT_BUCKET_URL, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, QUANTITY_BY_PLANT_CHART_ID, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
 import TotalTransaction from "../common/charts/total-transaction";
 import GlobalFilter from "../common/global-filter";
 import FileUploader from "../common/file-uploader";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import DownloadReport from "../common/download-report";
+import GenerateResultCaption from "../common/generate-result-caption";
 
 export default function GoodsReceipt() {
   // NextAuth session
@@ -138,6 +139,9 @@ export default function GoodsReceipt() {
         fileBucketURL={GOODS_RECEIPT_BUCKET_URL}
         onDataRetrieved={handleUploadComplete}
       />
+      {plotData.length === 0 && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}
