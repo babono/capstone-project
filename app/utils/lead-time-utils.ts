@@ -288,11 +288,10 @@ export const createFig5 = (data) => {
               },
             },
           },
-          thickness: 5, // Make the colorbar thinner
         },
         text: x.map((value) => value.toFixed(2)), // Display values with 2 decimal places
         textposition: "outside",
-        hovertemplate: `Supplier: %{y}<br> Avg Lead Time Difference (Days): %{x}<extra></extra>
+        hovertemplate: `Supplier: %{y}<br>Avg Lead Time Difference (Days): %{x}<extra></extra>
         `,
       },
     ],
@@ -310,6 +309,83 @@ export const createFig5 = (data) => {
         },
         automargin: true,
         categoryorder: "total ascending", // Order suppliers by performance
+      },
+      showlegend: false,
+      autosize: true,
+    },
+  };
+};
+
+export const createFig6 = (data) => {
+  // Group data by Supplier and calculate the average lead time difference
+  const supplierPerformance = data.reduce((acc, row) => {
+    const supplier = row["Supplier"] || "Unknown";
+    if (!acc[supplier]) {
+      acc[supplier] = { total: 0, count: 0 };
+    }
+    acc[supplier].total += row["Lead Time Difference (Days)"];
+    acc[supplier].count += 1;
+    return acc;
+  }, {});
+
+  // Convert the grouped data into an array and calculate the average
+  const supplierData = Object.entries(supplierPerformance).map(([supplier, { total, count }]) => ({
+    Supplier: supplier,
+    "Average Lead Time Difference (Days)": total / count,
+  }));
+
+  // Sort suppliers by average lead time difference (descending for late deliveries)
+  const sortedSupplierData = supplierData.sort(
+    (a, b) => b["Average Lead Time Difference (Days)"] - a["Average Lead Time Difference (Days)"]
+  );
+
+  // Take the bottom 5 suppliers
+  const bottom5Suppliers = sortedSupplierData.slice(0, 5);
+
+  // Extract data for the chart
+  const x = bottom5Suppliers.map((row) => row["Average Lead Time Difference (Days)"]);
+  const y = bottom5Suppliers.map((row) => row["Supplier"]);
+
+  return {
+    data: [
+      {
+        x,
+        y,
+        type: "bar",
+        orientation: "h", // Horizontal bar chart
+        marker: {
+          color: x, // Use the x values for the color scale
+          colorscale: "Magma", // Use the Magma color scale (matches Python version)
+          colorbar: {
+            title: {
+              text: "Avg Lead Time Diff (Days) [Positive = Late]", // Add line break for better readability
+              side: "top", // Position the text above the heat level
+              font: {
+                size: 11, // Make the text smaller
+              },
+            },
+          },
+        },
+        text: x.map((value) => value.toFixed(2)), // Display values with 2 decimal places
+        textposition: "outside",
+        hovertemplate: `Supplier: %{y}<br>Avg Lead Time Difference (Days): %{x}<extra></extra>
+        `,
+      },
+    ],
+    layout: {
+      title: "Bottom 5 Suppliers (Delivering Latest on Average)",
+      xaxis: {
+        title: {
+          text: "Avg Lead Time Diff (Days) [Positive = Late]",
+        },
+        automargin: true,
+      },
+      yaxis: {
+        title: {
+          text: "Supplier",
+        },
+        automargin: true,
+        categoryorder: "total descending", // Order suppliers by performance
       },
       showlegend: false,
       autosize: true,
@@ -364,4 +440,7 @@ export const analyzeAndPlotLeadTimeDifferences = (
 
   // Plot 5: Supplier-Level Lead Time Analysis
   setFig5Data(createFig5(data));
+
+  // Plot 6: Supplier-Level Lead Time Analysis (Bottom 5)
+  setFig6Data(createFig6(data));
 };

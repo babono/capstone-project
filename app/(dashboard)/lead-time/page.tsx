@@ -456,6 +456,14 @@ export default function LeadTime() {
               layout={fig5Data.layout}
             />
           )}
+          {fig6Data && (
+            <LeadTimeFigure
+              title="Bottom 5 Suppliers (Delivering Latest on Average)"
+              chartId="supplier-level-lead-time-analysis-bottom"
+              data={fig6Data.data}
+              layout={fig6Data.layout}
+            />
+          )}
         </div>
       )}
     </div>
