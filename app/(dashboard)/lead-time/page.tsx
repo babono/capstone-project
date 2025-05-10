@@ -401,7 +401,6 @@ export default function LeadTime() {
         handleGoodsReceiptData={handleGoodsReceiptData}
         handleShortageReportData={handleShortageReportData}
       />
-
       {orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0 && (
         <div>
           <FiltersSection
@@ -462,6 +461,14 @@ export default function LeadTime() {
               chartId="supplier-level-lead-time-analysis-bottom"
               data={fig6Data.data}
               layout={fig6Data.layout}
+            />
+          )}
+          {fig7Data && (
+            <LeadTimeFigure
+              title="Distribution of Average Lead Time Difference Across All Suppliers"
+              chartId="distribution-avg-lead-time-diff"
+              data={fig7Data.data}
+              layout={fig7Data.layout}
             />
           )}
         </div>

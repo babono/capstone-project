@@ -180,9 +180,8 @@ export const createFig4 = (data) => {
         type: "histogram",
         marker: { color: "#1f77b4" }, // Blue color for histogram
         opacity: 0.7, // Slight transparency for better visualization
-        name: "Histogram",
         hoverinfo: "text",
-        hovertemplate: `Lead Time Difference (Days): %{x}<br>Count: %{y}
+        hovertemplate: `Lead Time Difference (Days): %{x}<br>Count: %{y}<extra></extra>
         `,
         xbins: {
           start: Math.min(...leadTimeDifferences), // Start of the bins
@@ -289,7 +288,7 @@ export const createFig5 = (data) => {
         },
         text: x.map((value) => value.toFixed(2)), // Display values with 2 decimal places
         textposition: "outside",
-        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Supplier: %{y}
+        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Supplier: %{y}<extra></extra>
         `,
       },
     ],
@@ -366,7 +365,7 @@ export const createFig6 = (data) => {
         },
         text: x.map((value) => value.toFixed(2)), // Display values with 2 decimal places
         textposition: "outside",
-        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Supplier: %{y}
+        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Supplier: %{y}<extra></extra>
         `,
       },
     ],
@@ -385,6 +384,73 @@ export const createFig6 = (data) => {
         automargin: true,
         categoryorder: "total descending", // Order suppliers by performance
       },
+      showlegend: false,
+      autosize: true,
+    },
+  };
+};
+
+export const createFig7 = (data) => {
+  // Group data by Supplier and calculate the average lead time difference
+  const supplierPerformance = data.reduce((acc, row) => {
+    const supplier = row["Supplier"] || "Unknown";
+    if (!acc[supplier]) {
+      acc[supplier] = { total: 0, count: 0 };
+    }
+    acc[supplier].total += row["Lead Time Difference (Days)"];
+    acc[supplier].count += 1;
+    return acc;
+  }, {});
+
+  // Calculate the average lead time difference for each supplier
+  const supplierData = Object.entries(supplierPerformance).map(([supplier, { total, count }]) => ({
+    Supplier: supplier,
+    "Average Lead Time Difference (Days)": total / count,
+  }));
+
+  // Extract the average lead time differences for the histogram
+  const avgLeadTimeDifferences = supplierData.map((row) => row["Average Lead Time Difference (Days)"]);
+
+  return {
+    data: [
+      {
+        x: avgLeadTimeDifferences,
+        type: "histogram",
+        marker: {
+          color: "#636EFA", // Blue color for the histogram
+        },
+        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Count: %{y}<extra></extra>
+        `,
+      },
+      // Add a vertical line at x=0 to indicate "on-time" deliveries
+      {
+        x: [0, 0],
+        y: [0, Math.max(avgLeadTimeDifferences.length, 10)], // Adjust the height dynamically
+        type: "scatter",
+        mode: "lines",
+        line: {
+          color: "red",
+          dash: "dash",
+          width: 2,
+        },
+        hoverinfo: "none",
+      },
+    ],
+    layout: {
+      title: "Distribution of Average Lead Time Difference Across All Suppliers",
+      xaxis: {
+        title: {
+          text: "Average Lead Time Difference (Days)",
+        },
+        automargin: true,
+      },
+      yaxis: {
+        title: {
+          text: "Count",
+        },
+        automargin: true,
+      },
+      bargap: 0.2,
       showlegend: false,
       autosize: true,
     },
@@ -441,4 +507,7 @@ export const analyzeAndPlotLeadTimeDifferences = (
 
   // Plot 6: Supplier-Level Lead Time Analysis (Bottom 5)
   setFig6Data(createFig6(data));
+
+  // Plot 7: Suppliers with the Most Consistent Lead Times
+  setFig7Data(createFig7(data));
 };
