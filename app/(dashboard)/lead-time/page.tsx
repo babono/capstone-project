@@ -328,7 +328,7 @@ export default function LeadTime() {
   // To handle visualization
   useEffect(() => {
     if (filteredFinalResult.length > 0) {
-      analyzeAndPlotLeadTimeDifferences(filteredFinalResult, portlandColors, setFig1Data, setFig2Data);
+      analyzeAndPlotLeadTimeDifferences(filteredFinalResult, portlandColors, setFig1Data, setFig2Data, setFig3Data, setFig4Data);
     }
   }, [filteredFinalResult]);
 
@@ -400,6 +400,7 @@ export default function LeadTime() {
             maxDate={maxDate}
             handleDateRangeChange={handleDateRangeChange}
           />
+          <h1 className="text-2xl font-bold mb-4">Material Level Lead Time Analysis Results:</h1>
           {fig1Data && (
             <LeadTimeFigure
               title="Top 10 Material-Plant Combinations with the Largest Lead Time Difference"
@@ -416,6 +417,23 @@ export default function LeadTime() {
               layout={fig2Data.layout}
             />
           )}
+          {fig3Data && (
+            <LeadTimeFigure
+              title="Top 10 Material-Plant Combinations Delivered Early"
+              chartId="leaf-time-delivered-early"
+              data={fig3Data.data}
+              layout={fig3Data.layout}
+            />
+          )}
+          {fig4Data && (
+            <LeadTimeFigure
+              title="Distribution of Lead Time Differences"
+              chartId="lead-time-differences"
+              data={fig4Data.data}
+              layout={fig4Data.layout}
+            />
+          )}
+          <h1 className="text-2xl font-bold mb-4">Supplier Level Lead Time Analysis Results:</h1>
         </div>
       )}
     </div>

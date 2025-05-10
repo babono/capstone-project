@@ -50,4 +50,4 @@ export const WATERFALL_BUCKET_URL = "https://storage.googleapis.com/babono_bucke
 export const MATERIAL_CONSUMPTION_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/materialConsumption260.json";
 export const ORDER_PLACEMENT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/orderPlacement260.json";
 export const GOODS_RECEIPT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/goodsReceipt260.json";
-export const SHORTAGE_REPORT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/WW52.xlsx";
+export const SHORTAGE_REPORT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/uploadedData.json";
