@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, LinearProgress, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useFileUpload } from "@/app/hooks/useFileUpload";
-import { ERR_BUCKET_LOAD_PREFIX, PAGE_KEYS } from "@/app/constants";
+import { ERR_BUCKET_LOAD_PREFIX, GENERATE_RESULT_CAPTIONS, PAGE_KEYS } from "@/app/constants";
 import DownloadBucket from "./download-bucket";
 import useFetchWithProgress from "@/app/hooks/useFetchWithProgress";
 
@@ -11,10 +11,11 @@ type FileUploaderProps = {
   title: string;
   fileBucketURL: string;
   onDataRetrieved: (data: any) => void;
+  setError: (error: string | null) => void;
 };
 
-const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL, onDataRetrieved }) => {
-  const { file, setFile, getRootProps, getInputProps, isDragActive, uploadProgress } = useFileUpload({
+const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL, onDataRetrieved, setError }) => {
+  const { file, getRootProps, getInputProps, isDragActive, uploadProgress } = useFileUpload({
     type,
     onDataRetrieved,
   });
@@ -23,6 +24,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
   const [downloadedFileName, setDownloadedFileName] = useState<string | null>(null);
 
   const handleDownloadFromBucket = () => {
+    setError(null)
     fetchJsonWithProgress(fileBucketURL)
       .then((parsedData) => {
         onDataRetrieved(parsedData);
@@ -30,12 +32,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
       })
       .catch((error) => {
         console.error(ERR_BUCKET_LOAD_PREFIX, error);
+        setError(GENERATE_RESULT_CAPTIONS.ERROR_UPLOAD);
       });
   };
 
   const handleReset = () => {
-    setDownloadedFileName(null); // Reset the downloaded file state
-    setFile(null); // Reset the file state
+    setDownloadedFileName(null);
+    setError(null);
   };
 
   const isUploading = uploadProgress > 0 && uploadProgress < 100;

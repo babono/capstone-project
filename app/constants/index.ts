@@ -45,7 +45,7 @@ export enum PAGE_KEYS {
 
 export enum GENERATE_RESULT_CAPTIONS {
   NO_FILES_UPLOADED = 'Start the analysis by uploading your files now',
-  ERROR = 'An error occured during analysis. Please try again or upload a different file'
+  ERROR_UPLOAD = 'An error occured during upload. Please try again or upload a different file'
 }
 
 export const ERR_BUCKET_LOAD_PREFIX = "Error loading uplaoded data: ";

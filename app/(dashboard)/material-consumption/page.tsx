@@ -38,6 +38,7 @@ export default function MaterialConsumption() {
   const [plants, setPlants] = useState([]);
   const [sites, setSites] = useState([]);
   const [vendors, setVendors] = useState([]);
+  const [error, setError] = useState<string | null>(null);
 
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -165,9 +166,10 @@ export default function MaterialConsumption() {
         title={PAGE_LABEL}
         fileBucketURL={MATERIAL_CONSUMPTION_BUCKET_URL}
         onDataRetrieved={handleDataProcessing}
+        setError={setError}
       />
       {plotData.length === 0 && (
-        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+        <GenerateResultCaption message={error || GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
       )}
       {plotData.length > 0 && (
         <>
