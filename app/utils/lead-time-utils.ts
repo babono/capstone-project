@@ -182,9 +182,7 @@ export const createFig4 = (data) => {
         opacity: 0.7, // Slight transparency for better visualization
         name: "Histogram",
         hoverinfo: "text",
-        hovertemplate: `
-          Lead Time Difference (Days): %{x}<br>
-          Count: %{y}
+        hovertemplate: `Lead Time Difference (Days): %{x}<br>Count: %{y}
         `,
         xbins: {
           start: Math.min(...leadTimeDifferences), // Start of the bins
@@ -291,7 +289,7 @@ export const createFig5 = (data) => {
         },
         text: x.map((value) => value.toFixed(2)), // Display values with 2 decimal places
         textposition: "outside",
-        hovertemplate: `Supplier: %{y}<br>Avg Lead Time Difference (Days): %{x}<extra></extra>
+        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Supplier: %{y}
         `,
       },
     ],
@@ -368,7 +366,7 @@ export const createFig6 = (data) => {
         },
         text: x.map((value) => value.toFixed(2)), // Display values with 2 decimal places
         textposition: "outside",
-        hovertemplate: `Supplier: %{y}<br>Avg Lead Time Difference (Days): %{x}<extra></extra>
+        hovertemplate: `Avg Lead Time Difference (Days): %{x}<br>Supplier: %{y}
         `,
       },
     ],
