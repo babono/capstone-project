@@ -14,8 +14,17 @@ import FileUploader from "../common/file-uploader";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import DownloadReport from "../common/download-report";
 import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
-export default function GoodsReceipt() {
+export default function GoodsReceiptPage() {
+  return (
+    <ErrorBoundary>
+      <GoodsReceipt />
+    </ErrorBoundary>
+  );
+}
+
+function GoodsReceipt() {
   // NextAuth session
   const { data: session, status } = useSession()
   const router = useRouter()

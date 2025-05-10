@@ -29,6 +29,7 @@ import {
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(
@@ -56,7 +57,15 @@ interface UploadedRecord {
   [key: string]: any; // For WWx_Consumption fields
 }
 
-export default function Forecast() {
+export default function ForecastPage() {
+  return (
+    <ErrorBoundary>
+      <Forecast />
+    </ErrorBoundary>
+  );
+}
+
+function Forecast() {
   const [uploadedData, setUploadedData] = useState<UploadedRecord[] | null>(null);
   const [materialNumbers, setMaterialNumbers] = useState<string[]>([]);
   const [selectedMaterialNumber, setSelectedMaterialNumber] = useState<string>("");

@@ -11,10 +11,9 @@ type FileUploaderProps = {
   title: string;
   fileBucketURL: string;
   onDataRetrieved: (data: any) => void;
-  setError: (error: string | null) => void;
 };
 
-const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL, onDataRetrieved, setError }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL, onDataRetrieved }) => {
   const { file, getRootProps, getInputProps, isDragActive, uploadProgress } = useFileUpload({
     type,
     onDataRetrieved,
@@ -24,7 +23,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
   const [downloadedFileName, setDownloadedFileName] = useState<string | null>(null);
 
   const handleDownloadFromBucket = () => {
-    setError(null)
     fetchJsonWithProgress(fileBucketURL)
       .then((parsedData) => {
         onDataRetrieved(parsedData);
@@ -32,13 +30,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ type, title, fileBucketURL,
       })
       .catch((error) => {
         console.error(ERR_BUCKET_LOAD_PREFIX, error);
-        setError(GENERATE_RESULT_CAPTIONS.ERROR_UPLOAD);
       });
   };
 
   const handleReset = () => {
     setDownloadedFileName(null);
-    setError(null);
   };
 
   const isUploading = uploadProgress > 0 && uploadProgress < 100;

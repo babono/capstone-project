@@ -14,8 +14,17 @@ import GlobalFilter from "../common/global-filter";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
 import DownloadReport from "../common/download-report";
 import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
-export default function OrderPlacement() {
+export default function OrderPlacementPage() {
+  return (
+    <ErrorBoundary>
+      <OrderPlacement />
+    </ErrorBoundary>
+  );
+}
+
+function OrderPlacement() {
   // NextAuth session
   const { data: session, status } = useSession()
   const router = useRouter()

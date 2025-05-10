@@ -32,6 +32,7 @@ import { Plot } from "@/app/constants";
 import { downloadImageReport } from "../utils/downloadImageReport"
 import DownloadReport from "./common/download-report"
 import GenerateResultCaption from "./common/generate-result-caption"
+import ErrorBoundary from "./common/error-boundary"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -54,6 +55,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function HomePage() {
+  return (
+    <ErrorBoundary>
+      <Home />
+    </ErrorBoundary>
+  );
+}
+
+function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [uploadData, setUploadData] = useState<any[] | null>(null);

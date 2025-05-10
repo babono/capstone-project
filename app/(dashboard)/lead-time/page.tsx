@@ -17,8 +17,17 @@ import LeadTimeFigure from "./lead-time-figure";
 import { analyzeAndPlotLeadTimeDifferences } from "@/app/utils/lead-time-utils";
 import DownloadReport from "../common/download-report";
 import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
-export default function LeadTime() {
+export default function LeadTimePage() {
+  return (
+    <ErrorBoundary>
+      <LeadTime />
+    </ErrorBoundary>
+  );
+}
+
+function LeadTime() {
   // NextAuth session
   const { data: session, status } = useSession();
   const router = useRouter();

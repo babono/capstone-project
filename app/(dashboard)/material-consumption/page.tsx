@@ -16,8 +16,17 @@ import FileUploader from "../common/file-uploader";
 import GlobalFilter from "../common/global-filter";
 import DownloadReport from "../common/download-report";
 import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
-export default function MaterialConsumption() {
+export default function MaterialConsumptionPage() {
+  return (
+    <ErrorBoundary>
+      <MaterialConsumption />
+    </ErrorBoundary>
+  );
+}
+
+function MaterialConsumption() {
   // NextAuth session
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -48,6 +57,7 @@ export default function MaterialConsumption() {
 
   const handleDataProcessing = async (data) => {
     setPlotData(data);
+    setError(null);
 
     // Extract unique values for filters
     const uniquePlants = [...new Set(data.map((item) => item["Plant"]))];
@@ -166,7 +176,6 @@ export default function MaterialConsumption() {
         title={PAGE_LABEL}
         fileBucketURL={MATERIAL_CONSUMPTION_BUCKET_URL}
         onDataRetrieved={handleDataProcessing}
-        setError={setError}
       />
       {plotData.length === 0 && (
         <GenerateResultCaption message={error || GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
