@@ -5,16 +5,15 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import iconDT from "../../public/ic-dt.svg"
-import { PAGE_KEYS, PAGE_LABELS } from "@/app/constants"
+import { ERR_BUCKET_LOAD_PREFIX, GENERATE_RESULT_CAPTIONS, PAGE_KEYS, PAGE_LABELS, WATERFALL_BUCKET_URL } from "@/app/constants"
 import FileUploader from "./common/file-uploader"
-import html2canvas from "html2canvas"
 import {
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   TextField,
-  Autocomplete,  
+  Autocomplete,
   Button,
   Table,
   TableBody,
@@ -28,23 +27,12 @@ import {
 import { styled } from '@mui/material/styles';
 import { tableCellClasses } from '@mui/material/TableCell';
 import dynamic from "next/dynamic";
-
-// Handle dynamic import for Plotly JS for Next.js. For different components usage
-// DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
-const Plot = dynamic(
-  () =>
-    import("react-plotly.js").then(
-      (mod) =>
-        mod.default as React.ComponentType<{
-          divId: string;
-          data: any;
-          layout: any;
-          style: any;
-          config?: any;
-        }>
-    ),
-  { ssr: false }
-);
+import DownloadBucket from "./common/download-bucket"
+import { Plot } from "@/app/constants";
+import { downloadImageReport } from "../utils/downloadImageReport"
+import DownloadReport from "./common/download-report"
+import GenerateResultCaption from "./common/generate-result-caption"
+import ErrorBoundary from "./common/error-boundary"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -67,6 +55,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function HomePage() {
+  return (
+    <ErrorBoundary>
+      <Home />
+    </ErrorBoundary>
+  );
+}
+
+function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [uploadData, setUploadData] = useState<any[] | null>(null);
@@ -83,8 +79,6 @@ export default function HomePage() {
   const [plotData, setPlotData] = useState<any | null>(null);
   const [analysisMessages, setAnalysisMessages] = useState<string[]>([]);
   const [weeksRange, setWeeksRange] = useState<string[]>([]);
-  const [downloadProgress, setDownloadProgress] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   // New states for progressive filtering.
   const [filteredPlants, setFilteredPlants] = useState<string[]>([]);
@@ -159,9 +153,9 @@ export default function HomePage() {
       const uniqueSites = [
         ...new Set(filtered.map((item) => item["Site"]))
       ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-      setFilteredSites(uniqueSites);      
+      setFilteredSites(uniqueSites);
     } else {
-      setFilteredSites(sites);      
+      setFilteredSites(sites);
     }
   }, [uploadData, selectedMaterialNumber, selectedPlant]);
 
@@ -173,67 +167,15 @@ export default function HomePage() {
 
   // Preserve the existing handleUploadComplete function
   const handleUploadComplete = (data) => {
-    console.log("Uploaded data:", data);
     setUploadData(data);
-  };
-
-  // Updated fetchJsonWithProgress to use public URL and report download progress
-  const fetchJsonWithProgress = async (url: string) => {
-    setLoading(true);
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Failed to load JSON data");
-    }
-    const contentLength = response.headers.get("Content-Length");
-    const total = contentLength ? parseInt(contentLength, 10) : null;
-    // Check if the response supports streaming
-    if (!response.body || !response.body.getReader) {
-      setLoading(false);
-      setDownloadProgress(100);
-      return response.json();
-    }
-    const reader = response.body.getReader();
-    let receivedLength = 0;
-    const chunks = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      receivedLength += value.length;
-      if (total) {
-        setDownloadProgress((receivedLength / total) * 100);
-      }
-    }
-    const chunksAll = new Uint8Array(receivedLength);
-    let position = 0;
-    for (const chunk of chunks) {
-      chunksAll.set(chunk, position);
-      position += chunk.length;
-    }
-    const resultString = new TextDecoder("utf-8").decode(chunksAll);
-    setLoading(false);
-    setDownloadProgress(100);
-    return JSON.parse(resultString);
-  };
-
-  // Updated handler to trigger download from the public bucket URL
-  const handleDownloadFromBucket = () => {
-    const publicUrl = "https://storage.googleapis.com/babono_bucket/uploadedData.json";
-    fetchJsonWithProgress(publicUrl)
-      .then((parsedData) => {
-        setUploadData(parsedData);
-        const uniqueMaterialNumbers = [...new Set(parsedData.map((item) => item["Material Number"]))];
-        const uniquePlants = [...new Set(parsedData.map((item) => item["Plant"]))];
-        const uniqueSites = [...new Set(parsedData.map((item) => item["Site"]))];
-        const uniqueStartWeeks = [...new Set(parsedData.map((item) => item["Snapshot"]))];
-        setMaterialNumbers(uniqueMaterialNumbers);
-        setPlants(uniquePlants);
-        setSites(uniqueSites);
-        setStartWeeks(uniqueStartWeeks);
-      })
-      .catch((error) => {
-        console.error("Error loading uploaded data:", error);
-      });
+    const uniqueMaterialNumbers = [...new Set(data.map((item) => item["Material Number"]))];
+    const uniquePlants = [...new Set(data.map((item) => item["Plant"]))];
+    const uniqueSites = [...new Set(data.map((item) => item["Site"]))];
+    const uniqueStartWeeks = [...new Set(data.map((item) => item["Snapshot"]))];
+    setMaterialNumbers(uniqueMaterialNumbers);
+    setPlants(uniquePlants);
+    setSites(uniqueSites);
+    setStartWeeks(uniqueStartWeeks);
   };
 
   const extractAndAggregateWeeklyData = (
@@ -328,17 +270,17 @@ export default function HomePage() {
       console.warn("No data or weeks range to plot.");
       return null;
     }
-  
+
     // Only use the portion of weeksRange up until (and including) the start week.
     // The start week is assumed to be at index 'numberOfWeeks', so we slice from index 0.
     const chartWeeksRange = weeksRange.slice(0, numberOfWeeks + 1);
-  
+
     const actualValues: number[] = [];
     const projectedValues: number[] = [];
-  
+
     // Filter only rows where Measures === "Weeks of Stock"
     const wosRows = data.filter((row) => row.Measures === "Weeks of Stock");
-  
+
     for (let i = 0; i < chartWeeksRange.length; i++) {
       const week = chartWeeksRange[i];
       // Get the actual value from the row with matching Snapshot
@@ -355,7 +297,7 @@ export default function HomePage() {
       } else {
         actualValues.push(actual !== null ? actual : actualValues[i - 1]);
       }
-  
+
       // For predicted values:
       if (i === 0) {
         // Use actual value if available; fallback to 0 if missing
@@ -377,7 +319,7 @@ export default function HomePage() {
         projectedValues.push(projected);
       }
     }
-  
+
     const plotData = {
       data: [
         {
@@ -401,20 +343,20 @@ export default function HomePage() {
           connectgaps: true,
         },
       ],
-      layout: {        
-        xaxis: { 
-          title: {text: 'Week', font: { color: "black" }},
+      layout: {
+        xaxis: {
+          title: { text: 'Week', font: { color: "black" } },
           automargin: true,
         },
-        yaxis: { 
-          title: {text: 'Weeks of Stock', font: { color: "black" }},
+        yaxis: {
+          title: { text: 'Weeks of Stock', font: { color: "black" } },
           automargin: true,
         },
         autosize: true,
         legend: { x: 1, y: 0.5, font: { size: 16 } },
       },
     };
-  
+
     return plotData;
   };
 
@@ -453,19 +395,6 @@ export default function HomePage() {
     }
   };
 
-  const handleDownloadReport = () => {
-    if (reportRef.current) {
-      html2canvas(reportRef.current, { scrollY: -window.scrollY }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "report.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    } else {
-      alert("No report available to download");
-    }
-  };
-
   // Redirect if not logged in
   if (status === "loading" || !session) {
     return (
@@ -478,27 +407,17 @@ export default function HomePage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Waterfall Analysis</h1>
-      
-      {/* Show progress bar during initial download */}
-      {loading && (
-        <div style={{ width: "100%", marginBottom: 16 }}>
-          <LinearProgress variant="determinate" value={downloadProgress} />
-          <p>{Math.round(downloadProgress)}% downloaded</p>
-        </div>
-      )}
 
       <FileUploader
         type={PAGE_KEYS.HOME}
         title={PAGE_LABELS.HOME}
-        onUploadComplete={handleUploadComplete}
+        fileBucketURL={WATERFALL_BUCKET_URL}
+        onDataRetrieved={handleUploadComplete}
       />
 
-      {/* New button to trigger download from public bucket */}
-      <div style={{ marginTop: 16 }}>
-        <Button variant="outlined" color="secondary" onClick={handleDownloadFromBucket}>
-          Download Data from Bucket
-        </Button>
-      </div>
+      {!plotData && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
 
       {/* Filters */}
       {uploadData && (
@@ -590,12 +509,8 @@ export default function HomePage() {
 
       {(analysisResult && plotData) && (
         <>
-          <div className="mt-4">
-            <Button variant="outlined" color="secondary" onClick={handleDownloadReport}>
-              Download Report
-            </Button>
-          </div>
-          <div ref={reportRef} style={{ padding: "20px"}}>
+          <DownloadReport reportRefObj={reportRef} />
+          <div ref={reportRef} style={{ padding: "20px" }}>
             {analysisResult && (
               <div className="mt-4">
                 <h2 className="text-xl font-semibold mb-2">Waterfall Table</h2>

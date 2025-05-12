@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
 // Handle dynamic import for Plotly JS for Next.js. For different components usage
-// DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
+// If you want to import Plot, DO NOT use: import Plot from "react-plotly.js" at other components, because it will cause SSR error
 
 export const Plot = dynamic(
   () =>
@@ -30,12 +30,30 @@ export enum PAGE_LABELS {
   MATERIAL_CONSUMPTION = 'Material Consumption',
   ORDER_PLACEMENT = 'Order Placement',
   GOODS_RECEIPT = 'Goods Receipt',
-  HOME= 'Home'
+  SHORTAGE_REPORT = 'Shortage Report',
+  LEAD_TIME = 'Lead Time',
+  HOME = 'Home'
 }
 
 export enum PAGE_KEYS {
   MATERIAL_CONSUMPTION = 'material-consumption',
   ORDER_PLACEMENT = 'order-placement',
   GOODS_RECEIPT = 'goods-receipt',
+  SHORTAGE_REPORT = 'shortage-report',
   HOME = 'home',
 }
+
+export enum GENERATE_RESULT_CAPTIONS {
+  NO_FILES_UPLOADED = 'Start the analysis by uploading your files now',
+  ERROR_TITLE = 'An error occurred while processing the analysis.',
+  ERROR_CAPTION = 'Please retry or choose another file to upload.'
+}
+
+export const ERR_BUCKET_LOAD_PREFIX = "Error loading uplaoded data: ";
+
+// Bucket JSON URL
+export const WATERFALL_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/uploadedData.json";
+export const MATERIAL_CONSUMPTION_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/materialConsumption260.json";
+export const ORDER_PLACEMENT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/orderPlacement260.json";
+export const GOODS_RECEIPT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/goodsReceipt260.json";
+export const SHORTAGE_REPORT_BUCKET_URL = "https://storage.googleapis.com/babono_bucket/uploadedData.json";

@@ -1,19 +1,30 @@
 // @ts-nocheck
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import iconDT from "../../../public/ic-dt.svg"
-import { GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
+import { GENERATE_RESULT_CAPTIONS, GOODS_RECEIPT_CHART_ID, MATERIAL_LEVEL_CHART_ID, ORDER_PLACEMENT_BUCKET_URL, PAGE_KEYS, PAGE_LABELS, TRANSACTIONS_CHART_ID, VARIANCE_CHART_ID } from "@/app/constants";
 import FileUploader from "../common/file-uploader";
 import MaterialsVariance from "../common/charts/materials-variance";
 import OverallByMaterialNumber from "../common/charts/overall-by-material-number";
 import TotalTransaction from "../common/charts/total-transaction";
 import GlobalFilter from "../common/global-filter";
 import MaterialLevelAnalysis from "./material-level-analysis/material-level-analysis";
+import DownloadReport from "../common/download-report";
+import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
-export default function OrderPlacement() {
+export default function OrderPlacementPage() {
+  return (
+    <ErrorBoundary>
+      <OrderPlacement />
+    </ErrorBoundary>
+  );
+}
+
+function OrderPlacement() {
   // NextAuth session
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -34,6 +45,8 @@ export default function OrderPlacement() {
   const [plants, setPlants] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [vendors, setVendors] = useState([]);
+
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleUploadComplete = async (data) => {
     setPlotData(data);
@@ -148,10 +161,12 @@ export default function OrderPlacement() {
       <FileUploader
         type={PAGE_KEYS.ORDER_PLACEMENT}
         title={PAGE_LABEL}
-        onUploadComplete={(data) => {
-          handleUploadComplete(data);
-        }}
+        fileBucketURL={ORDER_PLACEMENT_BUCKET_URL}
+        onDataRetrieved={handleUploadComplete}
       />
+      {plotData.length === 0 && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
       {plotData.length > 0 && (
         <>
           {/* ===== Global Filters ===== */}
@@ -175,25 +190,28 @@ export default function OrderPlacement() {
             topN={topN}
             setTopN={setTopN}
           />
+          <DownloadReport reportRefObj={reportRef} />
           {/* ===== Chart Renders ===== */}
-          <TotalTransaction
-            chartId={TRANSACTIONS_CHART_ID}
-            filteredTransactionData={filteredTransactionData}
-          />
-          <OverallByMaterialNumber
-            customKey={PAGE_LABEL}
-            chartId={GOODS_RECEIPT_CHART_ID}
-            filteredData={filteredData}
-            yAxisFieldName={"Order Quantity"}
-          />
-          <MaterialsVariance
-            chartId={VARIANCE_CHART_ID}
-            varianceData={filteredVarianceData}
-          />
-          <MaterialLevelAnalysis
-            chartId={MATERIAL_LEVEL_CHART_ID}
-            materialData={plotData}
-          />
+          <div ref={reportRef}>
+            <TotalTransaction
+              chartId={TRANSACTIONS_CHART_ID}
+              filteredTransactionData={filteredTransactionData}
+            />
+            <OverallByMaterialNumber
+              customKey={PAGE_LABEL}
+              chartId={GOODS_RECEIPT_CHART_ID}
+              filteredData={filteredData}
+              yAxisFieldName={"Order Quantity"}
+            />
+            <MaterialsVariance
+              chartId={VARIANCE_CHART_ID}
+              varianceData={filteredVarianceData}
+            />
+            <MaterialLevelAnalysis
+              chartId={MATERIAL_LEVEL_CHART_ID}
+              materialData={plotData}
+            />
+          </div>
         </>
       )}
     </div>

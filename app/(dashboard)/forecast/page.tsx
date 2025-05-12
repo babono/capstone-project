@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import FileUploader from "../common/file-uploader";
-import { PAGE_KEYS, PAGE_LABELS } from "@/app/constants";
+import { GENERATE_RESULT_CAPTIONS, PAGE_KEYS, PAGE_LABELS } from "@/app/constants";
 // ARIMA import is no longer needed here as it's on the backend
 import dynamic from 'next/dynamic';
 import {
@@ -28,6 +28,8 @@ import {
   SelectChangeEvent
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
+import GenerateResultCaption from "../common/generate-result-caption";
+import ErrorBoundary from "../common/error-boundary";
 
 // Dynamically import Plotly to avoid SSR issues
 const Plot = dynamic(
@@ -55,7 +57,15 @@ interface UploadedRecord {
   [key: string]: any; // For WWx_Consumption fields
 }
 
-export default function Forecast() {
+export default function ForecastPage() {
+  return (
+    <ErrorBoundary>
+      <Forecast />
+    </ErrorBoundary>
+  );
+}
+
+function Forecast() {
   const [uploadedData, setUploadedData] = useState<UploadedRecord[] | null>(null);
   const [materialNumbers, setMaterialNumbers] = useState<string[]>([]);
   const [selectedMaterialNumber, setSelectedMaterialNumber] = useState<string>("");
@@ -154,7 +164,7 @@ export default function Forecast() {
       for (let i = 1; i <= 52; i++) {
         timeSeries.push(weeklyConsumption[i] || 0);
       }
-      
+
       if (timeSeries.every(val => val === 0)) { // Check if all values are zero after aggregation
         throw new Error("Aggregated consumption data is all zero for the selected material and year.");
       }
@@ -170,7 +180,7 @@ export default function Forecast() {
           forecastWeeks,
           seasonality,
           // Pass the historical data year to the API so it can calculate forecast years correctly
-          lastHistoricalYear: dataYear 
+          lastHistoricalYear: dataYear
         }),
       });
 
@@ -181,7 +191,7 @@ export default function Forecast() {
 
       const data = await response.json();
       const results: ForecastResult[] = data.forecast;
-      
+
       setForecastResult(results);
 
       const historicalPlotWeeks = timeSeries.map((_, i) => `${dataYear} - WW${i + 1}`);
@@ -210,12 +220,12 @@ export default function Forecast() {
         ],
         layout: {
           title: `Consumption Forecast for Material ${selectedMaterialNumber}`,
-          xaxis: { 
-            title: {text: 'Year - Week', font: { color: "black" }},
+          xaxis: {
+            title: { text: 'Year - Week', font: { color: "black" } },
             automargin: true,
           },
-          yaxis: { 
-            title: {text: 'Demand (Units)', font: { color: "black" }},
+          yaxis: {
+            title: { text: 'Demand (Units)', font: { color: "black" } },
             automargin: true,
           },
         },
@@ -232,12 +242,16 @@ export default function Forecast() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Forecast Model</h1>
-      
+
       <FileUploader
         type={PAGE_KEYS.MATERIAL_CONSUMPTION}
         title={`Upload ${PAGE_LABELS.MATERIAL_CONSUMPTION} Data (Excel with WWx_Consumption columns)`}
         onUploadComplete={handleUploadComplete}
       />
+
+      {!uploadedData && (
+        <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
+      )}
 
       {uploadedData && (
         <div className="mt-4">
@@ -345,13 +359,13 @@ export default function Forecast() {
         </div>
       )}
 
-      {plotData && (         
+      {plotData && (
         <Plot
           data={plotData.data}
           layout={plotData.layout}
           style={{ width: '100%', height: '450px' }}
           config={{ responsive: true }}
-        />        
+        />
       )}
     </div>
   );

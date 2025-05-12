@@ -49,6 +49,7 @@ const GlobalFilter: React.FC<GlobalFilterProps> = ({
 
   return (
     <div className="mb-6">
+      <br></br>
       <h2 className="text-xl font-semibold mb-4">Global Filters</h2>
       <Box sx={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
         {plants.length > 0 && (
