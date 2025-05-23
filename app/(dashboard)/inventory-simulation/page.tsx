@@ -18,24 +18,24 @@ export default function InventorySimulationPage() {
 }
 
 function InventorySimulation() {
-  // NextAuth session
+  // === NextAuth session ===
   const { data: session, status } = useSession();
   const router = useRouter();
   const PAGE_LABEL = PAGE_LABELS.INVENTORY_SIMULATION;
 
-  // State Variables
+  // === State Variables ===
   const [materialConsumptionData, setMaterialConsumptionData] = useState([]);
   const [orderPlacementData, setOrderPlacementData] = useState([]);
   const [goodsReceiptData, setGoodsReceiptData] = useState([]);
   const [shortageReportData, setShortageReportData] = useState([]);
 
-  // Filtered Data
+  // === Filtered Data ===
   const [filteredConsumption, setFilteredConsumption] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [filteredReceipts, setFilteredReceipts] = useState([]);
   const [filteredShortage, setFilteredShortage] = useState([]);
 
-  // States for Simulation
+  // === States for Simulation ===
 
   // 1st Row
   const [uniqueMaterials, setUniqueMaterials] = useState([]);
@@ -77,6 +77,8 @@ function InventorySimulation() {
   // Colors
 
   // Others
+
+  // === Preprocessing Functions ===
 
   const preprocess_data_consumption = (data) => {
     // Step 1: Trim column names
@@ -150,12 +152,7 @@ function InventorySimulation() {
     return data;
   };
 
-  useEffect(() => {
-    if (status === "loading") return; // Do nothing while loading
-    if (!session) router.push("/login");
-  }, [session, status, router]);
-
-  // Functions for Handling Uploaded Data
+  // === Functions for Handling Uploaded Data ===
 
   // Handle Consumption Data Upload
   const handleConsumptionData = (data) => {
@@ -243,6 +240,13 @@ function InventorySimulation() {
   const runSimulation = () => {
     // TODO: Complete this
   };
+
+  // Others
+
+  useEffect(() => {
+    if (status === "loading") return; // Do nothing while loading
+    if (!session) router.push("/login");
+  }, [session, status, router]);
 
   const isUploadFilesIncomplete =
     materialConsumptionData.length === 0 ||
