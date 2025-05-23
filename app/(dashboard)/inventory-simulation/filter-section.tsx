@@ -148,7 +148,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               Set the number of weeks for the simulation.
             </Typography>
           </Box>
@@ -166,7 +166,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               The time (in weeks) it takes for an order to arrive after it is
               placed.
             </Typography>
@@ -185,7 +185,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               The standard deviation of the lead time, representing variability.
             </Typography>
           </Box>
@@ -206,7 +206,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               The starting inventory level for the simulation.
             </Typography>
           </Box>
@@ -231,7 +231,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               Select the weeks where you want to simulate a sudden increase in
               demand.
             </Typography>
@@ -250,7 +250,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               Enter the factor by which demand will increase during the selected
               weeks. (e.g., 2.0 doubles demand)
             </Typography>
@@ -305,7 +305,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               Select the minimum order quantity for this material number to
               prevent small orders during simulation.
             </Typography>
@@ -326,7 +326,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               The number of Monte Carlo simulations to run. A higher number
               provides more accurate results but requires more computation.
             </Typography>
@@ -391,7 +391,7 @@ export default function FilterSection({
           <Box
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
-            <Typography variant="body2">
+            <Typography variant="caption">
               The inventory level at which a new order is placed.{" "}
             </Typography>
           </Box>
