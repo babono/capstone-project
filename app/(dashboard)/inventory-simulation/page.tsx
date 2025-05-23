@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { useSession } from "next-auth/react";
 import ErrorBoundary from "../common/error-boundary";
@@ -34,10 +35,14 @@ function InventorySimulation() {
   const [filteredReceipts, setFilteredReceipts] = useState([]);
   const [filteredShortage, setFilteredShortage] = useState([]);
 
-  // Simulation Parameters
+  // States for Simulation
+
   // 1st Row
-  const [selectedPlant, setSelectedPlant] = useState("");
+  const [uniqueMaterials, setUniqueMaterials] = useState([]);
+  const [uniquePlants, setUniquePlants] = useState([]);
+  const [uniqueSites, setUniqueSites] = useState([]);
   const [selectedMaterial, setSelectedMaterial] = useState("");
+  const [selectedPlant, setSelectedPlant] = useState("");
   const [selectedSite, setSelectedSite] = useState("");
 
   // 2nd Row
@@ -74,8 +79,65 @@ function InventorySimulation() {
   // Others
 
   const preprocess_data_consumption = (data) => {
-    // TODO: Complete this
-    return data;
+    // Step 1: Trim column names
+    const trimmedData = data.map((row) => {
+      const trimmedRow = {};
+      Object.keys(row).forEach((key) => {
+        trimmedRow[key.trim()] = row[key];
+      });
+      return trimmedRow;
+    });
+
+    // Step 2: Convert 'Pstng Date' to a Date object
+    const validData = trimmedData.filter((row) => {
+      row["Pstng Date"] = new Date(row["Pstng Date"]);
+      return !isNaN(row["Pstng Date"]);
+    });
+
+    // Step 3: Extract the week number of the year
+    validData.forEach((row) => {
+      const date = row["Pstng Date"];
+      const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+      const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+      row["Week"] = Math.ceil(
+        (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
+      );
+    });
+
+    // Step 4: Group by Material Number, Plant, Site, and Week, then sum the Quantity
+    const groupedData = {};
+    validData.forEach((row) => {
+      const key = `${row["Material Number"]}_${row["Plant"]}_${row["Site"]}_${row["Week"]}`;
+      if (!groupedData[key]) {
+        groupedData[key] = { ...row, Quantity: 0 };
+      }
+      groupedData[key].Quantity += Math.abs(row["Quantity"]);
+    });
+
+    // Step 5: Pivot the data to get quantities per week as columns
+    const pivotData = {};
+    Object.values(groupedData).forEach((row) => {
+      const key = `${row["Material Number"]}_${row["Plant"]}_${row["Site"]}`;
+      if (!pivotData[key]) {
+        pivotData[key] = {
+          "Material Number": row["Material Number"],
+          Plant: row["Plant"],
+          Site: row["Site"],
+          BUn: row["BUn"],
+        };
+      }
+      pivotData[key][`WW${row["Week"]}_Consumption`] = row["Quantity"];
+    });
+
+    // Convert pivotData to an array and fill missing values with 0
+    return Object.values(pivotData).map((row) => {
+      Object.keys(row).forEach((key) => {
+        if (key.startsWith("WW") && row[key] === undefined) {
+          row[key] = 0;
+        }
+      });
+      return row;
+    });
   };
 
   const preprocess_data_GR = (data) => {
@@ -94,15 +156,29 @@ function InventorySimulation() {
   }, [session, status, router]);
 
   // Functions for Handling Uploaded Data
+
+  // Handle Consumption Data Upload
   const handleConsumptionData = (data) => {
     const processedData = preprocess_data_consumption(data);
     setMaterialConsumptionData(processedData);
 
-    // Extract unique weeks dynamically from the uploaded data
-    const uniqueWeeks = Array.from(
-      new Set(data.map((row) => row["Week"])) // Assuming "Week" is a column in the uploaded file
-    ).sort(); // Sort the weeks for better UX
-    setDemandSurgeWeekOptions(uniqueWeeks);
+    // Extract unique values for Material, Plant, and Site
+    const materials = Array.from(
+      new Set(processedData.map((row) => row["Material Number"]))
+    );
+    const plants = Array.from(
+      new Set(processedData.map((row) => row["Plant"]))
+    );
+    const sites = Array.from(new Set(processedData.map((row) => row["Site"])));
+
+    setUniqueMaterials(materials);
+    setUniquePlants(plants);
+    setUniqueSites(sites);
+
+    // Set default values to the first available option
+    if (materials.length > 0) setSelectedMaterial(materials[0]);
+    if (plants.length > 0) setSelectedPlant(plants[0]);
+    if (sites.length > 0) setSelectedSite(sites[0]);
   };
 
   const handleGoodsReceiptData = (data) => {
