@@ -65,6 +65,10 @@ function InventorySimulation() {
   // 4th Row
   const [consumptionType, setConsumptionType] = useState("Fixed");
   const [fixedConsumptionValue, setFixedConsumptionValue] = useState(10);
+  const [bestConsumptionDistribution, setBestConsumptionDistribution] =
+    useState(
+      "exponpow with parameters: (0.7500332888164127, 99.9999999999999, 1161.5749664051496)"
+    );
   const [minOrderQuantity, setMinOrderQuantity] = useState(50);
   const [numMonteCarloSimulations, setNumMonteCarloSimulations] = useState(1);
 
@@ -226,6 +230,7 @@ function InventorySimulation() {
           setDemandSurgeFactor={setDemandSurgeFactor}
           consumptionType={consumptionType}
           setConsumptionType={setConsumptionType}
+          bestConsumptionDistribution={bestConsumptionDistribution}
           fixedConsumptionValue={fixedConsumptionValue}
           setFixedConsumptionValue={setFixedConsumptionValue}
           minOrderQuantity={minOrderQuantity}

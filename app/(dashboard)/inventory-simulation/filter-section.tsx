@@ -40,6 +40,7 @@ export default function FilterSection({
   setDemandSurgeFactor,
   consumptionType,
   setConsumptionType,
+  bestConsumptionDistribution,
   fixedConsumptionValue,
   setFixedConsumptionValue,
   minOrderQuantity,
@@ -298,7 +299,7 @@ export default function FilterSection({
       <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
         {/* Consumption Type & Fixed Consumption Value */}
         <Grid item xs={12} sm={4}>
-          <FormControl component="fieldset" fullWidth>
+          <FormControl component="fieldset" fullWidth sx={{ marginTop: "-10px" }}>
             <FormLabel>Consumption Type</FormLabel>
             <RadioGroup
               row
@@ -317,6 +318,8 @@ export default function FilterSection({
               />
             </RadioGroup>
           </FormControl>
+
+          {/* Fixed Consumption Value Input */}
           {consumptionType === "Fixed" && (
             <TextField
               label="Fixed Consumption Value"
@@ -326,6 +329,22 @@ export default function FilterSection({
               fullWidth
               sx={{ marginTop: "8px" }}
             />
+          )}
+
+          {/* Green Box for Distribution */}
+          {consumptionType === "Distribution" && (
+            <Box
+              sx={{
+                mt: 1,
+                p: 1,
+                backgroundColor: "#e8f5e9",
+                color: "#2e7d32",
+              }}
+            >
+              <Typography variant="caption">
+                Best Consumption Distribution: {bestConsumptionDistribution}
+              </Typography>
+            </Box>
           )}
         </Grid>
 
