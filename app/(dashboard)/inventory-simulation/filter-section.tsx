@@ -44,6 +44,14 @@ export default function FilterSection({
   setMinOrderQuantity,
   numMonteCarloSimulations,
   setNumMonteCarloSimulations,
+  desiredServiceLevel,
+  setDesiredServiceLevel,
+  orderQuantityType,
+  setOrderQuantityType,
+  orderQuantity,
+  setOrderQuantity,
+  reorderPoint,
+  setReorderPoint,
 }) {
   return (
     <div>
@@ -258,6 +266,63 @@ export default function FilterSection({
             onChange={(e) =>
               setNumMonteCarloSimulations(Number(e.target.value))
             }
+            fullWidth
+          />
+        </Grid>
+      </Grid>
+
+      {/* 5th Form Grid */}
+      <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
+        {/* Desired Service Level (%) */}
+        <Grid item xs={12} sm={4}>
+          <TextField
+            label="Desired Service Level (%)"
+            type="number"
+            value={desiredServiceLevel}
+            onChange={(e) => setDesiredServiceLevel(Number(e.target.value))}
+            fullWidth
+          />
+        </Grid>
+
+        {/* Order Quantity Type & Order Quantity */}
+        <Grid item xs={12} sm={4}>
+          <FormControl component="fieldset" fullWidth>
+            <FormLabel>Order Quantity Type</FormLabel>
+            <RadioGroup
+              row
+              value={orderQuantityType}
+              onChange={(e) => setOrderQuantityType(e.target.value)}
+            >
+              <FormControlLabel
+                value="Fixed"
+                control={<Radio />}
+                label="Fixed"
+              />
+              <FormControlLabel
+                value="Variable"
+                control={<Radio />}
+                label="Variable"
+              />
+            </RadioGroup>
+          </FormControl>
+          {orderQuantityType === "Fixed" && (
+            <TextField
+              label="Order Quantity"
+              type="number"
+              value={orderQuantity}
+              onChange={(e) => setOrderQuantity(Number(e.target.value))}
+              fullWidth
+              sx={{ marginTop: "8px" }}
+            />
+          )}
+        </Grid>
+        {/* Reorder Point */}
+        <Grid item xs={12} sm={4}>
+          <TextField
+            label="Reorder Point"
+            type="number"
+            value={reorderPoint}
+            onChange={(e) => setReorderPoint(Number(e.target.value))}
             fullWidth
           />
         </Grid>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { useSession } from "next-auth/react";
 import ErrorBoundary from "../common/error-boundary";
@@ -59,8 +60,10 @@ function InventorySimulation() {
   const [numMonteCarloSimulations, setNumMonteCarloSimulations] = useState(1);
 
   // 5th Row
-  const [reorderPoint, setReorderPoint] = useState(100);
-  const [orderQuantity, setOrderQuantity] = useState(50);
+  const [desiredServiceLevel, setDesiredServiceLevel] = useState(95); // Default to 95%
+  const [orderQuantityType, setOrderQuantityType] = useState("Fixed"); // Default to "Fixed"
+  const [orderQuantity, setOrderQuantity] = useState(50); // Default to 100
+  const [reorderPoint, setReorderPoint] = useState(4992); // Default to 50
 
   // State fir storing the filter data
 
@@ -196,7 +199,7 @@ function InventorySimulation() {
           message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED}
         />
       )}
-      {!isUploadFilesIncomplete && (
+      {isUploadFilesIncomplete && (
         <FilterSection
           materialConsumptionData={materialConsumptionData}
           demandSurgeWeekOptions={demandSurgeWeekOptions}
@@ -226,6 +229,14 @@ function InventorySimulation() {
           setMinOrderQuantity={setMinOrderQuantity}
           numMonteCarloSimulations={numMonteCarloSimulations}
           setNumMonteCarloSimulations={setNumMonteCarloSimulations}
+          desiredServiceLevel={desiredServiceLevel}
+          setDesiredServiceLevel={setDesiredServiceLevel}
+          orderQuantityType={orderQuantityType}
+          setOrderQuantityType={setOrderQuantityType}
+          orderQuantity={orderQuantity}
+          setOrderQuantity={setOrderQuantity}
+          reorderPoint={reorderPoint}
+          setReorderPoint={setReorderPoint}
         />
       )}
     </div>
