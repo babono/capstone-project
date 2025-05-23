@@ -143,6 +143,10 @@ export default function FilterSection({
             type="number"
             value={numWeeks}
             onChange={(e) => setNumWeeks(Number(e.target.value))}
+            inputProps={{
+              min: 1,
+              max: 104,
+            }}
             fullWidth
           />
           <Box

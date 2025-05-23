@@ -8,6 +8,12 @@ import { useEffect, useState } from "react";
 import FileUploaderSection from "./file-uploader-section";
 import GenerateResultCaption from "../common/generate-result-caption";
 import FilterSection from "./filter-section";
+import {
+  preprocess_data_consumption,
+  preprocess_data_GR,
+  preprocess_data_OP,
+  process_lead_time,
+} from "@/app/utils/DES";
 
 export default function InventorySimulationPage() {
   return (
@@ -78,80 +84,6 @@ function InventorySimulation() {
 
   // Others
 
-  // === Preprocessing Functions ===
-
-  const preprocess_data_consumption = (data) => {
-    // Step 1: Trim column names
-    const trimmedData = data.map((row) => {
-      const trimmedRow = {};
-      Object.keys(row).forEach((key) => {
-        trimmedRow[key.trim()] = row[key];
-      });
-      return trimmedRow;
-    });
-
-    // Step 2: Convert 'Pstng Date' to a Date object
-    const validData = trimmedData.filter((row) => {
-      row["Pstng Date"] = new Date(row["Pstng Date"]);
-      return !isNaN(row["Pstng Date"]);
-    });
-
-    // Step 3: Extract the week number of the year
-    validData.forEach((row) => {
-      const date = row["Pstng Date"];
-      const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-      const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-      row["Week"] = Math.ceil(
-        (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
-      );
-    });
-
-    // Step 4: Group by Material Number, Plant, Site, and Week, then sum the Quantity
-    const groupedData = {};
-    validData.forEach((row) => {
-      const key = `${row["Material Number"]}_${row["Plant"]}_${row["Site"]}_${row["Week"]}`;
-      if (!groupedData[key]) {
-        groupedData[key] = { ...row, Quantity: 0 };
-      }
-      groupedData[key].Quantity += Math.abs(row["Quantity"]);
-    });
-
-    // Step 5: Pivot the data to get quantities per week as columns
-    const pivotData = {};
-    Object.values(groupedData).forEach((row) => {
-      const key = `${row["Material Number"]}_${row["Plant"]}_${row["Site"]}`;
-      if (!pivotData[key]) {
-        pivotData[key] = {
-          "Material Number": row["Material Number"],
-          Plant: row["Plant"],
-          Site: row["Site"],
-          BUn: row["BUn"],
-        };
-      }
-      pivotData[key][`WW${row["Week"]}_Consumption`] = row["Quantity"];
-    });
-
-    // Convert pivotData to an array and fill missing values with 0
-    return Object.values(pivotData).map((row) => {
-      Object.keys(row).forEach((key) => {
-        if (key.startsWith("WW") && row[key] === undefined) {
-          row[key] = 0;
-        }
-      });
-      return row;
-    });
-  };
-
-  const preprocess_data_GR = (data) => {
-    // TODO: Complete this
-    return data;
-  };
-
-  const preprocess_data_OP = (data) => {
-    // TODO: Complete this
-    return data;
-  };
-
   // === Functions for Handling Uploaded Data ===
 
   // Handle Consumption Data Upload
@@ -176,6 +108,15 @@ function InventorySimulation() {
     if (materials.length > 0) setSelectedMaterial(materials[0]);
     if (plants.length > 0) setSelectedPlant(plants[0]);
     if (sites.length > 0) setSelectedSite(sites[0]);
+
+    // Process lead time data
+    const leadTimeData = process_lead_time(data);
+
+    console.log("DATA LEAD TIME");
+    console.log(leadTimeData);
+
+    setLeadTime(leadTimeData.mean);
+    setLeadTimeStdDev(leadTimeData.stdDev);
   };
 
   const handleGoodsReceiptData = (data) => {
