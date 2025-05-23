@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import FileUploaderSection from "./file-uploader-section";
 import GenerateResultCaption from "../common/generate-result-caption";
 import {
+  Autocomplete,
   Box,
   FormControl,
   Grid,
@@ -54,6 +55,7 @@ function InventorySimulation() {
   const [leadTime, setLeadTime] = useState(2);
   const [leadTimeStdDev, setLeadTimeStdDev] = useState(0.5);
   const [demandSurgeWeeks, setDemandSurgeWeeks] = useState([]);
+  const [demandSurgeWeekOptions, setDemandSurgeWeekOptions] = useState([]);
   const [demandSurgeFactor, setDemandSurgeFactor] = useState(2.0);
   const [numWeeks, setNumWeeks] = useState(52);
 
@@ -93,6 +95,12 @@ function InventorySimulation() {
   const handleConsumptionData = (data) => {
     const processedData = preprocess_data_consumption(data);
     setMaterialConsumptionData(processedData);
+
+    // Extract unique weeks dynamically from the uploaded data
+    const uniqueWeeks = Array.from(
+      new Set(data.map((row) => row["Week"])) // Assuming "Week" is a column in the uploaded file
+    ).sort(); // Sort the weeks for better UX
+    setDemandSurgeWeekOptions(uniqueWeeks);
   };
 
   const handleGoodsReceiptData = (data) => {
@@ -187,12 +195,14 @@ function InventorySimulation() {
       )}
       {isUploadFilesIncomplete && (
         <div>
+          {/* 1st Form Grid */}
           <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
-
             {/* Material Selection */}
             <Grid item xs={12} sm={4}>
               <FormControl fullWidth>
-                <InputLabel id="material-select-label">Select Material</InputLabel>
+                <InputLabel id="material-select-label">
+                  Select Material
+                </InputLabel>
                 <Select
                   label="Select Material"
                   labelId="material-select-label"
@@ -266,43 +276,20 @@ function InventorySimulation() {
             </Grid>
           </Grid>
 
+          {/* 2nd Form Grid */}
           <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
-            {/* Initial Inventory */}
+            {/* Number of Simulation Weeks */}
             <Grid item xs={12} sm={4}>
               <TextField
-                label="Initial Inventory"
+                label="Number of Simulation Weeks"
                 type="number"
-                value={initialInventory}
-                onChange={(e) => setInitialInventory(Number(e.target.value))}
+                value={numWeeks}
+                onChange={(e) => setNumWeeks(Number(e.target.value))}
                 fullWidth
               />
             </Grid>
 
-            {/* Reorder Point */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Reorder Point"
-                type="number"
-                value={reorderPoint}
-                onChange={(e) => setReorderPoint(Number(e.target.value))}
-                fullWidth
-              />
-            </Grid>
-
-            {/* Order Quantity */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                label="Order Quantity"
-                type="number"
-                value={orderQuantity}
-                onChange={(e) => setOrderQuantity(Number(e.target.value))}
-                fullWidth
-              />
-            </Grid>
-          </Grid>
-
-          <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
-            {/* Lead Time */}
+            {/* Lead Time (weeks) */}
             <Grid item xs={12} sm={4}>
               <TextField
                 label="Lead Time (weeks)"
@@ -313,13 +300,56 @@ function InventorySimulation() {
               />
             </Grid>
 
-            {/* Lead Time Std Dev */}
+            {/* Lead Time Std Dev (weeks) */}
             <Grid item xs={12} sm={4}>
               <TextField
-                label="Lead Time Std Dev"
+                label="Lead Time Std Dev (weeks)"
                 type="number"
                 value={leadTimeStdDev}
                 onChange={(e) => setLeadTimeStdDev(Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+
+          {/* 3rd Form Grid */}
+          <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
+            {/* Initial Inventory */}
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Initial Inventory (BUn: EA)"
+                type="number"
+                value={initialInventory}
+                onChange={(e) => setInitialInventory(Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+
+            {/* Demand Surge Weeks */}
+            <Grid item xs={12} sm={4}>
+              <Autocomplete
+                multiple
+                options={demandSurgeWeekOptions}
+                value={demandSurgeWeeks}
+                onChange={(event, newValue) => setDemandSurgeWeeks(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Demand Surge Weeks"
+                    placeholder="Select Weeks"
+                  />
+                )}
+                fullWidth
+              />
+            </Grid>
+
+            {/* Demand Surge Factor */}
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Demand Surge Factor"
+                type="number"
+                value={demandSurgeFactor}
+                onChange={(e) => setDemandSurgeFactor(Number(e.target.value))}
                 fullWidth
               />
             </Grid>
