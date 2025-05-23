@@ -209,7 +209,7 @@ function InventorySimulation() {
           message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED}
         />
       )}
-      {isUploadFilesIncomplete && (
+      {!isUploadFilesIncomplete && (
         <div>
           {/* 1st Form Grid */}
           <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
