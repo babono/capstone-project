@@ -9,6 +9,7 @@ import FileUploaderSection from "./file-uploader-section";
 import GenerateResultCaption from "../common/generate-result-caption";
 import FilterSection from "./filter-section";
 import {
+  fit_distribution,
   preprocess_data_consumption,
   preprocess_data_GR,
   preprocess_data_OP,
@@ -107,6 +108,26 @@ function InventorySimulation() {
     const { meanLeadTime, stdDevLeadTime } = process_lead_time(data);
     setLeadTime(meanLeadTime);
     setLeadTimeStdDev(stdDevLeadTime);
+
+    // Calculate the best consumption distribution
+    const consumptionValues = processedData
+      .map((row) => Object.values(row).slice(4)) // Extract consumption values
+      .flat()
+      .filter((value) => !isNaN(value) && value > 0); // Filter valid values
+
+    if (consumptionValues.length > 0) {
+      const { bestDistributionName, bestDistributionParams } = fit_distribution(
+        consumptionValues,
+        "Consumption"
+      );
+      setBestConsumptionDistribution(
+        `${bestDistributionName} with parameters: ${JSON.stringify(
+          bestDistributionParams
+        )}`
+      );
+    } else {
+      setBestConsumptionDistribution("No valid consumption data available.");
+    }
   };
 
   const handleGoodsReceiptData = (data) => {

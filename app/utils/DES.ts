@@ -1,6 +1,8 @@
 // @ts-nocheck
 // This file is being used for the Inventory Simulation page.
 
+import * as ss from "simple-statistics"; // Import simple-statistics for statistical calculations
+
 export const preprocess_data_consumption = (data) => {
   const trimmedData = data.map((row) => {
     const trimmedRow = {};
@@ -210,5 +212,86 @@ export const process_lead_time = (data: any[]) => {
     maxLeadTime: parseFloat(maxLeadTime.toFixed(2)),
     meanLeadTime: parseFloat(meanLeadTime.toFixed(2)),
     stdDevLeadTime: parseFloat(stdDevLeadTime.toFixed(2)),
+  };
+};
+
+export const fit_distribution = (data: number[], label: string) => {
+  if (!data || data.length === 0) {
+    return {
+      bestDistributionName: "No data",
+      bestDistributionParams: [],
+    };
+  }
+
+  // Define distributions to test
+  const distributions = [
+    {
+      name: "Normal",
+      fit: (data: number[]) => {
+        const mean = ss.mean(data);
+        const stdDev = ss.standardDeviation(data);
+        return {
+          params: [mean, stdDev],
+          cdf: (x: number) =>
+            ss.cumulativeStdNormalProbability((x - mean) / stdDev),
+        };
+      },
+    },
+    {
+      name: "Exponential Power",
+      fit: (data: number[]) => {
+        const mean = ss.mean(data);
+        const stdDev = ss.standardDeviation(data);
+        const beta = 1.5; // Example beta value (adjust as needed)
+        return {
+          params: [beta, mean, stdDev],
+          cdf: (x: number) => {
+            // Custom CDF logic for Exponential Power
+            const z = (x - mean) / stdDev;
+            return Math.exp(-Math.pow(Math.abs(z), beta));
+          },
+        };
+      },
+    },
+    {
+      name: "Uniform",
+      fit: (data: number[]) => {
+        const min = Math.min(...data);
+        const max = Math.max(...data);
+        return {
+          params: [min, max],
+          cdf: (x: number) =>
+            x < min ? 0 : x > max ? 1 : (x - min) / (max - min),
+        };
+      },
+    },
+  ];
+
+  // Perform goodness-of-fit testing (e.g., Kolmogorov-Smirnov test)
+  let bestDistributionName = "";
+  let bestDistributionParams: number[] = [];
+  let bestKSStatistic = Infinity;
+
+  distributions.forEach((dist) => {
+    const { params, cdf } = dist.fit(data);
+
+    // Calculate the Kolmogorov-Smirnov statistic
+    const ksStatistic = data.reduce((maxDiff, value) => {
+      const empiricalCDF = data.filter((d) => d <= value).length / data.length;
+      const theoreticalCDF = cdf(value);
+      return Math.max(maxDiff, Math.abs(empiricalCDF - theoreticalCDF));
+    }, 0);
+
+    // Update the best distribution if the KS statistic is smaller
+    if (ksStatistic < bestKSStatistic) {
+      bestKSStatistic = ksStatistic;
+      bestDistributionName = dist.name;
+      bestDistributionParams = params;
+    }
+  });
+
+  return {
+    bestDistributionName,
+    bestDistributionParams,
   };
 };

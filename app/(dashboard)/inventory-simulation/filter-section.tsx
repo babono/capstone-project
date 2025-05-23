@@ -299,7 +299,11 @@ export default function FilterSection({
       <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
         {/* Consumption Type & Fixed Consumption Value */}
         <Grid item xs={12} sm={4}>
-          <FormControl component="fieldset" fullWidth sx={{ marginTop: "-10px" }}>
+          <FormControl
+            component="fieldset"
+            fullWidth
+            sx={{ marginTop: "-10px" }}
+          >
             <FormLabel>Consumption Type</FormLabel>
             <RadioGroup
               row
@@ -359,6 +363,11 @@ export default function FilterSection({
             type="number"
             value={minOrderQuantity}
             onChange={(e) => setMinOrderQuantity(Number(e.target.value))}
+            inputProps={{
+              min: 1,
+              max: 10000,
+              step: 1,
+            }}
             fullWidth
           />
           <Box
@@ -380,6 +389,11 @@ export default function FilterSection({
             onChange={(e) =>
               setNumMonteCarloSimulations(Number(e.target.value))
             }
+            inputProps={{
+              min: 1,
+              max: 10000,
+              step: 1,
+            }}
             fullWidth
           />
           <Box
@@ -402,6 +416,11 @@ export default function FilterSection({
             type="number"
             value={desiredServiceLevel}
             onChange={(e) => setDesiredServiceLevel(Number(e.target.value))}
+            inputProps={{
+              min: 1,
+              max: 100,
+              step: 1,
+            }}
             fullWidth
           />
         </Grid>
@@ -433,8 +452,13 @@ export default function FilterSection({
               type="number"
               value={orderQuantity}
               onChange={(e) => setOrderQuantity(Number(e.target.value))}
-              fullWidth
+              inputProps={{
+                min: 1,
+                max: 10000,
+                step: 1,
+              }}
               sx={{ marginTop: "8px" }}
+              fullWidth
             />
           )}
         </Grid>
@@ -445,6 +469,11 @@ export default function FilterSection({
             type="number"
             value={reorderPoint}
             onChange={(e) => setReorderPoint(Number(e.target.value))}
+            inputProps={{
+              min: 5,
+              max: 500,
+              step: 1,
+            }}
             fullWidth
           />
           <Box

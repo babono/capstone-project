@@ -39,6 +39,7 @@
     "react-is": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-plotly.js": "^2.6.0",
+    "simple-statistics": "^7.8.8",
     "typeit-react": "^2.7.8"
   },
   "devDependencies": {
