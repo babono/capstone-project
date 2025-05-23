@@ -32,6 +32,7 @@ export enum PAGE_LABELS {
   GOODS_RECEIPT = 'Goods Receipt',
   SHORTAGE_REPORT = 'Shortage Report',
   LEAD_TIME = 'Lead Time',
+  INVENTORY_SIMULATION = 'Inventory Simulation',
   HOME = 'Home'
 }
 
@@ -40,6 +41,7 @@ export enum PAGE_KEYS {
   ORDER_PLACEMENT = 'order-placement',
   GOODS_RECEIPT = 'goods-receipt',
   SHORTAGE_REPORT = 'shortage-report',
+  SHORTAGE_REPORT_ZIP = 'shortage-report-zip',
   HOME = 'home',
 }
 

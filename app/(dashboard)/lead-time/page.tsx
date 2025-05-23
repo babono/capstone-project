@@ -408,7 +408,6 @@ function LeadTime() {
   };
 
   const isUploadFilesIncomplete = orderPlacementData.length === 0 || goodsReceiptData.length === 0 || shortageReportData.length === 0;
-  const isUploadFilesComplete = orderPlacementData.length > 0 && goodsReceiptData.length > 0 && shortageReportData.length > 0
 
   return (
     <div className="p-4">
@@ -421,7 +420,7 @@ function LeadTime() {
       {isUploadFilesIncomplete && (
         <GenerateResultCaption message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED} />
       )}
-      {isUploadFilesComplete && (
+      {!isUploadFilesIncomplete && (
         <div>
           <FiltersSection
             suppliers={suppliers}

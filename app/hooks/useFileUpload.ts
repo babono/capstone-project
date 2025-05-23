@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { PAGE_KEYS } from "../constants";
-import JSZip from 'jszip';
+import JSZip from "jszip";
 
 type UseFileUploadProps = {
   type: PAGE_KEYS;
   onDataRetrieved: (data: any) => void;
 };
 
-export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => {
+export const useFileUpload = ({
+  type,
+  onDataRetrieved,
+}: UseFileUploadProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0); // New state
 
@@ -22,7 +25,9 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
       case PAGE_KEYS.GOODS_RECEIPT:
         return "/api/py/uploadExcelGoodsReceipt";
       case PAGE_KEYS.SHORTAGE_REPORT:
-          return "/api/py/uploadShortageXlsx";
+        return "/api/py/uploadShortageXlsx";
+      case PAGE_KEYS.SHORTAGE_REPORT_ZIP:
+        return "/api/py/uploadShortageZip";
       case PAGE_KEYS.HOME:
         return "/api/py/uploadShortageXlsx"; // Modified endpoint name
       default:
@@ -48,10 +53,17 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
   const handleZipUpload = async (zipFile: File) => {
     try {
       const zip = await JSZip.loadAsync(zipFile);
-      const files = Object.values(zip.files).filter(file => !file.dir && (file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))); // Filter out directories and non-excel files
+      const files = Object.values(zip.files).filter(
+        (file) =>
+          !file.dir &&
+          (file.name.endsWith(".xlsx") || file.name.endsWith(".xls"))
+      ); // Filter out directories and non-excel files
 
       // Sort files by name in ascending order using natural sorting
-      const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+      const collator = new Intl.Collator(undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
       files.sort((a, b) => collator.compare(a.name, b.name));
 
       console.log("Extracted files:", files);
@@ -82,7 +94,10 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
       return;
     }
 
-    if (selectedFile.type === 'application/zip' || selectedFile.name.endsWith('.zip')) {
+    if (
+      selectedFile.type === "application/zip" ||
+      selectedFile.name.endsWith(".zip")
+    ) {
       await handleZipUpload(selectedFile);
     } else {
       const data = await uploadFile(selectedFile);
@@ -102,7 +117,9 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
       "application/vnd.ms-excel": [".xls"],
       "application/zip": [".zip"],
     },
@@ -110,7 +127,7 @@ export const useFileUpload = ({ type, onDataRetrieved }: UseFileUploadProps) => 
     onError: (error) => {
       console.error("Error uploading file:", error);
       alert("An error occurred while uploading the file. Please try again.");
-    }
+    },
   });
 
   return { file, getRootProps, getInputProps, isDragActive, uploadProgress };
