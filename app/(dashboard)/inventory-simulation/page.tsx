@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 import { useSession } from "next-auth/react";
 import ErrorBoundary from "../common/error-boundary";
@@ -9,11 +9,14 @@ import FileUploaderSection from "./file-uploader-section";
 import GenerateResultCaption from "../common/generate-result-caption";
 import {
   Autocomplete,
-  Box,
   FormControl,
+  FormControlLabel,
+  FormLabel,
   Grid,
   InputLabel,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
   TextField,
 } from "@mui/material";
@@ -46,18 +49,31 @@ function InventorySimulation() {
   const [filteredShortage, setFilteredShortage] = useState([]);
 
   // Simulation Parameters
-  const [selectedMaterial, setSelectedMaterial] = useState("");
+  // 1st Row
   const [selectedPlant, setSelectedPlant] = useState("");
+  const [selectedMaterial, setSelectedMaterial] = useState("");
   const [selectedSite, setSelectedSite] = useState("");
+
+  // 2nd Row
+  const [numWeeks, setNumWeeks] = useState(52);
+  const [leadTime, setLeadTime] = useState(6);
+  const [leadTimeStdDev, setLeadTimeStdDev] = useState(0);
+
+  // 3rd Row
   const [initialInventory, setInitialInventory] = useState(50);
-  const [reorderPoint, setReorderPoint] = useState(100);
-  const [orderQuantity, setOrderQuantity] = useState(50);
-  const [leadTime, setLeadTime] = useState(2);
-  const [leadTimeStdDev, setLeadTimeStdDev] = useState(0.5);
   const [demandSurgeWeeks, setDemandSurgeWeeks] = useState([]);
   const [demandSurgeWeekOptions, setDemandSurgeWeekOptions] = useState([]);
-  const [demandSurgeFactor, setDemandSurgeFactor] = useState(2.0);
-  const [numWeeks, setNumWeeks] = useState(52);
+  const [demandSurgeFactor, setDemandSurgeFactor] = useState(2);
+
+  // 4th Row
+  const [consumptionType, setConsumptionType] = useState("Fixed");
+  const [fixedConsumptionValue, setFixedConsumptionValue] = useState(10);
+  const [minOrderQuantity, setMinOrderQuantity] = useState(50);
+  const [numMonteCarloSimulations, setNumMonteCarloSimulations] = useState(1);
+
+  // 5th Row
+  const [reorderPoint, setReorderPoint] = useState(100);
+  const [orderQuantity, setOrderQuantity] = useState(50);
 
   // State fir storing the filter data
 
@@ -350,6 +366,68 @@ function InventorySimulation() {
                 type="number"
                 value={demandSurgeFactor}
                 onChange={(e) => setDemandSurgeFactor(Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+
+          {/* 4th Form Grid */}
+          <Grid container spacing={2} sx={{ marginBottom: "16px" }}>
+            {/* Consumption Type & Fixed Consumption Value */}
+            <Grid item xs={12} sm={4}>
+              <FormControl component="fieldset" fullWidth>
+                <FormLabel>Consumption Type</FormLabel>
+                <RadioGroup
+                  row
+                  value={consumptionType}
+                  onChange={(e) => setConsumptionType(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="Fixed"
+                    control={<Radio />}
+                    label="Fixed"
+                  />
+                  <FormControlLabel
+                    value="Distribution"
+                    control={<Radio />}
+                    label="Distribution"
+                  />
+                </RadioGroup>
+              </FormControl>
+              {consumptionType === "Fixed" && (
+                <TextField
+                  label="Fixed Consumption Value"
+                  type="number"
+                  value={fixedConsumptionValue}
+                  onChange={(e) =>
+                    setFixedConsumptionValue(Number(e.target.value))
+                  }
+                  fullWidth
+                  sx={{ marginTop: "8px" }}
+                />
+              )}
+            </Grid>
+
+            {/* Minimum Order Quantity */}
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Minimum Order Quantity"
+                type="number"
+                value={minOrderQuantity}
+                onChange={(e) => setMinOrderQuantity(Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+
+            {/* Number of Monte Carlo Simulations */}
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Number of Monte Carlo Simulations"
+                type="number"
+                value={numMonteCarloSimulations}
+                onChange={(e) =>
+                  setNumMonteCarloSimulations(Number(e.target.value))
+                }
                 fullWidth
               />
             </Grid>
