@@ -63,7 +63,7 @@ function InventorySimulation() {
   const [desiredServiceLevel, setDesiredServiceLevel] = useState(95); // Default to 95%
   const [orderQuantityType, setOrderQuantityType] = useState("Fixed"); // Default to "Fixed"
   const [orderQuantity, setOrderQuantity] = useState(50); // Default to 100
-  const [reorderPoint, setReorderPoint] = useState(4992); // Default to 50
+  const [reorderPoint, setReorderPoint] = useState(60); // Default to 50
 
   // State fir storing the filter data
 

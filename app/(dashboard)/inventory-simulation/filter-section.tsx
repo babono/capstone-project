@@ -3,6 +3,7 @@
 
 import {
   Autocomplete,
+  Box,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -13,6 +14,7 @@ import {
   RadioGroup,
   Select,
   TextField,
+  Typography,
 } from "@mui/material";
 
 export default function FilterSection({
@@ -143,6 +145,13 @@ export default function FilterSection({
             onChange={(e) => setNumWeeks(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              Set the number of weeks for the simulation.
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Lead Time (weeks) */}
@@ -154,6 +163,14 @@ export default function FilterSection({
             onChange={(e) => setLeadTime(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              The time (in weeks) it takes for an order to arrive after it is
+              placed.
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Lead Time Std Dev (weeks) */}
@@ -165,6 +182,13 @@ export default function FilterSection({
             onChange={(e) => setLeadTimeStdDev(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              The standard deviation of the lead time, representing variability.
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
@@ -179,6 +203,13 @@ export default function FilterSection({
             onChange={(e) => setInitialInventory(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              The starting inventory level for the simulation.
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Demand Surge Weeks */}
@@ -197,6 +228,14 @@ export default function FilterSection({
             )}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              Select the weeks where you want to simulate a sudden increase in
+              demand.
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Demand Surge Factor */}
@@ -208,6 +247,14 @@ export default function FilterSection({
             onChange={(e) => setDemandSurgeFactor(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              Enter the factor by which demand will increase during the selected
+              weeks. (e.g., 2.0 doubles demand)
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
@@ -255,6 +302,14 @@ export default function FilterSection({
             onChange={(e) => setMinOrderQuantity(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              Select the minimum order quantity for this material number to
+              prevent small orders during simulation.
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Number of Monte Carlo Simulations */}
@@ -268,6 +323,14 @@ export default function FilterSection({
             }
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              The number of Monte Carlo simulations to run. A higher number
+              provides more accurate results but requires more computation.
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
@@ -325,6 +388,13 @@ export default function FilterSection({
             onChange={(e) => setReorderPoint(Number(e.target.value))}
             fullWidth
           />
+          <Box
+            sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
+          >
+            <Typography variant="body2">
+              The inventory level at which a new order is placed.{" "}
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
 
