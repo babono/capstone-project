@@ -41,7 +41,6 @@ export enum PAGE_KEYS {
   ORDER_PLACEMENT = 'order-placement',
   GOODS_RECEIPT = 'goods-receipt',
   SHORTAGE_REPORT = 'shortage-report',
-  SHORTAGE_REPORT_ZIP = 'shortage-report-zip',
   HOME = 'home',
 }
 

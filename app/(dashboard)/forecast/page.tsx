@@ -79,7 +79,6 @@ function Forecast() {
   const [historicalDataYear, setHistoricalDataYear] = useState<number | null>(null);
 
   const handleUploadComplete = (data: UploadedRecord[]) => {
-    console.log("Uploaded data in Forecast:", data);
     setUploadedData(data);
     setForecastResult(null);
     setPlotData(null);

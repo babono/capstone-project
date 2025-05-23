@@ -36,7 +36,7 @@ const FileUploaderSection = ({
         onDataRetrieved={handleOrderPlacementData}
       />
       <FileUploader
-        type={PAGE_KEYS.SHORTAGE_REPORT_ZIP}
+        type={PAGE_KEYS.SHORTAGE_REPORT}
         title={PAGE_LABELS.SHORTAGE_REPORT}
         fileBucketURL={SHORTAGE_REPORT_BUCKET_URL}
         onDataRetrieved={handleShortageReportData}

@@ -164,7 +164,18 @@ export default function FilterSection({
             label="Lead Time (weeks)"
             type="number"
             value={leadTime}
-            onChange={(e) => setLeadTime(Number(e.target.value))}
+            onChange={(e) => {
+              const value = Math.min(
+                20.0,
+                Math.max(1.0, parseFloat(e.target.value))
+              );
+              setLeadTime(value);
+            }}
+            inputProps={{
+              min: 1.0,
+              max: 20.0,
+              step: 0.1,
+            }}
             fullWidth
           />
           <Box
@@ -183,7 +194,18 @@ export default function FilterSection({
             label="Lead Time Std Dev (weeks)"
             type="number"
             value={leadTimeStdDev}
-            onChange={(e) => setLeadTimeStdDev(Number(e.target.value))}
+            onChange={(e) => {
+              const value = Math.min(
+                10.0,
+                Math.max(0.0, parseFloat(e.target.value))
+              );
+              setLeadTimeStdDev(value);
+            }}
+            inputProps={{
+              min: 0.0,
+              max: 10.0,
+              step: 0.1,
+            }}
             fullWidth
           />
           <Box
@@ -201,10 +223,21 @@ export default function FilterSection({
         {/* Initial Inventory */}
         <Grid item xs={12} sm={4}>
           <TextField
-            label="Initial Inventory (BUn: EA)"
+            label={`Initial Inventory`}
             type="number"
             value={initialInventory}
-            onChange={(e) => setInitialInventory(Number(e.target.value))}
+            onChange={(e) => {
+              const value = Math.min(
+                20000,
+                Math.max(10, parseInt(e.target.value) || 0)
+              );
+              setInitialInventory(value);
+            }}
+            inputProps={{
+              min: 10,
+              max: 20000,
+              step: 1,
+            }}
             fullWidth
           />
           <Box
@@ -236,8 +269,7 @@ export default function FilterSection({
             sx={{ mt: 1, p: 1, backgroundColor: "#e3f2fd", borderRadius: 1 }}
           >
             <Typography variant="caption">
-              Select the weeks where you want to simulate a sudden increase in
-              demand.
+              The number of weeks during which demand surges.
             </Typography>
           </Box>
         </Grid>

@@ -26,8 +26,6 @@ export const useFileUpload = ({
         return "/api/py/uploadExcelGoodsReceipt";
       case PAGE_KEYS.SHORTAGE_REPORT:
         return "/api/py/uploadShortageXlsx";
-      case PAGE_KEYS.SHORTAGE_REPORT_ZIP:
-        return "/api/py/uploadShortageZip";
       case PAGE_KEYS.HOME:
         return "/api/py/uploadShortageXlsx"; // Modified endpoint name
       default:
@@ -45,6 +43,7 @@ export const useFileUpload = ({
     });
     if (!response.ok) {
       console.error(`Failed to upload ${file.name}`);
+      console.log(response);
       return false; // Indicate failure
     }
     return await response.json();
@@ -75,7 +74,6 @@ export const useFileUpload = ({
         const blob = await file.async("blob");
         const fileObject = new File([blob], file.name);
         const result = await uploadFile(fileObject);
-        console.log("Uploaded data:", result);
         uploadResults.push(result);
         // Update progress based on number of files processed
         setUploadProgress(Math.round(((i + 1) / files.length) * 100));

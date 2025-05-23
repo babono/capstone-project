@@ -74,16 +74,6 @@ function InventorySimulation() {
   const [orderQuantity, setOrderQuantity] = useState(50);
   const [reorderPoint, setReorderPoint] = useState(60);
 
-  // Data Filter Handling
-
-  // Plotly Chart States
-
-  // Other States
-
-  // Colors
-
-  // Others
-
   // === Functions for Handling Uploaded Data ===
 
   // Handle Consumption Data Upload
@@ -110,13 +100,9 @@ function InventorySimulation() {
     if (sites.length > 0) setSelectedSite(sites[0]);
 
     // Process lead time data
-    const leadTimeData = process_lead_time(data);
-
-    console.log("DATA LEAD TIME");
-    console.log(leadTimeData);
-
-    setLeadTime(leadTimeData.mean);
-    setLeadTimeStdDev(leadTimeData.stdDev);
+    const { meanLeadTime, stdDevLeadTime } = process_lead_time(data);
+    setLeadTime(meanLeadTime);
+    setLeadTimeStdDev(stdDevLeadTime);
   };
 
   const handleGoodsReceiptData = (data) => {
@@ -177,6 +163,13 @@ function InventorySimulation() {
     goodsReceiptData,
     shortageReportData,
   ]);
+
+  // === Populate Demand Surge Week Options ===
+  useEffect(() => {
+    // Generate options dynamically (WW1 to WW52)
+    const weeks = Array.from({ length: 52 }, (_, i) => `WW${i + 1}`);
+    setDemandSurgeWeekOptions(weeks);
+  }, []);
 
   const runSimulation = () => {
     // TODO: Complete this
