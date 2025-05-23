@@ -326,8 +326,12 @@ export default function FilterSection({
               type="number"
               value={fixedConsumptionValue}
               onChange={(e) => setFixedConsumptionValue(Number(e.target.value))}
-              fullWidth
+              inputProps={{
+                min: 0,
+                step: 1,
+              }}
               sx={{ marginTop: "8px" }}
+              fullWidth
             />
           )}
 
