@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 import { useSession } from "next-auth/react";
 import ErrorBoundary from "../common/error-boundary";
@@ -28,7 +27,6 @@ function InventorySimulation() {
   const [orderPlacementData, setOrderPlacementData] = useState([]);
   const [goodsReceiptData, setGoodsReceiptData] = useState([]);
   const [shortageReportData, setShortageReportData] = useState([]);
-  const [simulationResults, setSimulationResults] = useState(null);
 
   // Filtered Data
   const [filteredConsumption, setFilteredConsumption] = useState([]);
@@ -60,12 +58,10 @@ function InventorySimulation() {
   const [numMonteCarloSimulations, setNumMonteCarloSimulations] = useState(1);
 
   // 5th Row
-  const [desiredServiceLevel, setDesiredServiceLevel] = useState(95); // Default to 95%
-  const [orderQuantityType, setOrderQuantityType] = useState("Fixed"); // Default to "Fixed"
-  const [orderQuantity, setOrderQuantity] = useState(50); // Default to 100
-  const [reorderPoint, setReorderPoint] = useState(60); // Default to 50
-
-  // State fir storing the filter data
+  const [desiredServiceLevel, setDesiredServiceLevel] = useState(95);
+  const [orderQuantityType, setOrderQuantityType] = useState("Fixed");
+  const [orderQuantity, setOrderQuantity] = useState(50);
+  const [reorderPoint, setReorderPoint] = useState(60);
 
   // Data Filter Handling
 
@@ -172,18 +168,11 @@ function InventorySimulation() {
     // TODO: Complete this
   };
 
-  console.log(materialConsumptionData);
-
   const isUploadFilesIncomplete =
     materialConsumptionData.length === 0 ||
     goodsReceiptData.length === 0 ||
     orderPlacementData.length === 0 ||
     shortageReportData.length === 0;
-  const isUploadFilesComplete =
-    materialConsumptionData.length > 0 &&
-    goodsReceiptData.length > 0 &&
-    orderPlacementData.length > 0 &&
-    shortageReportData.length > 0;
 
   return (
     <div className="p-4">
@@ -199,7 +188,7 @@ function InventorySimulation() {
           message={GENERATE_RESULT_CAPTIONS.NO_FILES_UPLOADED}
         />
       )}
-      {isUploadFilesIncomplete && (
+      {!isUploadFilesIncomplete && (
         <FilterSection
           materialConsumptionData={materialConsumptionData}
           demandSurgeWeekOptions={demandSurgeWeekOptions}
