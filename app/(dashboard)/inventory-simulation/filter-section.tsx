@@ -415,7 +415,13 @@ export default function FilterSection({
             label="Desired Service Level (%)"
             type="number"
             value={desiredServiceLevel}
-            onChange={(e) => setDesiredServiceLevel(Number(e.target.value))}
+            onChange={(e) => {
+              const value = Math.min(
+                100,
+                Math.max(1, parseInt(e.target.value) || 0)
+              );
+              setDesiredServiceLevel(value);
+            }}
             inputProps={{
               min: 1,
               max: 100,
@@ -423,6 +429,19 @@ export default function FilterSection({
             }}
             fullWidth
           />
+          <Box
+            sx={{
+              mt: 2,
+              p: 2,
+              backgroundColor: "#e8f5e9",
+              color: "#2e7d32",
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="caption">
+              Calculated Safety Stock: 99 units
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Order Quantity Type & Order Quantity */}

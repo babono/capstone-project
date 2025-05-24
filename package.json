@@ -30,6 +30,7 @@
     "date-fns": "^2.30.0",
     "html2canvas": "^1.4.1",
     "html2canvas-pro": "^1.5.10",
+    "jstat": "^1.9.6",
     "jszip": "^3.10.1",
     "next": "15.2.0",
     "next-auth": "^4.24.11",
@@ -39,7 +40,6 @@
     "react-is": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-plotly.js": "^2.6.0",
-    "simple-statistics": "^7.8.8",
     "typeit-react": "^2.7.8"
   },
   "devDependencies": {

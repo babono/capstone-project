@@ -105,9 +105,9 @@ function InventorySimulation() {
     if (sites.length > 0) setSelectedSite(sites[0]);
 
     // Process lead time data
-    const { meanLeadTime, stdDevLeadTime } = process_lead_time(data);
-    setLeadTime(meanLeadTime);
-    setLeadTimeStdDev(stdDevLeadTime);
+    const leadTimeProcessed = process_lead_time(data);
+    setLeadTime(leadTimeProcessed[0]);
+    setLeadTimeStdDev(leadTimeProcessed[1]);
 
     // Calculate the best consumption distribution
     const consumptionValues = processedData
@@ -116,14 +116,12 @@ function InventorySimulation() {
       .filter((value) => !isNaN(value) && value > 0); // Filter valid values
 
     if (consumptionValues.length > 0) {
-      const { bestDistributionName, bestDistributionParams } = fit_distribution(
+      const distributionData = fit_distribution(
         consumptionValues,
         "Consumption"
       );
       setBestConsumptionDistribution(
-        `${bestDistributionName} with parameters: ${JSON.stringify(
-          bestDistributionParams
-        )}`
+        `${distributionData[1]} with parameters: ${distributionData[0]}`
       );
     } else {
       setBestConsumptionDistribution("No valid consumption data available.");
